@@ -1,0 +1,1310 @@
+/* General Body and Container Styles */
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    color: #f0f0f0; /* Light text on dark background */
+    background-color: #1a1a1a; /* Very dark grey, almost black (Deepest layer) */
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 15px;
+}
+
+.section-padding {
+    padding: 60px 0;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.bg-light-grey {
+    background-color: #2a2a2a; /* Darker grey for light sections (Above body) */
+}
+
+.bg-dark-grey {
+    background-color: #333333; /* Darker grey for dark sections (Same as cards) */
+    color: #f0f0f0;
+}
+
+/* Header and Navigation */
+header {
+    background-color: #444444; /* Medium-dark grey for header (Contrasts with dark logo) */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3); /* Darker shadow */
+    padding: 5px 0; /* Adjusted for smaller header */
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 15px;
+}
+
+.logo a {
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: #f0f0f0; /* Light logo text */
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+}
+
+/* --- LOGO IMAGE SIZE --- */
+.logo img {
+    height: 150px; /* Set to your preferred 150px height */
+    width: auto; /* Maintain aspect ratio */
+    max-width: 100%; /* Ensure it doesn't overflow its parent on smaller screens */
+    display: block; /* Helps in layout and prevents extra space below */
+    border-radius: 5px;
+}
+
+
+.nav-links-primary {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-grow: 1;
+    justify-content: flex-end;
+    gap: 25px;
+    margin-right: 25px;
+}
+
+.nav-links-primary li a {
+    text-decoration: none;
+    color: #cccccc; /* Lighter link color */
+    font-weight: 500;
+    padding: 5px 0;
+    transition: color 0.3s ease;
+}
+
+.nav-links-primary li a:hover {
+    color: #C44040; /* Muted Red for hover */
+}
+
+.nav-right-actions {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 15px;
+    flex-shrink: 0;
+}
+
+.cta-button {
+    background-color: #C44040; /* Muted Red accent */
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: background-color 0.3s ease;
+    white-space: nowrap;
+}
+
+.cta-button:hover {
+    background-color: #A03030; /* Darker Red on hover */
+}
+
+/* --- NEW SEARCH BAR STYLES --- */
+/* Container for the whole search bar */
+.search-bar-container {
+    display: flex; /* Use flexbox to align input and button side-by-side */
+    align-items: center; /* Vertically align items in the middle */
+    width: 300px; /* Adjust width as needed for better fit in nav */
+    background-color: #3a3a3a; /* Dark background for the search bar, slightly lighter than body */
+    border-radius: 25px; /* Rounded corners for the container */
+    overflow: hidden; /* Ensures anything outside the container is clipped */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4); /* Optional: subtle shadow for depth */
+    border: 1px solid #666666; /* Subtle border to define its shape */
+}
+
+/* Styles for the search input field */
+.search-input {
+    flex-grow: 1; /* Allows the input to take up all available space */
+    padding: 10px 15px; /* Adjust padding for desired height and spacing */
+    border: none; /* Remove default input border */
+    outline: none; /* Remove outline on focus */
+    background-color: transparent; /* Make input background transparent to show container's background */
+    color: #f0f0f0; /* Light text color for contrast */
+    font-size: 1rem;
+    /* No specific border-radius here, as the container handles the overall rounding */
+}
+
+/* Optional: Placeholder text style */
+.search-input::placeholder {
+    color: #aaaaaa; /* Slightly lighter than the text for contrast */
+    opacity: 0.8; /* Make it a bit transparent */
+}
+
+/* Styles for the search button (magnifying glass) */
+.search-button {
+    background-color: transparent; /* Transparent background for the button itself */
+    border: none; /* Remove button border */
+    padding: 10px 15px; /* Adjust padding to size the button area */
+    cursor: pointer; /* Indicate it's clickable */
+    color: #f0f0f0; /* Changed to pure light gray for maximum contrast */
+    font-size: 1.3rem; /* Slightly increased size for better visibility */
+    transition: color 0.2s ease-in-out; /* Smooth transition for hover effect */
+    display: flex; /* Use flex to center the icon inside the button */
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0; /* Prevent the button from shrinking */
+}
+
+/* Explicitly ensure Font Awesome font is used for the icon */
+.search-button i.fas {
+    font-family: "Font Awesome 5 Free";
+    font-weight: 900; /* Required for solid icons in Font Awesome 5 */
+}
+
+
+.search-button:hover {
+    color: #ffffff; /* Even lighter color on hover */
+}
+/* --- END NEW SEARCH BAR STYLES --- */
+
+
+/* Hero Section */
+.hero {
+    background-color: #1a1a1a; /* Very dark gray, almost black */
+    color: #fff;
+    padding: 80px 15px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 300px;
+}
+
+.hero h1 {
+    font-size: 3.2rem;
+    margin-bottom: 20px;
+    line-height: 1.2;
+    max-width: 800px;
+    color: #f0f0f0; /* Ensure hero heading is light */
+}
+
+.hero p {
+    font-size: 1.2rem;
+    margin-bottom: 30px;
+    max-width: 700px;
+    opacity: 0.9;
+    color: #dddddd; /* Lighter hero paragraph */
+}
+
+.hero .button-primary {
+    display: inline-block;
+    background-color: #C44040; /* Muted Red */
+    color: #fff;
+    padding: 15px 30px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 1.1rem;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.hero .button-primary:hover {
+    background-color: #A03030; /* Darker Red */
+    transform: translateY(-2px);
+}
+
+/* General Section Headings */
+h2 {
+    font-size: 2.5rem;
+    color: #f0f0f0; /* Light headings */
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+/* Button Styles */
+.button-primary {
+    background-color: #C44040; /* Muted Red */
+    color: #fff;
+    padding: 12px 25px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: background-color 0.3s ease;
+    display: inline-block;
+    border: none;
+    cursor: pointer;
+}
+
+.button-primary:hover {
+    background-color: #A03030; /* Darker Red */
+}
+
+.button-secondary {
+    background-color: #555555; /* Medium grey */
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: background-color 0.3s ease;
+    display: inline-block;
+    border: none;
+    cursor: pointer;
+}
+
+.button-secondary:hover {
+    background-color: #777777; /* Lighter grey on hover */
+}
+
+.button-text {
+    color: #C44040; /* Muted Red */
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+
+.button-text:hover {
+    color: #A03030; /* Darker Red */
+    text-decoration: underline;
+}
+
+
+/* Featured Artists Section */
+.featured-artists .artist-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 30px;
+    margin-bottom: 40px;
+}
+
+.featured-artists .artist-card {
+    background-color: #333333; /* Darker card background (Elevated from body) */
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2); /* Darker shadow */
+    overflow: hidden;
+    text-align: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    padding-bottom: 20px;
+}
+
+.featured-artists .artist-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.3); /* Darker shadow on hover */
+}
+
+.featured-artists .artist-card img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    display: block;
+    margin-bottom: 15px;
+}
+
+.featured-artists .artist-card h3 {
+    font-size: 1.6rem;
+    color: #f0f0f0; /* Light heading */
+    margin: 0 15px 5px;
+}
+
+.featured-artists .artist-card .artist-style {
+    font-size: 1rem;
+    color: #C44040; /* Muted Red accent */
+    font-weight: 500;
+    margin-bottom: 10px;
+}
+
+.featured-artists .artist-card .artist-bio-snippet {
+    font-size: 0.95rem;
+    color: #cccccc; /* Lighter text */
+    margin: 0 20px 20px;
+    line-height: 1.5;
+}
+
+/* Why Choose Us Section */
+.why-choose-us .reasons-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 30px;
+    text-align: center;
+}
+
+.why-choose-us .reason-item {
+    background-color: #333333; /* Darker card background */
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1); /* Darker shadow */
+    transition: transform 0.3s ease;
+}
+
+.why-choose-us .reason-item:hover {
+    transform: translateY(-5px);
+}
+
+.why-choose-us .reason-item i {
+    font-size: 3rem;
+    color: #C44040; /* Muted Red */
+    margin-bottom: 15px;
+}
+
+.why-choose-us .reason-item h3 {
+    font-size: 1.4rem;
+    color: #f0f0f0; /* Light heading */
+    margin-bottom: 10px;
+}
+
+.why-choose-us .reason-item p {
+    font-size: 0.95rem;
+    color: #cccccc; /* Lighter text */
+    line-height: 1.6;
+}
+
+
+/* How It Works Section */
+.how-it-works .steps-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 30px;
+    margin-bottom: 40px;
+}
+
+.how-it-works .step-card {
+    background-color: #333333; /* Darker card background */
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2); /* Darker shadow */
+    text-align: center;
+    transition: transform 0.3s ease;
+}
+
+.how-it-works .step-card:hover {
+    transform: translateY(-5px);
+}
+
+.how-it-works .step-card i {
+    font-size: 3rem;
+    color: #C44040; /* Muted Red */
+    margin-bottom: 20px;
+}
+
+.how-it-works .step-card h3 {
+    font-size: 1.5rem;
+    color: #f0f0f0; /* Light heading */
+    margin-bottom: 15px;
+}
+
+.how-it-works .step-card p {
+    font-size: 1rem;
+    color: #cccccc; /* Lighter text */
+    line-height: 1.6;
+}
+
+/* Popular Styles Section */
+.popular-styles .styles-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 25px;
+    text-align: center;
+}
+
+.popular-styles .style-card {
+    background-color: #333333; /* Darker card background */
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1); /* Darker shadow */
+    overflow: hidden;
+    padding-bottom: 20px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.popular-styles .style-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15); /* Darker shadow */
+}
+
+.popular-styles .style-card img {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+    display: block;
+    margin-bottom: 15px;
+}
+
+.popular-styles .style-card h3 {
+    font-size: 1.3rem;
+    color: #f0f0f0; /* Light heading */
+    margin-bottom: 10px;
+}
+
+.popular-styles .style-card .button-text {
+    font-size: 0.95rem;
+}
+
+
+/* Testimonials Section */
+.testimonials .testimonial-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+}
+
+.testimonials .testimonial-card {
+    background-color: #333333; /* Darker card background */
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2); /* Darker shadow */
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.testimonials .testimonial-card .quote {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    color: #cccccc; /* Lighter text */
+    margin-bottom: 20px;
+    font-style: italic;
+}
+
+.testimonials .testimonial-card .author {
+    font-weight: bold;
+    color: #C44040; /* Muted Red accent */
+    font-size: 1rem;
+}
+
+/* Artist CTA Banner */
+.artist-cta-banner {
+    background-color: #C44040; /* Muted Red */
+    color: #fff;
+    text-align: center;
+    padding: 60px 20px;
+    margin-bottom: 40px;
+}
+
+.artist-cta-banner h2 {
+    color: #fff;
+    font-size: 2.2rem;
+    margin-bottom: 15px;
+}
+
+.artist-cta-banner p {
+    font-size: 1.1rem;
+    margin-bottom: 30px;
+    opacity: 0.9;
+}
+
+.artist-cta-banner .button-primary {
+    background-color: #f0f0f0; /* Light background for button on red banner */
+    color: #C44040; /* Muted Red text */
+    padding: 15px 30px;
+    font-size: 1.1rem;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.artist-cta-banner .button-primary:hover {
+    background-color: #cccccc; /* Slightly darker light background */
+    color: #A03030; /* Darker Red text */
+}
+
+
+/* Blog Preview Section */
+.blog-preview .blog-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 30px;
+    margin-top: 40px;
+}
+
+.blog-preview .blog-post-card {
+    background-color: #333333; /* Darker card background */
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2); /* Darker shadow */
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    padding-bottom: 20px;
+}
+
+.blog-preview .blog-post-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.3); /* Darker shadow */
+}
+
+.blog-preview .blog-post-card img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    display: block;
+    margin-bottom: 15px;
+}
+
+.blog-preview .blog-post-card h3 {
+    font-size: 1.4rem;
+    color: #f0f0f0; /* Light heading */
+    margin: 0 20px 10px;
+}
+
+.blog-preview .blog-post-card p {
+    font-size: 0.95rem;
+    color: #cccccc; /* Lighter text */
+    line-height: 1.5;
+    margin: 0 20px 20px;
+}
+
+.blog-preview .blog-post-card .button-text {
+    margin-left: 20px;
+}
+
+
+/* Ad Space Section */
+.ad-space {
+    background-color: #2a2a2a; /* Darker grey */
+    border: 1px dashed #666666; /* Darker border */
+    color: #aaaaaa; /* Lighter text */
+    font-size: 1.2rem;
+    font-weight: bold;
+    padding: 40px 20px;
+    margin-bottom: 40px;
+    text-align: center;
+}
+
+.ad-space.bg-dark-grey {
+    background-color: #333333;
+    color: #f0f0f0;
+}
+.ad-space.bg-dark-grey h2 {
+    color: #f0f0f0;
+}
+
+
+/* Footer */
+footer {
+    background-color: #444444; /* Medium-dark grey for footer (Matches header) */
+    color: #f0f0f0;
+    padding: 60px 0 20px;
+    font-size: 0.95rem;
+}
+
+footer .footer-columns {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 30px;
+    margin-bottom: 40px;
+}
+
+footer .footer-col {
+    flex: 1;
+    min-width: 250px;
+    margin-bottom: 20px;
+}
+
+footer .footer-col h3 {
+    color: #C44040; /* Muted Red accent */
+    font-size: 1.3rem;
+    margin-bottom: 20px;
+}
+
+footer .footer-col p,
+footer .footer-col ul {
+    color: #aaaaaa; /* Lighter text */
+    line-height: 1.6;
+    list-style: none;
+    padding: 0;
+}
+
+footer .footer-col ul li a {
+    color: #aaaaaa; /* Lighter link color */
+    text-decoration: none;
+    transition: color 0.3s ease;
+    padding: 5px 0;
+    display: block;
+}
+
+footer .footer-col ul li a:hover {
+    color: #f0f0f0; /* White on hover */
+}
+
+footer .social-icons a {
+    color: #aaaaaa; /* Lighter icon color */
+    font-size: 1.5rem;
+    margin-right: 15px;
+    transition: color 0.3s ease;
+}
+
+footer .social-icons a:hover {
+    color: #C44040; /* Muted Red accent */
+}
+
+footer .footer-bottom {
+    border-top: 1px solid #555555; /* Darker border */
+    padding-top: 20px;
+    text-align: center;
+    color: #888888; /* Slightly darker text */
+}
+
+footer .footer-bottom a {
+    color: #888888; /* Slightly darker link */
+    text-decoration: none;
+    margin: 0 10px;
+    transition: color 0.3s ease;
+}
+
+footer .footer-bottom a:hover {
+    color: #C44040; /* Muted Red accent */
+}
+
+/* Specific Styles for Artists Page (artists.html) */
+.filters-and-results {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 30px;
+    padding: 40px 15px;
+}
+
+.filters-sidebar {
+    flex: 0 0 250px;
+    background-color: #333333; /* Darker sidebar background (Same as cards) */
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.filters-sidebar h3 {
+    font-size: 1.4rem;
+    color: #f0f0f0; /* Light heading */
+    margin-bottom: 20px;
+}
+
+.filter-group {
+    margin-bottom: 20px;
+}
+
+.filter-group label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: #cccccc; /* Lighter label text */
+}
+
+.filter-group input[type="text"],
+.filter-group select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #666666; /* Darker border */
+    border-radius: 5px;
+    font-size: 1rem;
+    box-sizing: border-box;
+    background-color: #444444; /* Darker input background (Matches header) */
+    color: #f0f0f0; /* Light input text */
+}
+
+.filter-group select[multiple] {
+    height: 120px;
+}
+
+
+.artist-results {
+    flex: 1;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 30px;
+}
+
+.artist-results .artist-card {
+    background-color: #333333; /* Darker card background */
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    overflow: hidden;
+    text-align: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    padding-bottom: 20px;
+}
+
+.artist-results .artist-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+}
+
+.artist-results .artist-card img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    display: block;
+    margin-bottom: 15px;
+}
+
+.artist-results .artist-card h3 {
+    font-size: 1.6rem;
+    color: #f0f0f0; /* Light heading */
+    margin: 0 15px 5px;
+}
+
+.artist-results .artist-card .artist-style {
+    font-size: 1rem;
+    color: #C44040; /* Muted Red accent */
+    font-weight: 500;
+    margin-bottom: 10px;
+}
+
+.artist-results .artist-card .artist-location {
+    font-size: 0.9rem;
+    color: #aaaaaa; /* Lighter text */
+    margin-bottom: 15px;
+}
+
+/* About Us Page */
+.about-hero {
+    background-color: #333333; /* Darker hero background */
+    color: #fff;
+    padding: 80px 15px;
+    text-align: center;
+}
+
+.about-hero h1 {
+    font-size: 3rem;
+    margin-bottom: 20px;
+    color: #f0f0f0;
+}
+
+.about-content {
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+}
+
+.about-section {
+    padding: 40px 0;
+}
+
+.about-section h2 {
+    font-size: 2rem;
+    margin-bottom: 20px;
+    color: #f0f0f0; /* Light heading */
+    text-align: left;
+}
+
+.about-section p {
+    font-size: 1.1rem;
+    line-height: 1.7;
+    color: #cccccc; /* Lighter text */
+    margin-bottom: 20px;
+}
+
+.team-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 30px;
+    margin-top: 30px;
+}
+
+.team-member-card {
+    background-color: #333333; /* Darker card background */
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    text-align: center;
+    padding: 25px;
+}
+
+.team-member-card img {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 15px;
+    border: 3px solid #C44040; /* Muted Red border */
+}
+
+.team-member-card h3 {
+    font-size: 1.5rem;
+    color: #f0f0f0; /* Light heading */
+    margin-bottom: 5px;
+}
+
+.team-member-card p {
+    font-size: 0.95rem;
+    color: #cccccc; /* Lighter text */
+    margin-bottom: 15px;
+}
+
+.team-member-card .social-links a {
+    color: #C44040; /* Muted Red */
+    font-size: 1.2rem;
+    margin: 0 8px;
+}
+
+/* Join Us Chooser Page (join-us-chooser.html) */
+.chooser-page {
+    min-height: calc(100vh - 250px);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 40px 0;
+}
+
+.chooser-intro h1 {
+    font-size: 2.8rem;
+    color: #f0f0f0; /* Light heading */
+    margin-bottom: 15px;
+}
+
+.chooser-intro p {
+    font-size: 1.2rem;
+    color: #cccccc; /* Lighter text */
+}
+
+.choice-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 40px;
+    margin-top: 40px;
+}
+
+.choice-card {
+    background-color: #333333; /* Darker card background */
+    border-radius: 10px;
+    box-shadow: 0 6px 12px rgba(0,0,0,0.2); /* Darker shadow */
+    padding: 40px 30px;
+    text-align: center;
+    width: 350px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.choice-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.3); /* Darker shadow */
+}
+
+.choice-card .icon-circle {
+    background-color: #C44040; /* Muted Red */
+    color: #fff;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 2.5rem;
+    margin-bottom: 25px;
+}
+
+.choice-card h3 {
+    font-size: 1.8rem;
+    color: #f0f0f0; /* Light heading */
+    margin-bottom: 15px;
+}
+
+.choice-card p {
+    font-size: 1.1rem;
+    color: #cccccc; /* Lighter text */
+    line-height: 1.6;
+    margin-bottom: 30px;
+    flex-grow: 1;
+}
+
+/* Signup Pages (artist-signup.html, consumer-signup.html) */
+.signup-form-section {
+    background-color: #2a2a2a; /* Darker background */
+    padding: 60px 0;
+    min-height: calc(100vh - 250px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.signup-form {
+    background-color: #333333; /* Darker form background */
+    padding: 40px;
+    border-radius: 10px;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.3); /* Darker shadow */
+    max-width: 500px;
+    width: 100%;
+    margin: 0 auto;
+}
+
+.signup-form h1 {
+    font-size: 2.2rem;
+    color: #f0f0f0; /* Light heading */
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.signup-form p {
+    font-size: 1rem;
+    color: #cccccc; /* Lighter text */
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: #f0f0f0; /* Light label */
+}
+
+.form-group input[type="text"],
+.form-group input[type="email"],
+.form-group input[type="password"],
+.form-group input[type="tel"],
+.form-group textarea,
+.form-group select {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #666666; /* Darker border */
+    border-radius: 8px;
+    font-size: 1rem;
+    box-sizing: border-box;
+    transition: border-color 0.3s ease;
+    background-color: #444444; /* Darker input background */
+    color: #f0f0f0; /* Light input text */
+}
+
+.form-group input[type="file"] {
+    padding: 10px 0;
+    border: none;
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+    border-color: #C44040; /* Muted Red focus */
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(196, 64, 64, 0.25); /* Muted Red shadow */
+}
+
+.form-group textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+.form-group small {
+    display: block;
+    margin-top: 5px;
+    color: #aaaaaa; /* Lighter text */
+    font-size: 0.85rem;
+}
+
+.signup-form .button-primary {
+    width: 100%;
+    padding: 15px;
+    font-size: 1.1rem;
+    border-radius: 8px;
+    margin-top: 20px;
+}
+
+.login-link {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 1rem;
+    color: #cccccc; /* Lighter text */
+}
+
+.login-link a {
+    color: #C44040; /* Muted Red */
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.login-link a:hover {
+    text-decoration: underline;
+}
+
+/* Artist Profile Page */
+.profile-header {
+    background-color: #333333; /* Darker header background */
+    color: #f0f0f0;
+    padding: 60px 15px;
+    text-align: center;
+    position: relative;
+}
+
+.profile-avatar {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 5px solid #444444; /* Darker border for avatar */
+    margin-bottom: 20px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+
+.profile-header h1 {
+    font-size: 2.8rem;
+    margin-bottom: 10px;
+}
+
+.profile-header p {
+    font-size: 1.1rem;
+    opacity: 0.9;
+    margin-bottom: 10px;
+    color: #cccccc;
+}
+
+.profile-header .location {
+    font-size: 1rem;
+    opacity: 0.8;
+    color: #aaaaaa;
+}
+
+.profile-actions {
+    margin-top: 30px;
+}
+
+.profile-actions .button-secondary {
+    margin: 0 10px;
+}
+
+.profile-content {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 30px;
+    padding: 40px 15px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.profile-main,
+.profile-sidebar {
+    background-color: #333333; /* Darker background */
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.profile-main h2,
+.profile-sidebar h2 {
+    font-size: 2rem;
+    color: #f0f0f0; /* Light heading */
+    margin-bottom: 25px;
+}
+
+.profile-section h3 {
+    font-size: 1.5rem;
+    color: #C44040; /* Muted Red */
+    margin-bottom: 15px;
+    border-bottom: 2px solid #444444; /* Darker border */
+    padding-bottom: 5px;
+}
+
+.profile-section p,
+.profile-section ul {
+    font-size: 1.05rem;
+    line-height: 1.7;
+    color: #cccccc; /* Lighter text */
+    margin-bottom: 20px;
+}
+
+.profile-section ul {
+    list-style: disc;
+    margin-left: 20px;
+}
+
+.profile-gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.profile-gallery img {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    transition: transform 0.2s ease;
+}
+
+.profile-gallery img:hover {
+    transform: scale(1.03);
+}
+
+.profile-sidebar .contact-info p {
+    margin-bottom: 10px;
+    font-size: 1.05rem;
+    color: #cccccc;
+}
+
+.profile-sidebar .contact-info i {
+    margin-right: 10px;
+    color: #C44040; /* Muted Red */
+}
+
+.profile-sidebar .social-links a {
+    color: #C44040; /* Muted Red */
+    font-size: 1.8rem;
+    margin-right: 15px;
+    transition: color 0.3s ease;
+}
+
+.profile-sidebar .social-links a:hover {
+    color: #A03030; /* Darker Red */
+}
+
+/* Responsive Adjustments */
+@media (max-width: 992px) {
+    .nav-links-primary {
+        gap: 15px;
+        margin-right: 15px;
+    }
+
+    .hero h1 {
+        font-size: 2.5rem;
+    }
+
+    .hero p {
+        font-size: 1rem;
+    }
+
+    h2 {
+        font-size: 2rem;
+    }
+
+    .profile-main,
+    .profile-sidebar {
+        flex: 1 1 100%;
+        min-width: unset;
+    }
+
+    .filters-and-results {
+        flex-direction: column;
+    }
+
+    .filters-sidebar {
+        flex: 1 1 100%;
+    }
+}
+
+@media (max-width: 768px) {
+    nav {
+        flex-direction: column;
+        align-items: flex-start;
+        padding-bottom: 10px;
+    }
+
+    .nav-links-primary {
+        width: 100%;
+        justify-content: flex-start;
+        margin-right: 0;
+        margin-top: 15px;
+        gap: 20px;
+    }
+
+    .nav-right-actions {
+        width: 100%;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        margin-top: 15px;
+        gap: 10px;
+    }
+
+    .search-bar-container { /* Adjusted for mobile view */
+        width: 100%;
+        margin-left: 0;
+    }
+
+    .cta-button {
+        padding: 8px 15px;
+    }
+
+    .hero {
+        padding: 60px 15px;
+    }
+
+    .hero h1 {
+        font-size: 2rem;
+    }
+
+    .hero p {
+        font-size: 0.95rem;
+    }
+
+    h2 {
+        font-size: 1.8rem;
+    }
+
+    .how-it-works .steps-grid,
+    .featured-artists .artist-grid,
+    .why-choose-us .reasons-grid,
+    .popular-styles .styles-grid,
+    .testimonials .testimonial-grid,
+    .blog-preview .blog-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .footer-columns {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .footer-col {
+        min-width: unset;
+    }
+
+    .footer-col ul {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .about-content {
+        gap: 30px;
+    }
+
+    .about-section h2 {
+        text-align: center;
+    }
+
+    .choice-card {
+        width: 100%;
+    }
+
+    .signup-form {
+        padding: 30px 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .nav-right-actions {
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .search-bar-container { /* Adjusted for mobile view */
+        width: 100%;
+        margin-left: 0;
+    }
+
+    .logo a {
+        font-size: 1.5rem;
+    }
+
+    .hero h1 {
+        font-size: 1.8rem;
+    }
+
+    .hero p {
+        font-size: 0.85rem;
+    }
+
+    h2 {
+        font-size: 1.8rem;
+    }
+}

@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Find an Artist - DiscoverInk</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">
+                <a href="index.html">
+                    <img src="discoverink-logo.png" alt="DiscoverInk Logo">
+                </a>
+            </div>
+            <ul class="nav-links-primary">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="artists.html">Find an Artist</a></li>
+                <li><a href="about.html">About Us</a></li>
+            </ul>
+            <div class="nav-right-actions">
+                <a href="join-us-chooser.html" class="cta-button">Join Us</a>
+                <div class="search-bar-container">
+                    <input type="text" placeholder="Search..." class="search-input">
+                    <button class="search-button">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+                </div>
+        </nav>
+    </header>
+
+    <main>
+        <section class="filters-and-results container">
+            <aside class="filters-sidebar">
+                <h3>Filter Artists</h3>
+                <div class="filter-group">
+                    <label for="style">Style</label>
+                    <select id="style" multiple size="6">
+                        <option value="realism">Realism</option>
+                        <option value="traditional">Traditional (American)</option>
+                        <option value="neo-traditional">Neo-Traditional</option>
+                        <option value="blackwork">Blackwork</option>
+                        <option value="watercolor">Watercolor</option>
+                        <option value="geometric">Geometric</option>
+                        <option value="dotwork">Dotwork</option>
+                        <option value="japanese">Japanese (Irezumi)</option>
+                        <option value="portrait">Portrait</option>
+                        <option value="fine-line">Fine Line</option>
+                        <option value="chicano">Chicano</option>
+                        <option value="ignorant">Ignorant Style</option>
+                        <option value="tribal">Tribal</option>
+                        <option value="bio-mechanical">Bio-Mechanical</option>
+                        <option value="new-school">New School</option>
+                        <option value="script">Script</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="location">Location</label>
+                    <input type="text" id="location" placeholder="City, State or Zip">
+                </div>
+                <div class="filter-group">
+                    <label for="availability">Availability</label>
+                    <select id="availability">
+                        <option value="">Any</option>
+                        <option value="this-week">This Week</option>
+                        <option value="next-week">Next Week</option>
+                        <option value="this-month">This Month</option>
+                    </select>
+                </div>
+                <button type="submit" class="button-primary" style="width: 100%;">Apply Filters</button>
+            </aside>
+
+            <section class="artist-results">
+                <div class="artist-card">
+                    <img src="https://via.placeholder.com/300x200?text=Artist+A+Portfolio" alt="Artist A Portfolio">
+                    <h3>Jessica L.</h3>
+                    <p class="artist-style">Realism, Black & Grey</p>
+                    <p class="artist-location"><i class="fas fa-map-marker-alt"></i> New York, NY</p>
+                    <a href="artist-profile.html" class="button-primary">View Profile</a>
+                </div>
+                <div class="artist-card">
+                    <img src="https://via.placeholder.com/300x200?text=Artist+B+Portfolio" alt="Artist B Portfolio">
+                    <h3>Mark S.</h3>
+                    <p class="artist-style">Traditional, Neo-Traditional</p>
+                    <p class="artist-location"><i class="fas fa-map-marker-alt"></i> Los Angeles, CA</p>
+                    <a href="artist-profile.html" class="button-primary">View Profile</a>
+                </div>
+                <div class="artist-card">
+                    <img src="https://via.placeholder.com/300x200?text=Sarah+M." alt="Artist C Portfolio">
+                    <h3>Sarah M.</h3>
+                    <p class="artist-style">Watercolor, Fine Line</p>
+                    <p class="artist-location"><i class="fas fa-map-marker-alt"></i> Austin, TX</p>
+                    <a href="artist-profile.html" class="button-primary">View Profile</a>
+                </div>
+                <div class="artist-card">
+                    <img src="https://via.placeholder.com/300x200?text=Artist+D+Portfolio" alt="Artist D Portfolio">
+                    <h3>David K.</h3>
+                    <p class="artist-style">Geometric, Dotwork</p>
+                    <p class="artist-location"><i class="fas fa-map-marker-alt"></i> Chicago, IL</p>
+                    <a href="artist-profile.html" class="button-primary">View Profile</a>
+                </div>
+                <div class="artist-card">
+                    <img src="https://via.placeholder.com/300x200?text=Artist+E+Portfolio" alt="Artist E Portfolio">
+                    <h3>Emily R.</h3>
+                    <p class="artist-style">Japanese (Irezumi)</p>
+                    <p class="artist-location"><i class="fas fa-map-marker-alt"></i> San Francisco, CA</p>
+                    <a href="artist-profile.html" class="button-primary">View Profile</a>
+                </div>
+                <div class="artist-card">
+                    <img src="https://via.placeholder.com/300x200?text=Artist+F+Portfolio" alt="Artist F Portfolio">
+                    <h3>Chris T.</h3>
+                    <p class="artist-style">Blackwork, Dark Art</p>
+                    <p class="artist-location"><i class="fas fa-map-marker-alt"></i> Miami, FL</p>
+                    <a href="artist-profile.html" class="button-primary">View Profile</a>
+                </div>
+            </section>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-columns">
+                <div class="footer-col about-col">
+                    <h3>DiscoverInk</h3>
+                    <p>Connecting you with the perfect tattoo artist for your next masterpiece. Explore styles, find inspiration, and book with confidence.</p>
+                </div>
+                <div class="footer-col nav-col">
+                    <h3>Quick Links</h3>
+                    <ul>
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="artists.html">Find an Artist</a></li>
+                        <li><a href="about.html">About Us</a></li>
+                        <li><a href="join-us-chooser.html">Join Us</a></li>
+                        <li><a href="#">Blog</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col contact-col">
+                    <h3>Contact Us</h3>
+                    <p>Email: info@discoverink.com</p>
+                    <div class="social-icons">
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-pinterest-p"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 DiscoverInk. All rights reserved.</p>
+                <p><a href="#">Privacy Policy</a> | <a href="#">Terms of Service</a></p>
+            </div>
+        </div>
+    </footer>
+    <script src="script.js"></script>
+</body>
+</html>
