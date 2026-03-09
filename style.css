@@ -1308,3 +1308,216 @@ footer .footer-bottom a:hover {
         font-size: 1.8rem;
     }
 }
+/* ============================================================
+   DiscoverInk - style.css ADDITIONS
+   Add these to the BOTTOM of your existing style.css
+   ============================================================ */
+
+
+/* ------------------------------------------------------------
+   LOGO SIZE FIX
+   ------------------------------------------------------------ */
+.logo img {
+  height: 55px !important;
+  width: auto;
+}
+
+
+/* ------------------------------------------------------------
+   ACTIVE NAV LINK
+   ------------------------------------------------------------ */
+.nav-links-primary li a.active {
+  color: #C44040 !important;
+  border-bottom: 2px solid #C44040;
+  padding-bottom: 3px;
+}
+
+
+/* ------------------------------------------------------------
+   HAMBURGER BUTTON
+   ------------------------------------------------------------ */
+.hamburger-btn {
+  display: none;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 30px;
+  height: 22px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  z-index: 1100;
+  margin-left: auto;
+}
+
+.hamburger-btn span {
+  display: block;
+  width: 100%;
+  height: 2px;
+  background-color: #f0f0f0;
+  border-radius: 2px;
+  transition: all 0.3s ease;
+  transform-origin: center;
+}
+
+/* Animate to X when open */
+.hamburger-btn.is-open span:nth-child(1) {
+  transform: translateY(10px) rotate(45deg);
+}
+.hamburger-btn.is-open span:nth-child(2) {
+  opacity: 0;
+  transform: scaleX(0);
+}
+.hamburger-btn.is-open span:nth-child(3) {
+  transform: translateY(-10px) rotate(-45deg);
+}
+
+
+/* ------------------------------------------------------------
+   NAV OVERLAY (darkens page when menu is open)
+   ------------------------------------------------------------ */
+.nav-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 999;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.nav-overlay.active {
+  display: block;
+  opacity: 1;
+}
+
+
+/* ------------------------------------------------------------
+   BACK TO TOP BUTTON
+   ------------------------------------------------------------ */
+.back-to-top {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  width: 45px;
+  height: 45px;
+  background-color: #C44040;
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(10px);
+  transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s ease, background-color 0.3s ease;
+  z-index: 998;
+}
+
+.back-to-top.visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.back-to-top:hover {
+  background-color: #A03030;
+  transform: translateY(-3px);
+}
+
+
+/* ------------------------------------------------------------
+   CARD FADE-IN ANIMATION
+   ------------------------------------------------------------ */
+.fade-in-hidden {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.fade-in-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+
+/* ------------------------------------------------------------
+   MOBILE NAV - HAMBURGER MENU LAYOUT
+   ------------------------------------------------------------ */
+@media (max-width: 768px) {
+  .hamburger-btn {
+    display: flex;
+  }
+
+  nav {
+    flex-wrap: wrap;
+    flex-direction: row !important;
+    align-items: center;
+    padding: 10px 15px;
+  }
+
+  .logo {
+    flex: 1;
+  }
+
+  .nav-links-primary {
+    display: none;
+    flex-direction: column !important;
+    width: 100%;
+    background-color: #444444;
+    position: fixed;
+    top: 0;
+    right: -100%;
+    height: 100vh;
+    width: 280px;
+    z-index: 1000;
+    padding: 80px 30px 30px;
+    gap: 10px !important;
+    margin: 0 !important;
+    justify-content: flex-start !important;
+    box-shadow: -4px 0 20px rgba(0,0,0,0.4);
+    transition: right 0.3s ease;
+    overflow-y: auto;
+  }
+
+  .nav-links-primary.mobile-open {
+    display: flex !important;
+    right: 0;
+  }
+
+  .nav-links-primary li a {
+    font-size: 1.2rem;
+    padding: 12px 0;
+    display: block;
+    border-bottom: 1px solid #555;
+  }
+
+  .nav-right-actions {
+    display: none;
+    flex-direction: column !important;
+    position: fixed;
+    top: 0;
+    right: -100%;
+    height: 100vh;
+    width: 280px;
+    z-index: 1000;
+    padding: 220px 30px 30px;
+    background-color: #444444;
+    gap: 15px !important;
+    transition: right 0.3s ease;
+    align-items: flex-start !important;
+  }
+
+  .nav-right-actions.mobile-open {
+    display: flex !important;
+    right: 0;
+  }
+
+  .search-bar-container {
+    width: 100% !important;
+  }
+}
