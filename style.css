@@ -1521,3 +1521,194 @@ footer .footer-bottom a:hover {
     width: 100% !important;
   }
 }
+/* ------------------------------------------------------------
+   HERO BACKGROUND TEXTURE
+   ------------------------------------------------------------ */
+.hero {
+  background-color: #1a1a1a;
+  background-image:
+    radial-gradient(ellipse at 20% 50%, rgba(196, 64, 64, 0.08) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 20%, rgba(196, 64, 64, 0.05) 0%, transparent 50%),
+    url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.02'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  position: relative;
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(196,64,64,0.05) 0%, transparent 50%, rgba(196,64,64,0.03) 100%);
+  pointer-events: none;
+}
+
+.hero > * {
+  position: relative;
+  z-index: 1;
+}
+
+
+/* ------------------------------------------------------------
+   CLEANED UP AD SECTIONS
+   ------------------------------------------------------------ */
+.ad-space {
+  background-color: #222222;
+  border: none;
+  padding: 30px 20px;
+  margin-bottom: 0;
+  text-align: center;
+  opacity: 0.6;
+  font-size: 0.85rem;
+  color: #666666;
+}
+
+.ad-space h2 {
+  font-size: 0.9rem !important;
+  color: #555555 !important;
+  margin-bottom: 5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.ad-space p {
+  color: #555555;
+  font-size: 0.8rem;
+  margin: 0;
+}
+
+.ad-space img {
+  opacity: 0.3;
+  filter: grayscale(100%);
+}
+
+.ad-space.bg-dark-grey {
+  background-color: #222222;
+}
+
+.ad-space.bg-dark-grey h2 {
+  color: #555555 !important;
+}
+
+
+/* ------------------------------------------------------------
+   LIGHTBOX GALLERY
+   ------------------------------------------------------------ */
+.lightbox-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.92);
+  z-index: 9999;
+  align-items: center;
+  justify-content: center;
+  animation: lightboxFadeIn 0.2s ease;
+}
+
+.lightbox-overlay.active {
+  display: flex;
+}
+
+@keyframes lightboxFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.lightbox-img {
+  max-width: 90vw;
+  max-height: 85vh;
+  object-fit: contain;
+  border-radius: 8px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.8);
+  animation: lightboxZoomIn 0.2s ease;
+}
+
+@keyframes lightboxZoomIn {
+  from { transform: scale(0.92); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.lightbox-close {
+  position: fixed;
+  top: 20px;
+  right: 25px;
+  background: none;
+  border: none;
+  color: #ffffff;
+  font-size: 2.5rem;
+  cursor: pointer;
+  line-height: 1;
+  opacity: 0.7;
+  transition: opacity 0.2s ease;
+  z-index: 10000;
+}
+
+.lightbox-close:hover {
+  opacity: 1;
+}
+
+.lightbox-nav {
+  position: fixed;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255,255,255,0.1);
+  border: none;
+  color: #ffffff;
+  font-size: 2rem;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s ease;
+  z-index: 10000;
+}
+
+.lightbox-nav:hover {
+  background: rgba(196, 64, 64, 0.6);
+}
+
+.lightbox-prev { left: 15px; }
+.lightbox-next { right: 15px; }
+
+.lightbox-counter {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #aaaaaa;
+  font-size: 0.9rem;
+}
+
+/* Make gallery images show pointer cursor */
+.profile-gallery img {
+  cursor: zoom-in;
+}
+
+
+/* ------------------------------------------------------------
+   FORM SUCCESS MESSAGE
+   ------------------------------------------------------------ */
+.form-success-message {
+  background-color: rgba(50, 180, 100, 0.15);
+  border: 1px solid rgba(50, 180, 100, 0.4);
+  color: #5fce8a;
+  border-radius: 8px;
+  padding: 20px;
+  text-align: center;
+  font-size: 1.05rem;
+  margin-top: 20px;
+  display: none;
+  animation: successFadeIn 0.4s ease;
+}
+
+.form-success-message i {
+  font-size: 2rem;
+  display: block;
+  margin-bottom: 10px;
+}
+
+@keyframes successFadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
