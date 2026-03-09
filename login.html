@@ -3,10 +3,99 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Log In - DiscoverInk</title>
+    <title>Sign In - DiscoverInk</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <style>
+        .auth-tabs {
+            display: flex;
+            border-bottom: 2px solid #444444;
+            margin-bottom: 28px;
+        }
+
+        .auth-tab {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #888888;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            margin-bottom: -2px;
+            transition: color 0.2s, border-color 0.2s;
+            user-select: none;
+        }
+
+        .auth-tab:hover { color: #cccccc; }
+
+        .auth-tab.active {
+            color: #f0f0f0;
+            border-bottom-color: #C44040;
+        }
+
+        .auth-panel { display: none; }
+        .auth-panel.active { display: block; }
+
+        .signup-choice-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .signup-choice-card {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            padding: 18px 20px;
+            background-color: #3a3a3a;
+            border: 1px solid #555555;
+            border-radius: 10px;
+            text-decoration: none;
+            transition: border-color 0.2s, background 0.2s;
+        }
+
+        .signup-choice-card:hover {
+            border-color: #C44040;
+            background-color: #404040;
+        }
+
+        .signup-choice-icon {
+            width: 48px;
+            height: 48px;
+            background-color: #C44040;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            color: #fff;
+            flex-shrink: 0;
+        }
+
+        .signup-choice-text h3 {
+            font-size: 1rem;
+            color: #f0f0f0;
+            margin: 0 0 4px;
+        }
+
+        .signup-choice-text p {
+            font-size: 0.85rem;
+            color: #aaaaaa;
+            margin: 0;
+            text-align: left;
+        }
+
+        .signup-choice-arrow {
+            margin-left: auto;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .signup-choice-card:hover .signup-choice-arrow { color: #C44040; }
+    </style>
 </head>
 <body>
     <header>
@@ -35,7 +124,7 @@
                     <div class="nav-avatar">
                         <i class="fas fa-user"></i>
                     </div>
-                    <span class="nav-login-text">Log In</span>
+                    <span class="nav-login-text">Sign In</span>
                 </a>
             </div>
         </nav>
@@ -44,38 +133,79 @@
     <main>
         <section class="signup-form-section">
             <div class="signup-form">
-                <h1>Welcome Back</h1>
-                <p>Log in to your DiscoverInk account.</p>
 
-                <form id="loginForm" novalidate>
-                    <div class="form-group">
-                        <label for="loginEmail">Email Address</label>
-                        <input type="email" id="loginEmail" name="email" placeholder="you@example.com" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="loginPassword">Password</label>
-                        <input type="password" id="loginPassword" name="password" placeholder="Your password" required>
-                    </div>
-
-                    <div style="text-align: right; margin-top: -10px; margin-bottom: 20px;">
-                        <a href="#" style="color: #C44040; font-size: 0.9rem; text-decoration: none;">Forgot your password?</a>
-                    </div>
-
-                    <button type="submit" class="button-primary" style="width: 100%; padding: 15px; font-size: 1.1rem; border-radius: 8px;">
-                        Log In <i class="fas fa-sign-in-alt" style="margin-left: 8px;"></i>
-                    </button>
-                </form>
-
-                <div class="login-link" style="margin-top: 25px;">
-                    Don't have an account?
-                    <a href="join-us-chooser.html">Sign Up</a>
+                <!-- Tabs -->
+                <div class="auth-tabs">
+                    <div class="auth-tab active" data-tab="login">Log In</div>
+                    <div class="auth-tab" data-tab="signup">Sign Up</div>
                 </div>
 
-                <div style="margin-top: 15px; text-align: center; font-size: 0.9rem; color: #888888;">
-                    Signing up as an artist?
-                    <a href="artist-signup.html" style="color: #C44040; text-decoration: none; font-weight: bold;">Artist Sign Up</a>
+                <!-- Log In Panel -->
+                <div class="auth-panel active" id="panel-login">
+                    <h1 style="font-size: 1.6rem; margin-bottom: 6px;">Welcome Back</h1>
+                    <p>Log in to your DiscoverInk account.</p>
+
+                    <form id="loginForm" novalidate>
+                        <div class="form-group">
+                            <label for="loginEmail">Email Address</label>
+                            <input type="email" id="loginEmail" name="email" placeholder="you@example.com" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="loginPassword">Password</label>
+                            <input type="password" id="loginPassword" name="password" placeholder="Your password" required>
+                        </div>
+
+                        <div style="text-align: right; margin-top: -10px; margin-bottom: 20px;">
+                            <a href="#" style="color: #C44040; font-size: 0.9rem; text-decoration: none;">Forgot your password?</a>
+                        </div>
+
+                        <button type="submit" class="button-primary" style="width: 100%; padding: 15px; font-size: 1.05rem; border-radius: 8px;">
+                            Log In <i class="fas fa-sign-in-alt" style="margin-left: 8px;"></i>
+                        </button>
+                    </form>
+
+                    <p style="text-align: center; margin-top: 22px; font-size: 0.95rem; color: #888888;">
+                        Don't have an account?
+                        <a href="#" class="switch-tab" data-target="signup" style="color: #C44040; text-decoration: none; font-weight: 600;">Sign Up</a>
+                    </p>
                 </div>
+
+                <!-- Sign Up Panel -->
+                <div class="auth-panel" id="panel-signup">
+                    <h1 style="font-size: 1.6rem; margin-bottom: 6px;">Create an Account</h1>
+                    <p>Choose how you'd like to join DiscoverInk.</p>
+
+                    <div class="signup-choice-grid">
+                        <a href="artist-signup.html" class="signup-choice-card">
+                            <div class="signup-choice-icon">
+                                <i class="fas fa-palette"></i>
+                            </div>
+                            <div class="signup-choice-text">
+                                <h3>I'm an Artist / Studio</h3>
+                                <p>Showcase your portfolio and connect with new clients.</p>
+                            </div>
+                            <i class="fas fa-chevron-right signup-choice-arrow"></i>
+                        </a>
+
+                        <a href="user-signup.html" class="signup-choice-card">
+                            <div class="signup-choice-icon">
+                                <i class="fas fa-feather-alt"></i>
+                            </div>
+                            <div class="signup-choice-text">
+                                <h3>I'm Looking for an Artist</h3>
+                                <p>Find your next tattoo artist and save your favorites.</p>
+                            </div>
+                            <i class="fas fa-chevron-right signup-choice-arrow"></i>
+                        </a>
+                    </div>
+
+                    <p style="text-align: center; margin-top: 22px; font-size: 0.95rem; color: #888888;">
+                        Already have an account?
+                        <a href="#" class="switch-tab" data-target="login" style="color: #C44040; text-decoration: none; font-weight: 600;">Log In</a>
+                    </p>
+                </div>
+
             </div>
         </section>
     </main>
@@ -114,5 +244,20 @@
     </footer>
 
     <script src="script.js"></script>
+    <script>
+        // Tab switching
+        document.querySelectorAll('.auth-tab, .switch-tab').forEach(el => {
+            el.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = this.dataset.tab || this.dataset.target;
+                document.querySelectorAll('.auth-tab').forEach(t => {
+                    t.classList.toggle('active', t.dataset.tab === target);
+                });
+                document.querySelectorAll('.auth-panel').forEach(p => {
+                    p.classList.toggle('active', p.id === 'panel-' + target);
+                });
+            });
+        });
+    </script>
 </body>
 </html>
