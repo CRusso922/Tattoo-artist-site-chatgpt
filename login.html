@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Join DiscoverInk - Choose Your Path</title>
+    <title>Log In - DiscoverInk</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="icon" href="favicon.ico" type="image/x-icon">
@@ -23,7 +23,6 @@
                 <li><a href="contact.html">Contact Us</a></li>
             </ul>
             <div class="nav-right-actions">
-                <a href="login.html" style="color:#cccccc;text-decoration:none;font-weight:500;margin-right:5px;">Log In</a>
                 <a href="join-us-chooser.html" class="cta-button">Join Us</a>
                 <div class="search-bar-container">
                     <input type="text" placeholder="Search..." class="search-input">
@@ -31,35 +30,44 @@
                         <i class="fas fa-search"></i>
                     </button>
                 </div>
-                </div>
+            </div>
         </nav>
     </header>
 
-    <main class="chooser-page">
-        <section class="chooser-intro section-padding">
-            <div class="container text-center">
-                <h1>Join DiscoverInk</h1>
-                <p>Choose the path that best describes you:</p>
-            </div>
-        </section>
+    <main>
+        <section class="signup-form-section">
+            <div class="signup-form">
+                <h1>Welcome Back</h1>
+                <p>Log in to your DiscoverInk account.</p>
 
-        <section class="choice-cards section-padding">
-            <div class="container choice-grid">
-                <div class="choice-card">
-                    <div class="icon-circle">
-                        <i class="fas fa-palette"></i>
+                <form id="loginForm" novalidate>
+                    <div class="form-group">
+                        <label for="loginEmail">Email Address</label>
+                        <input type="email" id="loginEmail" name="email" placeholder="you@example.com" required>
                     </div>
-                    <h3>I'm an Artist / Studio</h3>
-                    <p>Showcase your portfolio, manage your schedule, and connect with new clients.</p>
-                    <a href="artist-signup.html" class="button-primary">Sign Up As Artist</a>
+
+                    <div class="form-group">
+                        <label for="loginPassword">Password</label>
+                        <input type="password" id="loginPassword" name="password" placeholder="Your password" required>
+                    </div>
+
+                    <div style="text-align: right; margin-top: -10px; margin-bottom: 20px;">
+                        <a href="#" style="color: #C44040; font-size: 0.9rem; text-decoration: none;">Forgot your password?</a>
+                    </div>
+
+                    <button type="submit" class="button-primary" style="width: 100%; padding: 15px; font-size: 1.1rem; border-radius: 8px;">
+                        Log In <i class="fas fa-sign-in-alt" style="margin-left: 8px;"></i>
+                    </button>
+                </form>
+
+                <div class="login-link" style="margin-top: 25px;">
+                    Don't have an account?
+                    <a href="join-us-chooser.html">Sign Up</a>
                 </div>
-                <div class="choice-card">
-                    <div class="icon-circle">
-                        <i class="fas fa-feather-alt"></i>
-                    </div>
-                    <h3>I'm looking for an Artist</h3>
-                    <p>Find your next tattoo artist, save favorites, and leave reviews.</p>
-                    <a href="user-signup.html" class="button-primary">Sign Up As Consumer</a>
+
+                <div style="margin-top: 15px; text-align: center; font-size: 0.9rem; color: #888888;">
+                    Signing up as an artist?
+                    <a href="artist-signup.html" style="color: #C44040; text-decoration: none; font-weight: bold;">Artist Sign Up</a>
                 </div>
             </div>
         </section>
@@ -85,7 +93,7 @@
                 </div>
                 <div class="footer-col contact-col">
                     <h3>Contact Us</h3>
-                    <p>Email: info@discoverink.com</p>
+                    <p>Email: <a href="mailto:info@discoverink.com" style="color: #aaaaaa; text-decoration: none;">info@discoverink.com</a></p>
                     <div class="social-icons">
                         <a href="#"><i class="fab fa-instagram"></i></a>
                     </div>
@@ -97,6 +105,7 @@
             </div>
         </div>
     </footer>
+
     <script src="script.js"></script>
 </body>
 </html>
