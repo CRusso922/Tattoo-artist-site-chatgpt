@@ -61,10 +61,12 @@ document.addEventListener('DOMContentLoaded', function () {
 // 3. ACTIVE NAV LINK HIGHLIGHTING
 // ------------------------------------------------------------
 document.addEventListener('DOMContentLoaded', function () {
-  const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+  const raw = window.location.pathname.split('/').pop();
+  const currentPage = raw === '' || raw === '/' ? 'index.html' : raw;
   document.querySelectorAll('.nav-links-primary li a').forEach(function (link) {
-    const linkPage = link.getAttribute('href');
-    if (linkPage === currentPage || (currentPage === '' && linkPage === 'index.html')) {
+    const href = link.getAttribute('href');
+    const linkPage = href === './' || href === '/' || href === '' ? 'index.html' : href;
+    if (linkPage === currentPage) {
       link.classList.add('active');
     }
   });

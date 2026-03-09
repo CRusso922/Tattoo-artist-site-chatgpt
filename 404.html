@@ -3,10 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Join DiscoverInk - Choose Your Path</title>
+    <title>Page Not Found - DiscoverInk</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <style>
+        .not-found-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 80px 20px;
+            min-height: 60vh;
+        }
+        .not-found-code {
+            font-size: 8rem;
+            font-weight: 700;
+            color: #C44040;
+            line-height: 1;
+            margin-bottom: 10px;
+            letter-spacing: -4px;
+        }
+        .not-found-section h2 {
+            font-size: 1.8rem;
+            color: #f0f0f0;
+            margin-bottom: 15px;
+        }
+        .not-found-section p {
+            font-size: 1.05rem;
+            color: #aaaaaa;
+            max-width: 480px;
+            margin-bottom: 35px;
+            line-height: 1.6;
+        }
+        .not-found-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+        }
+    </style>
 </head>
 <body>
     <header>
@@ -37,36 +74,19 @@
                     </div>
                     <span class="nav-login-text">Sign In</span>
                 </a>
-                </div>
+            </div>
         </nav>
     </header>
 
-    <main class="chooser-page">
-        <section class="chooser-intro section-padding">
-            <div class="container text-center">
-                <h1>Join DiscoverInk</h1>
-                <p>Choose the path that best describes you:</p>
-            </div>
-        </section>
-
-        <section class="choice-cards section-padding">
-            <div class="container choice-grid">
-                <div class="choice-card">
-                    <div class="icon-circle">
-                        <i class="fas fa-palette"></i>
-                    </div>
-                    <h3>I'm an Artist / Studio</h3>
-                    <p>Showcase your portfolio, manage your schedule, and connect with new clients.</p>
-                    <a href="artist-signup.html" class="button-primary">Sign Up As Artist</a>
-                </div>
-                <div class="choice-card">
-                    <div class="icon-circle">
-                        <i class="fas fa-feather-alt"></i>
-                    </div>
-                    <h3>I'm looking for an Artist</h3>
-                    <p>Find your next tattoo artist, save favorites, and leave reviews.</p>
-                    <a href="user-signup.html" class="button-primary">Sign Up As Consumer</a>
-                </div>
+    <main>
+        <section class="not-found-section">
+            <div class="not-found-code">404</div>
+            <h2>Page Not Found</h2>
+            <p>Looks like this page got lost under someone's skin. The page you're looking for doesn't exist or may have moved.</p>
+            <div class="not-found-links">
+                <a href="./" class="button-primary"><i class="fas fa-home" style="margin-right: 8px;"></i>Back to Home</a>
+                <a href="artists.html" class="button-secondary"><i class="fas fa-search" style="margin-right: 8px;"></i>Find an Artist</a>
+                <a href="contact.html" class="button-secondary"><i class="fas fa-envelope" style="margin-right: 8px;"></i>Contact Us</a>
             </div>
         </section>
     </main>
@@ -91,7 +111,7 @@
                 </div>
                 <div class="footer-col contact-col">
                     <h3>Contact Us</h3>
-                    <p>Email: info@discoverink.com</p>
+                    <p>Email: <a href="mailto:info@discoverink.com" style="color: #aaaaaa; text-decoration: none;">info@discoverink.com</a></p>
                     <div class="social-icons">
                         <a href="#"><i class="fab fa-instagram"></i></a>
                     </div>
@@ -103,6 +123,7 @@
             </div>
         </div>
     </footer>
+
     <script src="script.js"></script>
 </body>
 </html>
