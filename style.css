@@ -6,6 +6,13 @@ body {
     box-sizing: border-box;
     color: #f0f0f0; /* Light text on dark background */
     background-color: #1a1a1a; /* Very dark grey, almost black (Deepest layer) */
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+main {
+    flex: 1;
 }
 
 .container {
