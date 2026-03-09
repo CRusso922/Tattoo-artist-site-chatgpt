@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Find Shops Near Me - DiscoverInk</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        /* ===== MAP PAGE STYLES ===== */
+
+        /* Hero */
+        .map-hero {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2a1a1a 100%);
+            padding: 50px 20px 40px;
+            text-align: center;
+            border-bottom: 2px solid #C44040;
+        }
+        .map-hero h1 {
+            font-size: 2.4rem;
+            color: #f0f0f0;
+            margin: 0 0 10px;
+            letter-spacing: 1px;
+        }
+        .map-hero p {
+            color: #aaaaaa;
+            font-size: 1.05rem;
+            margin: 0 0 28px;
+        }
+
+        /* Zip Search */
+        .zip-search-container {
+            display: flex;
+            justify-content: center;
+            gap: 0;
+            max-width: 520px;
+            margin: 0 auto;
+        }
+        .zip-input {
+            flex: 1;
+            padding: 14px 20px;
+            font-size: 1rem;
+            background: #2b2b2b;
+            border: 2px solid #444;
+            border-right: none;
+            border-radius: 8px 0 0 8px;
+            color: #f0f0f0;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .zip-input::placeholder { color: #777; }
+        .zip-input:focus { border-color: #C44040; }
+        .zip-search-btn {
+            padding: 14px 28px;
+            background: #C44040;
+            color: #fff;
+            border: 2px solid #C44040;
+            border-radius: 0 8px 8px 0;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
+            white-space: nowrap;
+        }
+        .zip-search-btn:hover { background: #a83535; border-color: #a83535; }
+
+        /* Filter Bar */
+        .filter-bar {
+            background: #222;
+            border-bottom: 1px solid #333;
+            padding: 14px 24px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 14px;
+        }
+        .filter-bar label {
+            color: #aaa;
+            font-size: 0.88rem;
+            margin-right: 4px;
+        }
+        .filter-select {
+            background: #2b2b2b;
+            border: 1px solid #444;
+            color: #f0f0f0;
+            border-radius: 6px;
+            padding: 7px 12px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            outline: none;
+        }
+        .filter-select:focus { border-color: #C44040; }
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Style Pills */
+        .style-pills {
+            background: #1e1e1e;
+            border-bottom: 1px solid #2e2e2e;
+            padding: 12px 24px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+        }
+        .style-pill {
+            padding: 6px 14px;
+            border-radius: 20px;
+            border: 1px solid #444;
+            background: #2b2b2b;
+            color: #ccc;
+            font-size: 0.85rem;
+            cursor: pointer;
+            user-select: none;
+            transition: background 0.15s, color 0.15s, border-color 0.15s;
+        }
+        .style-pill:hover { border-color: #C44040; color: #f0f0f0; }
+        .style-pill.active {
+            background: #C44040;
+            border-color: #C44040;
+            color: #fff;
+            font-weight: bold;
+        }
+
+        /* Main Layout */
+        .map-layout {
+            display: flex;
+            height: calc(100vh - 310px);
+            min-height: 500px;
+        }
+
+        /* Map Container */
+        #map {
+            flex: 1;
+            position: relative;
+            z-index: 0;
+        }
+        .map-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(26, 26, 26, 0.88);
+            border: 1px solid #C44040;
+            border-radius: 10px;
+            padding: 22px 30px;
+            text-align: center;
+            z-index: 500;
+            pointer-events: none;
+            color: #f0f0f0;
+        }
+        .map-overlay i {
+            font-size: 2rem;
+            color: #C44040;
+            display: block;
+            margin-bottom: 10px;
+        }
+        .map-overlay p { margin: 0; font-size: 0.95rem; color: #aaa; }
+
+        /* Shop Panel */
+        .shop-panel {
+            width: 380px;
+            background: #1a1a1a;
+            border-left: 1px solid #2e2e2e;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .shop-panel-header {
+            padding: 16px 20px;
+            background: #222;
+            border-bottom: 1px solid #333;
+            flex-shrink: 0;
+        }
+        .shop-panel-header h3 {
+            margin: 0;
+            font-size: 1rem;
+            color: #f0f0f0;
+        }
+        .shop-panel-header span { color: #C44040; font-weight: bold; }
+        .shop-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 12px;
+        }
+        .shop-list::-webkit-scrollbar { width: 6px; }
+        .shop-list::-webkit-scrollbar-track { background: #1a1a1a; }
+        .shop-list::-webkit-scrollbar-thumb { background: #444; border-radius: 3px; }
+
+        /* Shop Card */
+        .shop-card {
+            background: #2a2a2a;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 14px 16px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: background 0.15s, border-color 0.15s;
+        }
+        .shop-card:hover, .shop-card.highlighted {
+            background: #333;
+            border-color: #C44040;
+        }
+        .shop-card-name {
+            font-size: 1rem;
+            font-weight: bold;
+            color: #f0f0f0;
+            margin: 0 0 4px;
+        }
+        .shop-card-address {
+            font-size: 0.82rem;
+            color: #888;
+            margin: 0 0 6px;
+        }
+        .shop-card-meta {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+        .shop-distance {
+            font-size: 0.85rem;
+            color: #C44040;
+            font-weight: bold;
+        }
+        .shop-rating {
+            font-size: 0.85rem;
+            color: #f0c040;
+        }
+        .shop-rating-count {
+            color: #888;
+            font-size: 0.82rem;
+        }
+        .shop-styles {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-bottom: 8px;
+        }
+        .shop-style-tag {
+            background: #1a1a1a;
+            border: 1px solid #3a3a3a;
+            color: #bbb;
+            font-size: 0.76rem;
+            padding: 2px 8px;
+            border-radius: 12px;
+        }
+        .shop-phone {
+            font-size: 0.82rem;
+            color: #888;
+        }
+        .shop-phone i { color: #C44040; margin-right: 4px; }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 48px 24px;
+            color: #555;
+        }
+        .empty-state i {
+            font-size: 2.5rem;
+            margin-bottom: 14px;
+            display: block;
+            color: #444;
+        }
+        .empty-state p { margin: 0; font-size: 0.95rem; }
+
+        /* Custom Leaflet Marker */
+        .custom-marker {
+            width: 28px;
+            height: 28px;
+            background: #C44040;
+            border-radius: 50%;
+            border: 3px solid #fff;
+            box-shadow: 0 2px 8px rgba(196,64,64,0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .custom-marker.pulse {
+            background: #ff5555;
+            box-shadow: 0 0 0 0 rgba(196,64,64,0.8);
+            animation: markerPulse 0.8s ease-out forwards;
+        }
+        @keyframes markerPulse {
+            0%   { box-shadow: 0 0 0 0 rgba(196,64,64,0.8); }
+            70%  { box-shadow: 0 0 0 14px rgba(196,64,64,0); }
+            100% { box-shadow: 0 0 0 0 rgba(196,64,64,0); }
+        }
+
+        /* Loading spinner */
+        .zip-search-btn.loading { opacity: 0.6; pointer-events: none; }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .map-hero h1 { font-size: 1.6rem; }
+            .map-layout {
+                flex-direction: column;
+                height: auto;
+            }
+            #map { height: 350px; flex: none; }
+            .shop-panel {
+                width: 100%;
+                border-left: none;
+                border-top: 1px solid #2e2e2e;
+                max-height: 480px;
+            }
+            .filter-bar { padding: 10px 14px; }
+            .style-pills { padding: 10px 14px; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">
+                <a href="./">
+                    <img src="discoverink-logo.png" alt="DiscoverInk Logo">
+                </a>
+            </div>
+            <ul class="nav-links-primary">
+                <li><a href="./">Home</a></li>
+                <li><a href="artists.html">Find an Artist</a></li>
+                <li><a href="map.html" class="active">Near Me</a></li>
+                <li><a href="about.html">About Us</a></li>
+                <li><a href="contact.html">Contact Us</a></li>
+            </ul>
+            <div class="nav-right-actions">
+                <a href="join-us-chooser.html" class="cta-button">Join Us</a>
+                <div class="search-bar-container">
+                    <input type="text" placeholder="Search..." class="search-input">
+                    <button class="search-button">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+                <a href="login.html" class="nav-profile-link">
+                    <div class="nav-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <span class="nav-login-text">Log In</span>
+                </a>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <!-- Hero -->
+        <section class="map-hero">
+            <h1>Find Tattoo Shops Near You</h1>
+            <p>Enter your zip code to discover top-rated tattoo shops in your area.</p>
+            <div class="zip-search-container">
+                <input
+                    type="text"
+                    id="zipInput"
+                    class="zip-input"
+                    placeholder="Enter zip code (e.g. 10001)"
+                    maxlength="10"
+                    inputmode="numeric"
+                >
+                <button id="searchBtn" class="zip-search-btn">
+                    <i class="fas fa-search"></i> Search
+                </button>
+            </div>
+        </section>
+
+        <!-- Filter Bar -->
+        <div class="filter-bar">
+            <div class="filter-group">
+                <label for="distanceFilter">Distance:</label>
+                <select id="distanceFilter" class="filter-select">
+                    <option value="5">5 mi</option>
+                    <option value="10">10 mi</option>
+                    <option value="25" selected>25 mi</option>
+                    <option value="50">50 mi</option>
+                    <option value="99999">Any</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="ratingFilter">Min Rating:</label>
+                <select id="ratingFilter" class="filter-select">
+                    <option value="0">Any</option>
+                    <option value="4.0">4.0+</option>
+                    <option value="4.5">4.5+</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Style Pills -->
+        <div class="style-pills" id="stylePills">
+            <span class="style-pill active" data-style="All">All</span>
+            <span class="style-pill" data-style="Realism">Realism</span>
+            <span class="style-pill" data-style="Traditional">Traditional</span>
+            <span class="style-pill" data-style="Japanese">Japanese</span>
+            <span class="style-pill" data-style="Blackwork">Blackwork</span>
+            <span class="style-pill" data-style="Watercolor">Watercolor</span>
+            <span class="style-pill" data-style="Geometric">Geometric</span>
+            <span class="style-pill" data-style="Neo-Traditional">Neo-Traditional</span>
+            <span class="style-pill" data-style="Minimalist">Minimalist</span>
+            <span class="style-pill" data-style="Black &amp; Grey">Black &amp; Grey</span>
+        </div>
+
+        <!-- Map + Shop Panel -->
+        <div class="map-layout">
+            <div id="map">
+                <div class="map-overlay" id="mapOverlay">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <strong>Search a zip code to find shops near you</strong>
+                    <p>Results will appear on the map and in the list</p>
+                </div>
+            </div>
+            <div class="shop-panel">
+                <div class="shop-panel-header">
+                    <h3 id="shopPanelTitle">Enter a zip code to search</h3>
+                </div>
+                <div class="shop-list" id="shopList">
+                    <div class="empty-state">
+                        <i class="fas fa-map-pin"></i>
+                        <p>Search a zip code above to see nearby tattoo shops.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-columns">
+                <div class="footer-col about-col">
+                    <h3>DiscoverInk</h3>
+                    <p>Connecting you with the perfect tattoo artist for your next masterpiece. Explore styles, find inspiration, and book with confidence.</p>
+                </div>
+                <div class="footer-col nav-col">
+                    <h3>Quick Links</h3>
+                    <ul>
+                        <li><a href="./">Home</a></li>
+                        <li><a href="artists.html">Find an Artist</a></li>
+                        <li><a href="about.html">About Us</a></li>
+                        <li><a href="join-us-chooser.html">Join Us</a></li>
+                        <li><a href="contact.html">Contact Us</a></li>
+                        <li><a href="#">Blog</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col contact-col">
+                    <h3>Contact Us</h3>
+                    <p>Email: info@discoverink.com</p>
+                    <div class="social-icons">
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; <span class="copyright-year"></span> DiscoverInk. All rights reserved.</p>
+                <p><a href="#">Privacy Policy</a> | <a href="#">Terms of Service</a></p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="script.js"></script>
+    <script>
+        // ===== SHOP DATA =====
+        const SHOPS = [
+            {
+                name: "Sacred Skin Tattoo",
+                address: "247 W 30th St, New York, NY",
+                lat: 40.7484, lng: -73.9967,
+                styles: ["Realism", "Black & Grey", "Portrait"],
+                rating: 4.9, reviews: 142,
+                phone: "(212) 555-0101"
+            },
+            {
+                name: "Ink Temple NYC",
+                address: "512 Lexington Ave, New York, NY",
+                lat: 40.7570, lng: -73.9741,
+                styles: ["Japanese", "Traditional", "Neo-Traditional"],
+                rating: 4.7, reviews: 89,
+                phone: "(212) 555-0202"
+            },
+            {
+                name: "Blackwork Collective",
+                address: "88 Bedford Ave, Brooklyn, NY",
+                lat: 40.7184, lng: -73.9561,
+                styles: ["Blackwork", "Geometric", "Minimalist"],
+                rating: 4.8, reviews: 201,
+                phone: "(718) 555-0303"
+            },
+            {
+                name: "West Coast Ink",
+                address: "8400 Sunset Blvd, Los Angeles, CA",
+                lat: 34.0928, lng: -118.3741,
+                styles: ["Watercolor", "Neo-Traditional", "Realism"],
+                rating: 4.6, reviews: 178,
+                phone: "(323) 555-0404"
+            },
+            {
+                name: "Hollywood Tattoo Co.",
+                address: "1654 Cahuenga Blvd, Hollywood, CA",
+                lat: 34.0975, lng: -118.3280,
+                styles: ["Traditional", "Japanese", "Blackwork"],
+                rating: 4.5, reviews: 95,
+                phone: "(323) 555-0505"
+            },
+            {
+                name: "Windy City Tattoo",
+                address: "1543 N Milwaukee Ave, Chicago, IL",
+                lat: 41.9073, lng: -87.6749,
+                styles: ["Realism", "Black & Grey"],
+                rating: 4.8, reviews: 134,
+                phone: "(312) 555-0606"
+            },
+            {
+                name: "Chicago Ink House",
+                address: "3402 N Clark St, Chicago, IL",
+                lat: 41.9459, lng: -87.6558,
+                styles: ["Neo-Traditional", "Geometric", "Minimalist"],
+                rating: 4.7, reviews: 67,
+                phone: "(773) 555-0707"
+            },
+            {
+                name: "Lone Star Tattoo",
+                address: "4809 Burnet Rd, Austin, TX",
+                lat: 30.3209, lng: -97.7358,
+                styles: ["Traditional", "Black & Grey", "Portrait"],
+                rating: 4.9, reviews: 210,
+                phone: "(512) 555-0808"
+            },
+            {
+                name: "Miami Ink Gallery",
+                address: "1501 Ocean Dr, Miami Beach, FL",
+                lat: 25.7823, lng: -80.1302,
+                styles: ["Watercolor", "Realism"],
+                rating: 4.6, reviews: 155,
+                phone: "(305) 555-0909"
+            },
+            {
+                name: "Emerald City Tattoo",
+                address: "601 Pine St, Seattle, WA",
+                lat: 47.6109, lng: -122.3352,
+                styles: ["Japanese", "Blackwork", "Neo-Traditional"],
+                rating: 4.8, reviews: 98,
+                phone: "(206) 555-1010"
+            },
+            {
+                name: "Mile High Ink",
+                address: "2500 Larimer St, Denver, CO",
+                lat: 39.7564, lng: -104.9849,
+                styles: ["Geometric", "Watercolor", "Minimalist"],
+                rating: 4.7, reviews: 83,
+                phone: "(303) 555-1111"
+            },
+            {
+                name: "The Tattoo Parlor",
+                address: "3200 Magazine St, New Orleans, LA",
+                lat: 29.9291, lng: -90.0990,
+                styles: ["Traditional", "Black & Grey", "Realism"],
+                rating: 4.5, reviews: 121,
+                phone: "(504) 555-1212"
+            }
+        ];
+
+        // ===== STATE =====
+        let currentZip = '';
+        let searchLat = null;
+        let searchLng = null;
+        let activeStyleFilter = 'All';
+        let markers = {};   // shopName -> L.marker
+        let searchMarker = null;
+
+        // ===== HAVERSINE =====
+        function haversineDistance(lat1, lng1, lat2, lng2) {
+            const R = 3958.8; // Earth radius in miles
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLng = (lng2 - lng1) * Math.PI / 180;
+            const a =
+                Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                Math.sin(dLng / 2) * Math.sin(dLng / 2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            return R * c;
+        }
+
+        // ===== INIT MAP =====
+        const map = L.map('map', {
+            center: [39.5, -98.35],
+            zoom: 4,
+            zoomControl: true
+        });
+
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+            subdomains: 'abcd',
+            maxZoom: 19
+        }).addTo(map);
+
+        // ===== CUSTOM MARKER ICON =====
+        function createMarkerIcon(highlighted) {
+            return L.divIcon({
+                className: '',
+                html: `<div class="custom-marker${highlighted ? ' pulse' : ''}"></div>`,
+                iconSize: [28, 28],
+                iconAnchor: [14, 14],
+                popupAnchor: [0, -16]
+            });
+        }
+
+        // ===== GEOCODE ZIP =====
+        async function geocodeZip(zip) {
+            const url = `https://nominatim.openstreetmap.org/search?postalcode=${encodeURIComponent(zip)}&country=us&format=json&limit=1`;
+            const resp = await fetch(url, {
+                headers: { 'Accept': 'application/json' }
+            });
+            if (!resp.ok) throw new Error('Geocoding request failed');
+            const data = await resp.json();
+            if (!data || data.length === 0) throw new Error('ZIP code not found');
+            return { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) };
+        }
+
+        // ===== RENDER SHOPS =====
+        function getFilteredShops() {
+            const distanceMi = parseFloat(document.getElementById('distanceFilter').value);
+            const minRating = parseFloat(document.getElementById('ratingFilter').value);
+
+            return SHOPS
+                .map(shop => {
+                    const dist = (searchLat !== null)
+                        ? haversineDistance(searchLat, searchLng, shop.lat, shop.lng)
+                        : null;
+                    return { ...shop, distance: dist };
+                })
+                .filter(shop => {
+                    if (shop.distance === null) return false;
+                    if (shop.distance > distanceMi) return false;
+                    if (shop.rating < minRating) return false;
+                    if (activeStyleFilter !== 'All') {
+                        if (!shop.styles.includes(activeStyleFilter)) return false;
+                    }
+                    return true;
+                })
+                .sort((a, b) => a.distance - b.distance);
+        }
+
+        function renderStars(rating) {
+            const full = Math.floor(rating);
+            const half = (rating - full) >= 0.5;
+            let html = '';
+            for (let i = 0; i < full; i++) html += '<i class="fas fa-star"></i>';
+            if (half) html += '<i class="fas fa-star-half-alt"></i>';
+            return html;
+        }
+
+        function clearMarkers() {
+            Object.values(markers).forEach(m => map.removeLayer(m));
+            markers = {};
+        }
+
+        function renderResults() {
+            if (searchLat === null) return;
+
+            const shops = getFilteredShops();
+            clearMarkers();
+
+            // Update panel header
+            const title = document.getElementById('shopPanelTitle');
+            title.innerHTML = `<span>${shops.length}</span> shop${shops.length !== 1 ? 's' : ''} found near <span>${currentZip}</span>`;
+
+            // Render list
+            const list = document.getElementById('shopList');
+
+            if (shops.length === 0) {
+                list.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-search-minus"></i>
+                        <p>No shops found matching your filters.<br>Try increasing the distance or adjusting filters.</p>
+                    </div>`;
+                return;
+            }
+
+            list.innerHTML = '';
+
+            shops.forEach(shop => {
+                // Create map marker
+                const marker = L.marker([shop.lat, shop.lng], { icon: createMarkerIcon(false) })
+                    .addTo(map)
+                    .bindPopup(`
+                        <div style="min-width:180px;">
+                            <strong style="color:#f0f0f0;font-size:1rem;">${shop.name}</strong><br>
+                            <span style="color:#aaa;font-size:0.82rem;">${shop.address}</span><br><br>
+                            <span style="color:#f0c040;">${'★'.repeat(Math.round(shop.rating))}</span>
+                            <strong style="color:#f0f0f0;">${shop.rating.toFixed(1)}</strong>
+                            <span style="color:#888;font-size:0.82rem;"> · ${shop.reviews} reviews</span><br>
+                            <span style="color:#bbb;font-size:0.82rem;">${shop.styles.join(', ')}</span><br>
+                            <span style="color:#888;font-size:0.82rem;">${shop.phone}</span>
+                        </div>
+                    `, { className: 'dark-popup' });
+                markers[shop.name] = marker;
+
+                // Create shop card
+                const card = document.createElement('div');
+                card.className = 'shop-card';
+                card.dataset.shopName = shop.name;
+                card.innerHTML = `
+                    <div class="shop-card-name">${shop.name}</div>
+                    <div class="shop-card-address"><i class="fas fa-map-marker-alt" style="color:#C44040;margin-right:4px;"></i>${shop.address}</div>
+                    <div class="shop-card-meta">
+                        <span class="shop-distance"><i class="fas fa-location-arrow" style="margin-right:3px;"></i>${shop.distance.toFixed(1)} mi</span>
+                        <span class="shop-rating">${renderStars(shop.rating)} ${shop.rating.toFixed(1)}</span>
+                        <span class="shop-rating-count">· ${shop.reviews} reviews</span>
+                    </div>
+                    <div class="shop-styles">${shop.styles.map(s => `<span class="shop-style-tag">${s}</span>`).join('')}</div>
+                    <div class="shop-phone"><i class="fas fa-phone"></i>${shop.phone}</div>
+                `;
+
+                card.addEventListener('click', () => {
+                    // Highlight card
+                    document.querySelectorAll('.shop-card').forEach(c => c.classList.remove('highlighted'));
+                    card.classList.add('highlighted');
+
+                    // Pan + open popup on marker
+                    map.setView([shop.lat, shop.lng], 14, { animate: true });
+                    setTimeout(() => {
+                        const m = markers[shop.name];
+                        if (m) {
+                            m.setIcon(createMarkerIcon(true));
+                            m.openPopup();
+                            setTimeout(() => m.setIcon(createMarkerIcon(false)), 900);
+                        }
+                    }, 350);
+                });
+
+                list.appendChild(card);
+            });
+
+            // Fit map to markers + search point
+            const allPoints = [
+                [searchLat, searchLng],
+                ...shops.map(s => [s.lat, s.lng])
+            ];
+            if (shops.length > 0) {
+                const bounds = L.latLngBounds(allPoints);
+                map.fitBounds(bounds, { padding: [48, 48], maxZoom: 12 });
+            }
+        }
+
+        // ===== SEARCH HANDLER =====
+        async function doSearch() {
+            const zip = document.getElementById('zipInput').value.trim();
+            if (!zip) {
+                document.getElementById('zipInput').focus();
+                return;
+            }
+
+            const btn = document.getElementById('searchBtn');
+            btn.classList.add('loading');
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Searching...';
+
+            try {
+                const coords = await geocodeZip(zip);
+                searchLat = coords.lat;
+                searchLng = coords.lng;
+                currentZip = zip;
+
+                // Hide overlay
+                const overlay = document.getElementById('mapOverlay');
+                if (overlay) overlay.style.display = 'none';
+
+                // Remove previous search marker
+                if (searchMarker) {
+                    map.removeLayer(searchMarker);
+                    searchMarker = null;
+                }
+
+                // Add a subtle search location marker
+                searchMarker = L.circleMarker([searchLat, searchLng], {
+                    radius: 8,
+                    color: '#fff',
+                    fillColor: '#C44040',
+                    fillOpacity: 1,
+                    weight: 2
+                }).addTo(map).bindPopup(`<strong style="color:#f0f0f0;">ZIP: ${zip}</strong>`);
+
+                renderResults();
+
+            } catch (err) {
+                alert('Could not find that zip code. Please check and try again.');
+                console.error(err);
+            } finally {
+                btn.classList.remove('loading');
+                btn.innerHTML = '<i class="fas fa-search"></i> Search';
+            }
+        }
+
+        // ===== EVENT LISTENERS =====
+        document.getElementById('searchBtn').addEventListener('click', doSearch);
+        document.getElementById('zipInput').addEventListener('keydown', e => {
+            if (e.key === 'Enter') doSearch();
+        });
+
+        document.getElementById('distanceFilter').addEventListener('change', () => {
+            if (searchLat !== null) renderResults();
+        });
+        document.getElementById('ratingFilter').addEventListener('change', () => {
+            if (searchLat !== null) renderResults();
+        });
+
+        // Style pills
+        document.getElementById('stylePills').addEventListener('click', e => {
+            const pill = e.target.closest('.style-pill');
+            if (!pill) return;
+            document.querySelectorAll('.style-pill').forEach(p => p.classList.remove('active'));
+            pill.classList.add('active');
+            activeStyleFilter = pill.dataset.style;
+            if (searchLat !== null) renderResults();
+        });
+
+        // Dark popup style override
+        const styleEl = document.createElement('style');
+        styleEl.textContent = `
+            .dark-popup .leaflet-popup-content-wrapper {
+                background: #2a2a2a;
+                color: #f0f0f0;
+                border: 1px solid #444;
+                border-radius: 8px;
+            }
+            .dark-popup .leaflet-popup-tip {
+                background: #2a2a2a;
+            }
+            .dark-popup .leaflet-popup-close-button {
+                color: #aaa !important;
+            }
+        `;
+        document.head.appendChild(styleEl);
+    </script>
+</body>
+</html>
