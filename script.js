@@ -1,45 +1,176 @@
-// This is a placeholder for script.js
-// You can add any JavaScript functionality here as needed.
-// For example, search bar functionality, form validation, etc.
+// ============================================================
+// DiscoverInk - script.js
+// ============================================================
 
-document.addEventListener('DOMContentLoaded', () => {
-    // Example: Add a simple alert for search (replace with actual search logic)
-    const searchButton = document.querySelector('.search-bar button');
-    if (searchButton) {
-        searchButton.addEventListener('click', () => {
-            const searchInput = document.querySelector('.search-bar input');
-            // In a real application, you would process searchInput.value
-            console.log('Search initiated for:', searchInput.value);
-            // Replace with a custom message box or actual search results display
-            // alert('Search functionality is not yet implemented.');
-        });
+// ------------------------------------------------------------
+// 1. AUTO-UPDATE COPYRIGHT YEAR
+// Updates all footer copyright years automatically
+// ------------------------------------------------------------
+document.addEventListener('DOMContentLoaded', function () {
+  const yearSpans = document.querySelectorAll('.copyright-year');
+  const currentYear = new Date().getFullYear();
+  yearSpans.forEach(function (span) {
+    span.textContent = currentYear;
+  });
+});
+
+
+// ------------------------------------------------------------
+// 2. SEARCH FUNCTIONALITY
+// Wires up the nav search bar on every page.
+// - On artists.html: filters visible artist cards in real time
+// - On all other pages: redirects to artists.html with ?q=...
+// ------------------------------------------------------------
+document.addEventListener('DOMContentLoaded', function () {
+  const searchInputs = document.querySelectorAll('.search-input');
+  const searchButtons = document.querySelectorAll('.search-button');
+  const isArtistsPage = document.querySelector('.artist-results') !== null;
+
+  // --- Helper: run the search ---
+  function runSearch(query) {
+    query = query.trim().toLowerCase();
+    if (!query) return;
+
+    if (isArtistsPage) {
+      filterArtistCards(query);
+    } else {
+      // Redirect to artists page with search query
+      window.location.href = 'artists.html?q=' + encodeURIComponent(query);
     }
+  }
 
-    // Example: Form submission handling (replace with actual backend integration)
-    const signupForms = document.querySelectorAll('.signup-form');
-    signupForms.forEach(form => {
-        form.addEventListener('submit', (event) => {
-            event.preventDefault(); // Prevent default form submission
-
-            // Basic validation example
-            const password = form.querySelector('#password');
-            const confirmPassword = form.querySelector('#confirmPassword');
-
-            if (password && confirmPassword && password.value !== confirmPassword.value) {
-                console.error('Passwords do not match.');
-                // Display error message to user (e.g., in a div below the form)
-                // alert('Passwords do not match!'); // Avoid alert in production
-                return;
-            }
-
-            // In a real application, you would collect form data and send it to a server
-            const formData = new FormData(form);
-            const data = Object.fromEntries(formData.entries());
-            console.log('Form submitted:', data);
-
-            // Simulate success/failure
-            // alert('Account created successfully! (This is a demo message)'); // Avoid alert in production
-            form.reset(); // Clear the form
-        });
+  // --- Wire up each search input + button pair ---
+  searchInputs.forEach(function (input) {
+    // Search on Enter key
+    input.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') {
+        runSearch(input.value);
+      }
     });
+
+    // Live filter on artists page as user types
+    if (isArtistsPage) {
+      input.addEventListener('input', function () {
+        filterArtistCards(input.value.trim().toLowerCase());
+      });
+    }
+  });
+
+  searchButtons.forEach(function (button, index) {
+    button.addEventListener('click', function () {
+      const input = searchInputs[index] || searchInputs[0];
+      runSearch(input.value);
+    });
+  });
+
+
+  // --- Filter artist cards on artists.html ---
+  function filterArtistCards(query) {
+    const cards = document.querySelectorAll('.artist-results .artist-card');
+    let visibleCount = 0;
+
+    cards.forEach(function (card) {
+      const name = card.querySelector('h3') ? card.querySelector('h3').textContent.toLowerCase() : '';
+      const style = card.querySelector('.artist-style') ? card.querySelector('.artist-style').textContent.toLowerCase() : '';
+      const location = card.querySelector('.artist-location') ? card.querySelector('.artist-location').textContent.toLowerCase() : '';
+
+      const matches = !query || name.includes(query) || style.includes(query) || location.includes(query);
+
+      card.style.display = matches ? '' : 'none';
+      if (matches) visibleCount++;
+    });
+
+    // Show a "no results" message if nothing matches
+    showNoResultsMessage(visibleCount === 0 && query !== '');
+  }
+
+  // --- No results message ---
+  function showNoResultsMessage(show) {
+    let msg = document.getElementById('no-results-message');
+
+    if (show) {
+      if (!msg) {
+        msg = document.createElement('p');
+        msg.id = 'no-results-message';
+        msg.style.cssText = 'text-align:center; color:#aaaaaa; font-size:1.1rem; padding:40px; width:100%;';
+        msg.textContent = 'No artists found matching your search. Try a different name, style, or location.';
+        const results = document.querySelector('.artist-results');
+        if (results) results.appendChild(msg);
+      }
+      msg.style.display = 'block';
+    } else {
+      if (msg) msg.style.display = 'none';
+    }
+  }
+
+
+  // --- On artists.html: auto-run search if redirected with ?q= ---
+  if (isArtistsPage) {
+    const params = new URLSearchParams(window.location.search);
+    const q = params.get('q');
+    if (q) {
+      // Populate all search inputs with the query
+      searchInputs.forEach(function (input) {
+        input.value = q;
+      });
+      filterArtistCards(q.toLowerCase());
+    }
+  }
+});
+
+
+// ------------------------------------------------------------
+// 3. SIGNUP FORM - PASSWORD VALIDATION
+// Checks that passwords match before submission on signup pages
+// ------------------------------------------------------------
+document.addEventListener('DOMContentLoaded', function () {
+  const forms = document.querySelectorAll('.signup-form');
+
+  forms.forEach(function (form) {
+    form.addEventListener('submit', function (e) {
+      const password = form.querySelector('#password');
+      const confirmPassword = form.querySelector('#confirmPassword');
+
+      if (password && confirmPassword) {
+        if (password.value !== confirmPassword.value) {
+          e.preventDefault();
+          showFormError(confirmPassword, 'Passwords do not match. Please try again.');
+        } else {
+          clearFormError(confirmPassword);
+        }
+      }
+    });
+  });
+
+  function showFormError(input, message) {
+    clearFormError(input);
+    const error = document.createElement('small');
+    error.className = 'form-error-message';
+    error.style.cssText = 'color:#C44040; display:block; margin-top:5px;';
+    error.textContent = message;
+    input.parentNode.appendChild(error);
+    input.style.borderColor = '#C44040';
+  }
+
+  function clearFormError(input) {
+    const existing = input.parentNode.querySelector('.form-error-message');
+    if (existing) existing.remove();
+    input.style.borderColor = '';
+  }
+});
+
+
+// ------------------------------------------------------------
+// 4. SMOOTH SCROLL FOR ANCHOR LINKS
+// ------------------------------------------------------------
+document.addEventListener('DOMContentLoaded', function () {
+  document.querySelectorAll('a[href^="#"]').forEach(function (anchor) {
+    anchor.addEventListener('click', function (e) {
+      const target = document.querySelector(this.getAttribute('href'));
+      if (target) {
+        e.preventDefault();
+        target.scrollIntoView({ behavior: 'smooth' });
+      }
+    });
+  });
 });
