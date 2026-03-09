@@ -1,5 +1,5 @@
 // ============================================================
-// DiscoverInk - script.js
+// DiscoverInk - script.js (Full Version)
 // ============================================================
 
 
@@ -20,15 +20,10 @@ document.addEventListener('DOMContentLoaded', function () {
 // ------------------------------------------------------------
 document.addEventListener('DOMContentLoaded', function () {
   const nav = document.querySelector('nav');
-
   const hamburger = document.createElement('button');
   hamburger.className = 'hamburger-btn';
   hamburger.setAttribute('aria-label', 'Toggle navigation menu');
-  hamburger.innerHTML = `
-    <span></span>
-    <span></span>
-    <span></span>
-  `;
+  hamburger.innerHTML = '<span></span><span></span><span></span>';
 
   const overlay = document.createElement('div');
   overlay.className = 'nav-overlay';
@@ -39,6 +34,14 @@ document.addEventListener('DOMContentLoaded', function () {
   const navLinks = document.querySelector('.nav-links-primary');
   const navRightActions = document.querySelector('.nav-right-actions');
 
+  function closeMenu() {
+    hamburger.classList.remove('is-open');
+    navLinks.classList.remove('mobile-open');
+    navRightActions.classList.remove('mobile-open');
+    overlay.classList.remove('active');
+    document.body.style.overflow = '';
+  }
+
   hamburger.addEventListener('click', function () {
     const isOpen = hamburger.classList.toggle('is-open');
     navLinks.classList.toggle('mobile-open', isOpen);
@@ -47,22 +50,9 @@ document.addEventListener('DOMContentLoaded', function () {
     document.body.style.overflow = isOpen ? 'hidden' : '';
   });
 
-  overlay.addEventListener('click', function () {
-    hamburger.classList.remove('is-open');
-    navLinks.classList.remove('mobile-open');
-    navRightActions.classList.remove('mobile-open');
-    overlay.classList.remove('active');
-    document.body.style.overflow = '';
-  });
-
+  overlay.addEventListener('click', closeMenu);
   navLinks.querySelectorAll('a').forEach(function (link) {
-    link.addEventListener('click', function () {
-      hamburger.classList.remove('is-open');
-      navLinks.classList.remove('mobile-open');
-      navRightActions.classList.remove('mobile-open');
-      overlay.classList.remove('active');
-      document.body.style.overflow = '';
-    });
+    link.addEventListener('click', closeMenu);
   });
 });
 
@@ -72,9 +62,7 @@ document.addEventListener('DOMContentLoaded', function () {
 // ------------------------------------------------------------
 document.addEventListener('DOMContentLoaded', function () {
   const currentPage = window.location.pathname.split('/').pop() || 'index.html';
-  const navLinks = document.querySelectorAll('.nav-links-primary li a');
-
-  navLinks.forEach(function (link) {
+  document.querySelectorAll('.nav-links-primary li a').forEach(function (link) {
     const linkPage = link.getAttribute('href');
     if (linkPage === currentPage || (currentPage === '' && linkPage === 'index.html')) {
       link.classList.add('active');
@@ -94,11 +82,7 @@ document.addEventListener('DOMContentLoaded', function () {
   document.body.appendChild(backToTop);
 
   window.addEventListener('scroll', function () {
-    if (window.scrollY > 400) {
-      backToTop.classList.add('visible');
-    } else {
-      backToTop.classList.remove('visible');
-    }
+    backToTop.classList.toggle('visible', window.scrollY > 400);
   });
 
   backToTop.addEventListener('click', function () {
@@ -138,8 +122,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   searchButtons.forEach(function (button, index) {
     button.addEventListener('click', function () {
-      const input = searchInputs[index] || searchInputs[0];
-      runSearch(input.value);
+      runSearch((searchInputs[index] || searchInputs[0]).value);
     });
   });
 
@@ -147,10 +130,10 @@ document.addEventListener('DOMContentLoaded', function () {
     const cards = document.querySelectorAll('.artist-results .artist-card');
     let visibleCount = 0;
     cards.forEach(function (card) {
-      const name = card.querySelector('h3') ? card.querySelector('h3').textContent.toLowerCase() : '';
-      const style = card.querySelector('.artist-style') ? card.querySelector('.artist-style').textContent.toLowerCase() : '';
-      const location = card.querySelector('.artist-location') ? card.querySelector('.artist-location').textContent.toLowerCase() : '';
-      const matches = !query || name.includes(query) || style.includes(query) || location.includes(query);
+      const name = (card.querySelector('h3') || {}).textContent || '';
+      const style = (card.querySelector('.artist-style') || {}).textContent || '';
+      const location = (card.querySelector('.artist-location') || {}).textContent || '';
+      const matches = !query || [name, style, location].some(t => t.toLowerCase().includes(query));
       card.style.display = matches ? '' : 'none';
       if (matches) visibleCount++;
     });
@@ -163,20 +146,19 @@ document.addEventListener('DOMContentLoaded', function () {
       if (!msg) {
         msg = document.createElement('p');
         msg.id = 'no-results-message';
-        msg.style.cssText = 'text-align:center; color:#aaaaaa; font-size:1.1rem; padding:40px; width:100%;';
+        msg.style.cssText = 'text-align:center;color:#aaaaaa;font-size:1.1rem;padding:40px;width:100%;';
         msg.textContent = 'No artists found matching your search. Try a different name, style, or location.';
         const results = document.querySelector('.artist-results');
         if (results) results.appendChild(msg);
       }
       msg.style.display = 'block';
-    } else {
-      if (msg) msg.style.display = 'none';
+    } else if (msg) {
+      msg.style.display = 'none';
     }
   }
 
   if (isArtistsPage) {
-    const params = new URLSearchParams(window.location.search);
-    const q = params.get('q');
+    const q = new URLSearchParams(window.location.search).get('q');
     if (q) {
       searchInputs.forEach(function (input) { input.value = q; });
       filterArtistCards(q.toLowerCase());
@@ -186,22 +168,31 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 // ------------------------------------------------------------
-// 6. SIGNUP FORM - PASSWORD VALIDATION
+// 6. SIGNUP FORM - PASSWORD VALIDATION + SUCCESS MESSAGE
 // ------------------------------------------------------------
 document.addEventListener('DOMContentLoaded', function () {
-  const forms = document.querySelectorAll('.signup-form');
-  forms.forEach(function (form) {
+  document.querySelectorAll('.signup-form').forEach(function (form) {
     form.addEventListener('submit', function (e) {
+      e.preventDefault();
+
       const password = form.querySelector('#password');
       const confirmPassword = form.querySelector('#confirmPassword');
+
       if (password && confirmPassword) {
         if (password.value !== confirmPassword.value) {
-          e.preventDefault();
           showFormError(confirmPassword, 'Passwords do not match. Please try again.');
+          return;
         } else {
           clearFormError(confirmPassword);
         }
       }
+
+      // Show success message
+      const isArtist = form.querySelector('#artistName') !== null;
+      showSuccessMessage(form, isArtist
+        ? '🎨 Artist account created! Welcome to DiscoverInk. We\'ll be in touch soon.'
+        : '✅ Account created! Welcome to DiscoverInk. Start exploring artists now.'
+      );
     });
   });
 
@@ -209,7 +200,7 @@ document.addEventListener('DOMContentLoaded', function () {
     clearFormError(input);
     const error = document.createElement('small');
     error.className = 'form-error-message';
-    error.style.cssText = 'color:#C44040; display:block; margin-top:5px;';
+    error.style.cssText = 'color:#C44040;display:block;margin-top:5px;';
     error.textContent = message;
     input.parentNode.appendChild(error);
     input.style.borderColor = '#C44040';
@@ -220,11 +211,101 @@ document.addEventListener('DOMContentLoaded', function () {
     if (existing) existing.remove();
     input.style.borderColor = '';
   }
+
+  function showSuccessMessage(form, message) {
+    form.style.opacity = '0.4';
+    form.style.pointerEvents = 'none';
+
+    let successEl = form.parentNode.querySelector('.form-success-message');
+    if (!successEl) {
+      successEl = document.createElement('div');
+      successEl.className = 'form-success-message';
+      form.parentNode.insertBefore(successEl, form.nextSibling);
+    }
+    successEl.innerHTML = '<i class="fas fa-check-circle"></i>' + message;
+    successEl.style.display = 'block';
+
+    // Scroll to success message
+    successEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
 });
 
 
 // ------------------------------------------------------------
-// 7. SMOOTH SCROLL FOR ANCHOR LINKS
+// 7. LIGHTBOX GALLERY
+// ------------------------------------------------------------
+document.addEventListener('DOMContentLoaded', function () {
+  const galleryImages = document.querySelectorAll('.profile-gallery img');
+  if (!galleryImages.length) return;
+
+  // Build lightbox DOM
+  const lightbox = document.createElement('div');
+  lightbox.className = 'lightbox-overlay';
+  lightbox.innerHTML = `
+    <button class="lightbox-close" aria-label="Close">&times;</button>
+    <button class="lightbox-nav lightbox-prev" aria-label="Previous"><i class="fas fa-chevron-left"></i></button>
+    <img class="lightbox-img" src="" alt="Portfolio image">
+    <button class="lightbox-nav lightbox-next" aria-label="Next"><i class="fas fa-chevron-right"></i></button>
+    <div class="lightbox-counter"></div>
+  `;
+  document.body.appendChild(lightbox);
+
+  const lightboxImg = lightbox.querySelector('.lightbox-img');
+  const lightboxCounter = lightbox.querySelector('.lightbox-counter');
+  const images = Array.from(galleryImages);
+  let currentIndex = 0;
+
+  function openLightbox(index) {
+    currentIndex = index;
+    lightboxImg.src = images[currentIndex].src;
+    lightboxImg.alt = images[currentIndex].alt;
+    lightboxCounter.textContent = (currentIndex + 1) + ' / ' + images.length;
+    lightbox.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeLightbox() {
+    lightbox.classList.remove('active');
+    document.body.style.overflow = '';
+  }
+
+  function showPrev() {
+    currentIndex = (currentIndex - 1 + images.length) % images.length;
+    lightboxImg.src = images[currentIndex].src;
+    lightboxCounter.textContent = (currentIndex + 1) + ' / ' + images.length;
+  }
+
+  function showNext() {
+    currentIndex = (currentIndex + 1) % images.length;
+    lightboxImg.src = images[currentIndex].src;
+    lightboxCounter.textContent = (currentIndex + 1) + ' / ' + images.length;
+  }
+
+  images.forEach(function (img, index) {
+    img.addEventListener('click', function () { openLightbox(index); });
+  });
+
+  lightbox.querySelector('.lightbox-close').addEventListener('click', closeLightbox);
+  lightbox.querySelector('.lightbox-prev').addEventListener('click', showPrev);
+  lightbox.querySelector('.lightbox-next').addEventListener('click', showNext);
+
+  // Close on background click
+  lightbox.addEventListener('click', function (e) {
+    if (e.target === lightbox) closeLightbox();
+  });
+
+  // Keyboard navigation
+  document.addEventListener('keydown', function (e) {
+    if (!lightbox.classList.contains('active')) return;
+    if (e.key === 'Escape') closeLightbox();
+    if (e.key === 'ArrowLeft') showPrev();
+    if (e.key === 'ArrowRight') showNext();
+  });
+});
+
+
+// ------------------------------------------------------------
+// 8. SMOOTH SCROLL FOR ANCHOR LINKS
 // ------------------------------------------------------------
 document.addEventListener('DOMContentLoaded', function () {
   document.querySelectorAll('a[href^="#"]').forEach(function (anchor) {
@@ -240,7 +321,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 // ------------------------------------------------------------
-// 8. CARD FADE-IN ANIMATION ON SCROLL
+// 9. CARD FADE-IN ANIMATION ON SCROLL
 // ------------------------------------------------------------
 document.addEventListener('DOMContentLoaded', function () {
   const cards = document.querySelectorAll('.artist-card, .reason-item, .step-card, .style-card, .testimonial-card, .blog-post-card');
