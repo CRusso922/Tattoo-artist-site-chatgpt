@@ -1318,7 +1318,7 @@ footer .footer-bottom a:hover {
    LOGO SIZE FIX
    ------------------------------------------------------------ */
 .logo img {
-  height: 55px !important;
+  height: 80px !important;
   width: auto;
 }
 
