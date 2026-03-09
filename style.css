@@ -181,6 +181,57 @@ nav {
 /* --- END NEW SEARCH BAR STYLES --- */
 
 
+/* Nav Profile Avatar */
+.nav-profile-link {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    text-decoration: none;
+    color: #cccccc;
+    font-size: 0.75rem;
+    font-weight: 500;
+    transition: color 0.3s ease;
+    flex-shrink: 0;
+}
+
+.nav-profile-link:hover {
+    color: #C44040;
+}
+
+.nav-avatar {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background-color: #555555;
+    border: 2px solid #666666;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    transition: border-color 0.3s ease;
+}
+
+.nav-profile-link:hover .nav-avatar {
+    border-color: #C44040;
+}
+
+.nav-avatar i {
+    font-size: 1rem;
+    color: #cccccc;
+}
+
+.nav-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.nav-login-text {
+    font-size: 0.72rem;
+    letter-spacing: 0.02em;
+}
+
 /* Hero Section */
 .hero {
     background-color: #1a1a1a; /* Very dark gray, almost black */
