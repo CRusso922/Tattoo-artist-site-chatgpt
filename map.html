@@ -294,8 +294,74 @@
             100% { box-shadow: 0 0 0 0 rgba(196,64,64,0); }
         }
 
+        /* Use My Location button */
+        .location-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-top: 12px;
+        }
+        .location-divider {
+            color: #555;
+            font-size: 0.85rem;
+        }
+        .location-btn {
+            background: transparent;
+            border: 1px solid #555;
+            color: #aaaaaa;
+            padding: 9px 18px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: border-color 0.2s, color 0.2s;
+            white-space: nowrap;
+        }
+        .location-btn:hover { border-color: #C44040; color: #f0f0f0; }
+        .location-btn:disabled { opacity: 0.5; pointer-events: none; }
+
+        /* Get Directions link */
+        .get-directions-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.82rem;
+            color: #C44040;
+            text-decoration: none;
+            margin-top: 8px;
+            font-weight: 600;
+            transition: color 0.2s;
+        }
+        .get-directions-link:hover { color: #ff6666; }
+
+        /* Opening hours */
+        .shop-hours {
+            font-size: 0.8rem;
+            color: #888;
+            margin-top: 4px;
+        }
+        .shop-hours i { color: #C44040; margin-right: 4px; }
+
         /* Loading spinner */
         .zip-search-btn.loading { opacity: 0.6; pointer-events: none; }
+
+        /* Overpass loading overlay */
+        .map-loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(26,26,26,0.92);
+            border: 1px solid #444;
+            border-radius: 10px;
+            padding: 22px 30px;
+            text-align: center;
+            z-index: 500;
+            color: #f0f0f0;
+            display: none;
+        }
+        .map-loading i { font-size: 2rem; color: #C44040; display: block; margin-bottom: 10px; }
+        .map-loading p { margin: 0; font-size: 0.9rem; color: #aaa; }
 
         /* Responsive */
         @media (max-width: 768px) {
@@ -367,6 +433,12 @@
                     <i class="fas fa-search"></i> Search
                 </button>
             </div>
+            <div class="location-row">
+                <span class="location-divider">or</span>
+                <button id="locationBtn" class="location-btn">
+                    <i class="fas fa-location-arrow"></i> Use My Location
+                </button>
+            </div>
         </section>
 
         <!-- Filter Bar -->
@@ -412,6 +484,11 @@
                     <i class="fas fa-map-marker-alt"></i>
                     <strong>Search a zip code to find shops near you</strong>
                     <p>Results will appear on the map and in the list</p>
+                </div>
+                <div class="map-loading" id="mapLoading">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <strong>Finding tattoo shops...</strong>
+                    <p>Searching live map data near you</p>
                 </div>
             </div>
             <div class="shop-panel">
@@ -465,8 +542,10 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="script.js"></script>
     <script>
-        // ===== SHOP DATA =====
-        const SHOPS = [
+        // ===== LIVE DATA FROM OPENSTREETMAP (OVERPASS API) =====
+        // No hardcoded shops — real tattoo shop locations fetched on search.
+
+        const FAKE_SHOPS = [
             {
                 name: "Sacred Skin Tattoo",
                 address: "247 W 30th St, New York, NY",
@@ -566,93 +645,119 @@
         ];
 
         // ===== STATE =====
-        let currentZip = '';
+        let currentLabel = '';
         let searchLat = null;
         let searchLng = null;
+        let currentShops = [];   // shops loaded from Overpass
         let activeStyleFilter = 'All';
-        let markers = {};   // shopName -> L.marker
+        let markers = {};
         let searchMarker = null;
 
         // ===== HAVERSINE =====
         function haversineDistance(lat1, lng1, lat2, lng2) {
-            const R = 3958.8; // Earth radius in miles
+            const R = 3958.8;
             const dLat = (lat2 - lat1) * Math.PI / 180;
             const dLng = (lng2 - lng1) * Math.PI / 180;
-            const a =
-                Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-                Math.sin(dLng / 2) * Math.sin(dLng / 2);
-            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-            return R * c;
+            const a = Math.sin(dLat/2)**2 +
+                Math.cos(lat1*Math.PI/180) * Math.cos(lat2*Math.PI/180) * Math.sin(dLng/2)**2;
+            return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
         }
 
         // ===== INIT MAP =====
-        const map = L.map('map', {
-            center: [39.5, -98.35],
-            zoom: 4,
-            zoomControl: true
-        });
-
+        const map = L.map('map', { center: [39.5, -98.35], zoom: 4 });
         L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-            subdomains: 'abcd',
-            maxZoom: 19
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
+            subdomains: 'abcd', maxZoom: 19
         }).addTo(map);
 
-        // ===== CUSTOM MARKER ICON =====
-        function createMarkerIcon(highlighted) {
+        // Dark popup styles
+        const styleEl = document.createElement('style');
+        styleEl.textContent = `
+            .dark-popup .leaflet-popup-content-wrapper { background:#2a2a2a; color:#f0f0f0; border:1px solid #444; border-radius:8px; }
+            .dark-popup .leaflet-popup-tip { background:#2a2a2a; }
+            .dark-popup .leaflet-popup-close-button { color:#aaa !important; }
+        `;
+        document.head.appendChild(styleEl);
+
+        // ===== MARKER ICON =====
+        function createMarkerIcon(pulse) {
             return L.divIcon({
                 className: '',
-                html: `<div class="custom-marker${highlighted ? ' pulse' : ''}"></div>`,
-                iconSize: [28, 28],
-                iconAnchor: [14, 14],
-                popupAnchor: [0, -16]
+                html: `<div class="custom-marker${pulse ? ' pulse' : ''}"></div>`,
+                iconSize: [28,28], iconAnchor: [14,14], popupAnchor: [0,-16]
             });
         }
 
-        // ===== GEOCODE ZIP =====
+        // ===== GEOCODE ZIP (Nominatim) =====
         async function geocodeZip(zip) {
-            const url = `https://nominatim.openstreetmap.org/search?postalcode=${encodeURIComponent(zip)}&country=us&format=json&limit=1`;
-            const resp = await fetch(url, {
-                headers: { 'Accept': 'application/json' }
-            });
-            if (!resp.ok) throw new Error('Geocoding request failed');
+            const resp = await fetch(
+                `https://nominatim.openstreetmap.org/search?postalcode=${encodeURIComponent(zip)}&country=us&format=json&limit=1`,
+                { headers: { 'Accept': 'application/json' } }
+            );
+            if (!resp.ok) throw new Error('Geocoding failed');
             const data = await resp.json();
-            if (!data || data.length === 0) throw new Error('ZIP code not found');
+            if (!data.length) throw new Error('ZIP not found');
             return { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) };
         }
 
-        // ===== RENDER SHOPS =====
-        function getFilteredShops() {
-            const distanceMi = parseFloat(document.getElementById('distanceFilter').value);
-            const minRating = parseFloat(document.getElementById('ratingFilter').value);
+        // ===== FETCH REAL SHOPS FROM OVERPASS API =====
+        async function fetchShopsFromOverpass(lat, lng, radiusMiles) {
+            const radiusMeters = Math.round(radiusMiles * 1609.34);
+            const query = `[out:json][timeout:30];
+(
+  node["shop"="tattoo"](around:${radiusMeters},${lat},${lng});
+  way["shop"="tattoo"](around:${radiusMeters},${lat},${lng});
+  node["craft"="tattooist"](around:${radiusMeters},${lat},${lng});
+  way["craft"="tattooist"](around:${radiusMeters},${lat},${lng});
+);
+out body center;`;
 
-            return SHOPS
-                .map(shop => {
-                    const dist = (searchLat !== null)
-                        ? haversineDistance(searchLat, searchLng, shop.lat, shop.lng)
-                        : null;
-                    return { ...shop, distance: dist };
+            const resp = await fetch('https://overpass-api.de/api/interpreter', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: 'data=' + encodeURIComponent(query)
+            });
+            if (!resp.ok) throw new Error('Overpass API request failed');
+            const data = await resp.json();
+
+            return data.elements
+                .filter(el => el.tags)
+                .map(el => {
+                    const tags = el.tags;
+                    const lat = el.lat ?? el.center?.lat;
+                    const lng = el.lon ?? el.center?.lon;
+                    if (!lat || !lng) return null;
+
+                    const addrParts = [];
+                    if (tags['addr:housenumber'] && tags['addr:street'])
+                        addrParts.push(tags['addr:housenumber'] + ' ' + tags['addr:street']);
+                    else if (tags['addr:street'])
+                        addrParts.push(tags['addr:street']);
+                    if (tags['addr:city']) addrParts.push(tags['addr:city']);
+                    if (tags['addr:state']) addrParts.push(tags['addr:state']);
+
+                    return {
+                        name: tags.name || 'Tattoo Shop',
+                        address: addrParts.length ? addrParts.join(', ') : null,
+                        lat, lng,
+                        phone: tags.phone || tags['contact:phone'] || null,
+                        website: tags.website || tags['contact:website'] || null,
+                        openingHours: tags.opening_hours || null,
+                        styles: [],
+                        rating: null,
+                        osmId: el.id
+                    };
                 })
-                .filter(shop => {
-                    if (shop.distance === null) return false;
-                    if (shop.distance > distanceMi) return false;
-                    if (shop.rating < minRating) return false;
-                    if (activeStyleFilter !== 'All') {
-                        if (!shop.styles.includes(activeStyleFilter)) return false;
-                    }
-                    return true;
-                })
-                .sort((a, b) => a.distance - b.distance);
+                .filter(Boolean);
         }
 
-        function renderStars(rating) {
-            const full = Math.floor(rating);
-            const half = (rating - full) >= 0.5;
-            let html = '';
-            for (let i = 0; i < full; i++) html += '<i class="fas fa-star"></i>';
-            if (half) html += '<i class="fas fa-star-half-alt"></i>';
-            return html;
+        // ===== FILTER & RENDER =====
+        function getFilteredShops() {
+            const distanceMi = parseFloat(document.getElementById('distanceFilter').value);
+            return currentShops
+                .map(s => ({ ...s, distance: haversineDistance(searchLat, searchLng, s.lat, s.lng) }))
+                .filter(s => s.distance <= distanceMi)
+                .sort((a, b) => a.distance - b.distance);
         }
 
         function clearMarkers() {
@@ -662,74 +767,62 @@
 
         function renderResults() {
             if (searchLat === null) return;
-
             const shops = getFilteredShops();
             clearMarkers();
 
-            // Update panel header
             const title = document.getElementById('shopPanelTitle');
-            title.innerHTML = `<span>${shops.length}</span> shop${shops.length !== 1 ? 's' : ''} found near <span>${currentZip}</span>`;
+            title.innerHTML = `<span>${shops.length}</span> tattoo shop${shops.length !== 1 ? 's' : ''} near <span>${currentLabel}</span>`;
 
-            // Render list
             const list = document.getElementById('shopList');
-
             if (shops.length === 0) {
-                list.innerHTML = `
-                    <div class="empty-state">
-                        <i class="fas fa-search-minus"></i>
-                        <p>No shops found matching your filters.<br>Try increasing the distance or adjusting filters.</p>
-                    </div>`;
+                list.innerHTML = `<div class="empty-state"><i class="fas fa-search-minus"></i><p>No shops found in this area.<br>Try increasing the search distance.</p></div>`;
                 return;
             }
 
             list.innerHTML = '';
+            shops.forEach((shop, idx) => {
+                const markerId = shop.osmId || idx;
 
-            shops.forEach(shop => {
-                // Create map marker
+                // Popup content
+                const popupLines = [
+                    `<strong style="color:#f0f0f0;font-size:1rem;">${shop.name}</strong>`,
+                    shop.address ? `<span style="color:#aaa;font-size:0.82rem;">${shop.address}</span>` : '',
+                    shop.phone ? `<span style="color:#888;font-size:0.82rem;"><i class="fas fa-phone" style="color:#C44040;margin-right:4px;"></i>${shop.phone}</span>` : '',
+                    shop.openingHours ? `<span style="color:#888;font-size:0.82rem;"><i class="fas fa-clock" style="color:#C44040;margin-right:4px;"></i>${shop.openingHours}</span>` : '',
+                    `<a href="https://www.google.com/maps/dir/?api=1&destination=${shop.lat},${shop.lng}" target="_blank" rel="noopener" style="color:#C44040;font-size:0.82rem;">Get Directions</a>`
+                ].filter(Boolean).join('<br>');
+
                 const marker = L.marker([shop.lat, shop.lng], { icon: createMarkerIcon(false) })
                     .addTo(map)
-                    .bindPopup(`
-                        <div style="min-width:180px;">
-                            <strong style="color:#f0f0f0;font-size:1rem;">${shop.name}</strong><br>
-                            <span style="color:#aaa;font-size:0.82rem;">${shop.address}</span><br><br>
-                            <span style="color:#f0c040;">${'★'.repeat(Math.round(shop.rating))}</span>
-                            <strong style="color:#f0f0f0;">${shop.rating.toFixed(1)}</strong>
-                            <span style="color:#888;font-size:0.82rem;"> · ${shop.reviews} reviews</span><br>
-                            <span style="color:#bbb;font-size:0.82rem;">${shop.styles.join(', ')}</span><br>
-                            <span style="color:#888;font-size:0.82rem;">${shop.phone}</span>
-                        </div>
-                    `, { className: 'dark-popup' });
-                markers[shop.name] = marker;
+                    .bindPopup(`<div style="min-width:190px;line-height:1.7;">${popupLines}</div>`, { className: 'dark-popup' });
+                markers[markerId] = { marker, shop };
 
-                // Create shop card
+                // Card
                 const card = document.createElement('div');
                 card.className = 'shop-card';
-                card.dataset.shopName = shop.name;
                 card.innerHTML = `
                     <div class="shop-card-name">${shop.name}</div>
-                    <div class="shop-card-address"><i class="fas fa-map-marker-alt" style="color:#C44040;margin-right:4px;"></i>${shop.address}</div>
+                    ${shop.address ? `<div class="shop-card-address"><i class="fas fa-map-marker-alt" style="color:#C44040;margin-right:4px;"></i>${shop.address}</div>` : ''}
                     <div class="shop-card-meta">
                         <span class="shop-distance"><i class="fas fa-location-arrow" style="margin-right:3px;"></i>${shop.distance.toFixed(1)} mi</span>
-                        <span class="shop-rating">${renderStars(shop.rating)} ${shop.rating.toFixed(1)}</span>
-                        <span class="shop-rating-count">· ${shop.reviews} reviews</span>
                     </div>
-                    <div class="shop-styles">${shop.styles.map(s => `<span class="shop-style-tag">${s}</span>`).join('')}</div>
-                    <div class="shop-phone"><i class="fas fa-phone"></i>${shop.phone}</div>
+                    ${shop.phone ? `<div class="shop-phone"><i class="fas fa-phone"></i>${shop.phone}</div>` : ''}
+                    ${shop.openingHours ? `<div class="shop-hours"><i class="fas fa-clock"></i>${shop.openingHours}</div>` : ''}
+                    ${shop.website ? `<a href="${shop.website}" target="_blank" rel="noopener" class="get-directions-link" style="color:#aaa;margin-right:12px;"><i class="fas fa-globe"></i> Website</a>` : ''}
+                    <a href="https://www.google.com/maps/dir/?api=1&destination=${shop.lat},${shop.lng}" target="_blank" rel="noopener" class="get-directions-link"><i class="fas fa-directions"></i> Get Directions</a>
                 `;
 
-                card.addEventListener('click', () => {
-                    // Highlight card
+                card.addEventListener('click', e => {
+                    if (e.target.closest('a')) return; // let links work normally
                     document.querySelectorAll('.shop-card').forEach(c => c.classList.remove('highlighted'));
                     card.classList.add('highlighted');
-
-                    // Pan + open popup on marker
-                    map.setView([shop.lat, shop.lng], 14, { animate: true });
+                    map.setView([shop.lat, shop.lng], 15, { animate: true });
                     setTimeout(() => {
-                        const m = markers[shop.name];
-                        if (m) {
-                            m.setIcon(createMarkerIcon(true));
-                            m.openPopup();
-                            setTimeout(() => m.setIcon(createMarkerIcon(false)), 900);
+                        const entry = markers[markerId];
+                        if (entry) {
+                            entry.marker.setIcon(createMarkerIcon(true));
+                            entry.marker.openPopup();
+                            setTimeout(() => entry.marker.setIcon(createMarkerIcon(false)), 900);
                         }
                     }, 350);
                 });
@@ -737,24 +830,34 @@
                 list.appendChild(card);
             });
 
-            // Fit map to markers + search point
-            const allPoints = [
-                [searchLat, searchLng],
-                ...shops.map(s => [s.lat, s.lng])
-            ];
-            if (shops.length > 0) {
-                const bounds = L.latLngBounds(allPoints);
-                map.fitBounds(bounds, { padding: [48, 48], maxZoom: 12 });
+            // Fit map bounds
+            const bounds = L.latLngBounds([[searchLat, searchLng], ...shops.map(s => [s.lat, s.lng])]);
+            map.fitBounds(bounds, { padding: [48, 48], maxZoom: 14 });
+        }
+
+        // ===== SHARED SEARCH LOGIC =====
+        async function loadAndRenderShops() {
+            const distanceMi = parseFloat(document.getElementById('distanceFilter').value);
+            document.getElementById('mapOverlay').style.display = 'none';
+            document.getElementById('mapLoading').style.display = 'block';
+
+            if (searchMarker) { map.removeLayer(searchMarker); searchMarker = null; }
+            searchMarker = L.circleMarker([searchLat, searchLng], {
+                radius: 8, color: '#fff', fillColor: '#C44040', fillOpacity: 1, weight: 2
+            }).addTo(map).bindPopup(`<strong style="color:#f0f0f0;">${currentLabel}</strong>`);
+
+            try {
+                currentShops = await fetchShopsFromOverpass(searchLat, searchLng, distanceMi);
+                renderResults();
+            } finally {
+                document.getElementById('mapLoading').style.display = 'none';
             }
         }
 
-        // ===== SEARCH HANDLER =====
+        // ===== ZIP SEARCH =====
         async function doSearch() {
             const zip = document.getElementById('zipInput').value.trim();
-            if (!zip) {
-                document.getElementById('zipInput').focus();
-                return;
-            }
+            if (!zip) { document.getElementById('zipInput').focus(); return; }
 
             const btn = document.getElementById('searchBtn');
             btn.classList.add('loading');
@@ -764,52 +867,57 @@
                 const coords = await geocodeZip(zip);
                 searchLat = coords.lat;
                 searchLng = coords.lng;
-                currentZip = zip;
-
-                // Hide overlay
-                const overlay = document.getElementById('mapOverlay');
-                if (overlay) overlay.style.display = 'none';
-
-                // Remove previous search marker
-                if (searchMarker) {
-                    map.removeLayer(searchMarker);
-                    searchMarker = null;
-                }
-
-                // Add a subtle search location marker
-                searchMarker = L.circleMarker([searchLat, searchLng], {
-                    radius: 8,
-                    color: '#fff',
-                    fillColor: '#C44040',
-                    fillOpacity: 1,
-                    weight: 2
-                }).addTo(map).bindPopup(`<strong style="color:#f0f0f0;">ZIP: ${zip}</strong>`);
-
-                renderResults();
-
+                currentLabel = zip;
+                await loadAndRenderShops();
             } catch (err) {
                 alert('Could not find that zip code. Please check and try again.');
-                console.error(err);
             } finally {
                 btn.classList.remove('loading');
                 btn.innerHTML = '<i class="fas fa-search"></i> Search';
             }
         }
 
+        // ===== USE MY LOCATION =====
+        async function doGeolocate() {
+            if (!navigator.geolocation) {
+                alert('Geolocation is not supported by your browser. Please enter a zip code.');
+                return;
+            }
+            const btn = document.getElementById('locationBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Getting location...';
+
+            try {
+                const pos = await new Promise((resolve, reject) =>
+                    navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 10000 })
+                );
+                searchLat = pos.coords.latitude;
+                searchLng = pos.coords.longitude;
+                currentLabel = 'Your Location';
+                document.getElementById('zipInput').value = '';
+                document.getElementById('zipInput').placeholder = 'Using your location...';
+                await loadAndRenderShops();
+            } catch (err) {
+                const msg = err.code === 1
+                    ? 'Location access was denied. Please enter a zip code instead.'
+                    : 'Could not get your location. Please enter a zip code instead.';
+                alert(msg);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-location-arrow"></i> Use My Location';
+            }
+        }
+
         // ===== EVENT LISTENERS =====
         document.getElementById('searchBtn').addEventListener('click', doSearch);
-        document.getElementById('zipInput').addEventListener('keydown', e => {
-            if (e.key === 'Enter') doSearch();
-        });
-
+        document.getElementById('zipInput').addEventListener('keydown', e => { if (e.key === 'Enter') doSearch(); });
+        document.getElementById('locationBtn').addEventListener('click', doGeolocate);
         document.getElementById('distanceFilter').addEventListener('change', () => {
-            if (searchLat !== null) renderResults();
+            if (searchLat !== null) loadAndRenderShops();
         });
         document.getElementById('ratingFilter').addEventListener('change', () => {
             if (searchLat !== null) renderResults();
         });
-
-        // Style pills
         document.getElementById('stylePills').addEventListener('click', e => {
             const pill = e.target.closest('.style-pill');
             if (!pill) return;
@@ -818,24 +926,6 @@
             activeStyleFilter = pill.dataset.style;
             if (searchLat !== null) renderResults();
         });
-
-        // Dark popup style override
-        const styleEl = document.createElement('style');
-        styleEl.textContent = `
-            .dark-popup .leaflet-popup-content-wrapper {
-                background: #2a2a2a;
-                color: #f0f0f0;
-                border: 1px solid #444;
-                border-radius: 8px;
-            }
-            .dark-popup .leaflet-popup-tip {
-                background: #2a2a2a;
-            }
-            .dark-popup .leaflet-popup-close-button {
-                color: #aaa !important;
-            }
-        `;
-        document.head.appendChild(styleEl);
     </script>
 </body>
 </html>
