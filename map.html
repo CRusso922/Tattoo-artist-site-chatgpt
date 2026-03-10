@@ -14,128 +14,174 @@
 
         /* Hero */
         .map-hero {
-            background: linear-gradient(135deg, #1a1a1a 0%, #2a1a1a 100%);
-            padding: 50px 20px 40px;
+            background: linear-gradient(160deg, #1f1f1f 0%, #2c1414 60%, #1a1a1a 100%);
+            padding: 52px 20px 44px;
             text-align: center;
             border-bottom: 2px solid #C44040;
         }
         .map-hero h1 {
-            font-size: 2.4rem;
+            font-size: 2.6rem;
+            font-weight: 700;
             color: #f0f0f0;
             margin: 0 0 10px;
-            letter-spacing: 1px;
+            letter-spacing: 0.5px;
         }
+        .map-hero h1 span { color: #C44040; }
         .map-hero p {
-            color: #aaaaaa;
-            font-size: 1.05rem;
-            margin: 0 0 28px;
+            color: #999;
+            font-size: 1rem;
+            margin: 0 0 30px;
         }
 
-        /* Zip Search */
-        .zip-search-container {
+        /* Search row */
+        .search-row {
             display: flex;
+            align-items: center;
             justify-content: center;
-            gap: 0;
-            max-width: 520px;
-            margin: 0 auto;
+            gap: 10px;
+            max-width: 640px;
+            margin: 0 auto 14px;
         }
         .zip-input {
             flex: 1;
-            padding: 14px 20px;
+            padding: 15px 20px;
             font-size: 1rem;
             background: #2b2b2b;
             border: 2px solid #444;
-            border-right: none;
-            border-radius: 8px 0 0 8px;
+            border-radius: 8px;
             color: #f0f0f0;
             outline: none;
             transition: border-color 0.2s;
+            min-width: 0;
         }
-        .zip-input::placeholder { color: #777; }
+        .zip-input::placeholder { color: #666; }
         .zip-input:focus { border-color: #C44040; }
         .zip-search-btn {
-            padding: 14px 28px;
+            padding: 15px 28px;
             background: #C44040;
             color: #fff;
             border: 2px solid #C44040;
-            border-radius: 0 8px 8px 0;
+            border-radius: 8px;
             font-size: 1rem;
-            font-weight: bold;
+            font-weight: 600;
             cursor: pointer;
-            transition: background 0.2s;
+            transition: background 0.2s, border-color 0.2s;
             white-space: nowrap;
+            flex-shrink: 0;
         }
         .zip-search-btn:hover { background: #a83535; border-color: #a83535; }
+        .zip-search-btn.loading { opacity: 0.6; pointer-events: none; }
 
-        /* Filter Bar */
-        .filter-bar {
-            background: #222;
-            border-bottom: 1px solid #333;
-            padding: 14px 24px;
+        /* Divider + location button */
+        .location-row {
             display: flex;
-            flex-wrap: wrap;
             align-items: center;
-            gap: 14px;
+            justify-content: center;
+            gap: 10px;
         }
-        .filter-bar label {
+        .location-divider {
+            color: #555;
+            font-size: 0.85rem;
+        }
+        .location-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            background: transparent;
+            border: 1px solid #555;
             color: #aaa;
-            font-size: 0.88rem;
-            margin-right: 4px;
-        }
-        .filter-select {
-            background: #2b2b2b;
-            border: 1px solid #444;
-            color: #f0f0f0;
-            border-radius: 6px;
-            padding: 7px 12px;
+            padding: 9px 20px;
+            border-radius: 8px;
             font-size: 0.9rem;
             cursor: pointer;
-            outline: none;
+            transition: border-color 0.2s, color 0.2s, background 0.2s;
         }
-        .filter-select:focus { border-color: #C44040; }
+        .location-btn:hover { border-color: #C44040; color: #f0f0f0; background: rgba(196,64,64,0.08); }
+        .location-btn:disabled { opacity: 0.45; pointer-events: none; }
+
+        /* Filter + Pills toolbar */
+        .toolbar {
+            background: #202020;
+            border-bottom: 1px solid #2e2e2e;
+            padding: 0 20px;
+            display: flex;
+            align-items: center;
+            gap: 0;
+            overflow: hidden;
+        }
+        .toolbar-filters {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 12px 0;
+            flex-shrink: 0;
+            border-right: 1px solid #333;
+            padding-right: 18px;
+            margin-right: 16px;
+        }
         .filter-group {
             display: flex;
             align-items: center;
             gap: 6px;
         }
-
-        /* Style Pills */
-        .style-pills {
-            background: #1e1e1e;
-            border-bottom: 1px solid #2e2e2e;
-            padding: 12px 24px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            align-items: center;
+        .filter-group label {
+            color: #888;
+            font-size: 0.82rem;
+            white-space: nowrap;
         }
-        .style-pill {
-            padding: 6px 14px;
-            border-radius: 20px;
-            border: 1px solid #444;
+        .filter-select {
             background: #2b2b2b;
-            color: #ccc;
+            border: 1px solid #3a3a3a;
+            color: #f0f0f0;
+            border-radius: 6px;
+            padding: 6px 10px;
             font-size: 0.85rem;
             cursor: pointer;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .filter-select:focus { border-color: #C44040; }
+
+        /* Style pills */
+        .style-pills-scroll {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            overflow-x: auto;
+            padding: 12px 0;
+            flex: 1;
+            scrollbar-width: none;
+        }
+        .style-pills-scroll::-webkit-scrollbar { display: none; }
+        .style-pill {
+            padding: 5px 14px;
+            border-radius: 20px;
+            border: 1px solid #3a3a3a;
+            background: #2b2b2b;
+            color: #bbb;
+            font-size: 0.82rem;
+            cursor: pointer;
             user-select: none;
+            white-space: nowrap;
             transition: background 0.15s, color 0.15s, border-color 0.15s;
+            flex-shrink: 0;
         }
         .style-pill:hover { border-color: #C44040; color: #f0f0f0; }
         .style-pill.active {
             background: #C44040;
             border-color: #C44040;
             color: #fff;
-            font-weight: bold;
+            font-weight: 600;
         }
 
         /* Main Layout */
         .map-layout {
             display: flex;
-            height: calc(100vh - 310px);
-            min-height: 500px;
+            height: calc(100vh - 64px - 194px - 49px);
+            min-height: 520px;
         }
 
-        /* Map Container */
+        /* Map */
         #map {
             flex: 1;
             position: relative;
@@ -146,130 +192,184 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background: rgba(26, 26, 26, 0.88);
+            background: rgba(20, 20, 20, 0.92);
             border: 1px solid #C44040;
-            border-radius: 10px;
-            padding: 22px 30px;
+            border-radius: 12px;
+            padding: 28px 36px;
             text-align: center;
             z-index: 500;
             pointer-events: none;
             color: #f0f0f0;
+            backdrop-filter: blur(4px);
         }
         .map-overlay i {
-            font-size: 2rem;
+            font-size: 2.4rem;
             color: #C44040;
             display: block;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
         }
-        .map-overlay p { margin: 0; font-size: 0.95rem; color: #aaa; }
+        .map-overlay strong { font-size: 1.05rem; display: block; margin-bottom: 6px; }
+        .map-overlay p { margin: 0; font-size: 0.9rem; color: #888; }
+
+        /* Loading overlay */
+        .map-loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(20,20,20,0.92);
+            border: 1px solid #3a3a3a;
+            border-radius: 12px;
+            padding: 28px 36px;
+            text-align: center;
+            z-index: 500;
+            color: #f0f0f0;
+            display: none;
+            backdrop-filter: blur(4px);
+        }
+        .map-loading i { font-size: 2rem; color: #C44040; display: block; margin-bottom: 12px; }
+        .map-loading strong { display: block; margin-bottom: 4px; }
+        .map-loading p { margin: 0; font-size: 0.85rem; color: #888; }
 
         /* Shop Panel */
         .shop-panel {
-            width: 380px;
-            background: #1a1a1a;
-            border-left: 1px solid #2e2e2e;
+            width: 400px;
+            background: #181818;
+            border-left: 1px solid #2a2a2a;
             display: flex;
             flex-direction: column;
             overflow: hidden;
         }
         .shop-panel-header {
-            padding: 16px 20px;
-            background: #222;
-            border-bottom: 1px solid #333;
+            padding: 14px 18px;
+            background: #202020;
+            border-bottom: 1px solid #2a2a2a;
             flex-shrink: 0;
         }
         .shop-panel-header h3 {
             margin: 0;
-            font-size: 1rem;
-            color: #f0f0f0;
+            font-size: 0.92rem;
+            font-weight: 500;
+            color: #aaa;
+            letter-spacing: 0.2px;
         }
-        .shop-panel-header span { color: #C44040; font-weight: bold; }
+        .shop-panel-header span { color: #C44040; font-weight: 700; }
         .shop-list {
             flex: 1;
             overflow-y: auto;
-            padding: 12px;
+            padding: 10px;
         }
-        .shop-list::-webkit-scrollbar { width: 6px; }
-        .shop-list::-webkit-scrollbar-track { background: #1a1a1a; }
-        .shop-list::-webkit-scrollbar-thumb { background: #444; border-radius: 3px; }
+        .shop-list::-webkit-scrollbar { width: 5px; }
+        .shop-list::-webkit-scrollbar-track { background: #181818; }
+        .shop-list::-webkit-scrollbar-thumb { background: #3a3a3a; border-radius: 3px; }
 
         /* Shop Card */
         .shop-card {
-            background: #2a2a2a;
-            border: 1px solid #333;
-            border-radius: 8px;
+            background: #232323;
+            border: 1px solid #2e2e2e;
+            border-radius: 10px;
             padding: 14px 16px;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             cursor: pointer;
-            transition: background 0.15s, border-color 0.15s;
+            transition: background 0.15s, border-color 0.15s, transform 0.1s;
         }
-        .shop-card:hover, .shop-card.highlighted {
-            background: #333;
+        .shop-card:hover {
+            background: #2c2c2c;
             border-color: #C44040;
+            transform: translateX(-2px);
+        }
+        .shop-card.highlighted {
+            background: #2c2c2c;
+            border-color: #C44040;
+            border-left-width: 3px;
         }
         .shop-card-name {
-            font-size: 1rem;
-            font-weight: bold;
+            font-size: 0.97rem;
+            font-weight: 700;
             color: #f0f0f0;
-            margin: 0 0 4px;
+            margin: 0 0 5px;
+            line-height: 1.3;
         }
         .shop-card-address {
-            font-size: 0.82rem;
-            color: #888;
-            margin: 0 0 6px;
+            font-size: 0.8rem;
+            color: #777;
+            margin: 0 0 8px;
+            display: flex;
+            align-items: flex-start;
+            gap: 5px;
+            line-height: 1.4;
         }
-        .shop-card-meta {
+        .shop-card-address i { color: #C44040; margin-top: 2px; flex-shrink: 0; }
+        .shop-distance-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: rgba(196,64,64,0.12);
+            color: #C44040;
+            border: 1px solid rgba(196,64,64,0.25);
+            font-size: 0.78rem;
+            font-weight: 700;
+            padding: 3px 9px;
+            border-radius: 12px;
+            margin-bottom: 10px;
+        }
+        .shop-details {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            margin-bottom: 10px;
+        }
+        .shop-detail-row {
             display: flex;
             align-items: center;
-            gap: 12px;
-            margin-bottom: 8px;
+            gap: 6px;
+            font-size: 0.8rem;
+            color: #777;
         }
-        .shop-distance {
-            font-size: 0.85rem;
-            color: #C44040;
-            font-weight: bold;
-        }
-        .shop-rating {
-            font-size: 0.85rem;
-            color: #f0c040;
-        }
-        .shop-rating-count {
-            color: #888;
-            font-size: 0.82rem;
-        }
-        .shop-styles {
+        .shop-detail-row i { color: #C44040; width: 12px; text-align: center; flex-shrink: 0; }
+        .shop-card-links {
             display: flex;
+            gap: 10px;
             flex-wrap: wrap;
+            padding-top: 8px;
+            border-top: 1px solid #2e2e2e;
+        }
+        .shop-link {
+            display: inline-flex;
+            align-items: center;
             gap: 5px;
-            margin-bottom: 8px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-decoration: none;
+            padding: 5px 12px;
+            border-radius: 6px;
+            transition: background 0.15s, color 0.15s;
         }
-        .shop-style-tag {
-            background: #1a1a1a;
-            border: 1px solid #3a3a3a;
+        .shop-link.directions {
+            background: #C44040;
+            color: #fff;
+        }
+        .shop-link.directions:hover { background: #a83535; }
+        .shop-link.website {
+            background: #2b2b2b;
             color: #bbb;
-            font-size: 0.76rem;
-            padding: 2px 8px;
-            border-radius: 12px;
+            border: 1px solid #3a3a3a;
         }
-        .shop-phone {
-            font-size: 0.82rem;
-            color: #888;
-        }
-        .shop-phone i { color: #C44040; margin-right: 4px; }
+        .shop-link.website:hover { border-color: #C44040; color: #f0f0f0; }
 
         /* Empty State */
         .empty-state {
             text-align: center;
-            padding: 48px 24px;
-            color: #555;
-        }
-        .empty-state i {
-            font-size: 2.5rem;
-            margin-bottom: 14px;
-            display: block;
+            padding: 60px 24px;
             color: #444;
         }
-        .empty-state p { margin: 0; font-size: 0.95rem; }
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 16px;
+            display: block;
+            color: #333;
+        }
+        .empty-state p { margin: 0; font-size: 0.9rem; line-height: 1.6; }
 
         /* Custom Leaflet Marker */
         .custom-marker {
@@ -279,13 +379,8 @@
             border-radius: 50%;
             border: 3px solid #fff;
             box-shadow: 0 2px 8px rgba(196,64,64,0.6);
-            display: flex;
-            align-items: center;
-            justify-content: center;
         }
         .custom-marker.pulse {
-            background: #ff5555;
-            box-shadow: 0 0 0 0 rgba(196,64,64,0.8);
             animation: markerPulse 0.8s ease-out forwards;
         }
         @keyframes markerPulse {
@@ -294,91 +389,27 @@
             100% { box-shadow: 0 0 0 0 rgba(196,64,64,0); }
         }
 
-        /* Use My Location button */
-        .location-row {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            margin-top: 12px;
-        }
-        .location-divider {
-            color: #555;
-            font-size: 0.85rem;
-        }
-        .location-btn {
-            background: transparent;
-            border: 1px solid #555;
-            color: #aaaaaa;
-            padding: 9px 18px;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            cursor: pointer;
-            transition: border-color 0.2s, color 0.2s;
-            white-space: nowrap;
-        }
-        .location-btn:hover { border-color: #C44040; color: #f0f0f0; }
-        .location-btn:disabled { opacity: 0.5; pointer-events: none; }
-
-        /* Get Directions link */
-        .get-directions-link {
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            font-size: 0.82rem;
-            color: #C44040;
-            text-decoration: none;
-            margin-top: 8px;
-            font-weight: 600;
-            transition: color 0.2s;
-        }
-        .get-directions-link:hover { color: #ff6666; }
-
-        /* Opening hours */
-        .shop-hours {
-            font-size: 0.8rem;
-            color: #888;
-            margin-top: 4px;
-        }
-        .shop-hours i { color: #C44040; margin-right: 4px; }
-
-        /* Loading spinner */
-        .zip-search-btn.loading { opacity: 0.6; pointer-events: none; }
-
-        /* Overpass loading overlay */
-        .map-loading {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(26,26,26,0.92);
-            border: 1px solid #444;
-            border-radius: 10px;
-            padding: 22px 30px;
-            text-align: center;
-            z-index: 500;
-            color: #f0f0f0;
-            display: none;
-        }
-        .map-loading i { font-size: 2rem; color: #C44040; display: block; margin-bottom: 10px; }
-        .map-loading p { margin: 0; font-size: 0.9rem; color: #aaa; }
-
         /* Responsive */
+        @media (max-width: 900px) {
+            .map-hero h1 { font-size: 2rem; }
+            .toolbar-filters { display: none; }
+        }
         @media (max-width: 768px) {
-            .map-hero h1 { font-size: 1.6rem; }
+            .map-hero { padding: 36px 16px 30px; }
+            .map-hero h1 { font-size: 1.7rem; }
+            .search-row { flex-direction: column; gap: 8px; }
+            .zip-search-btn { width: 100%; justify-content: center; }
             .map-layout {
                 flex-direction: column;
                 height: auto;
             }
-            #map { height: 350px; flex: none; }
+            #map { height: 360px; flex: none; }
             .shop-panel {
                 width: 100%;
                 border-left: none;
-                border-top: 1px solid #2e2e2e;
-                max-height: 480px;
+                border-top: 1px solid #2a2a2a;
+                max-height: 420px;
             }
-            .filter-bar { padding: 10px 14px; }
-            .style-pills { padding: 10px 14px; }
         }
     </style>
 </head>
@@ -418,14 +449,14 @@
     <main>
         <!-- Hero -->
         <section class="map-hero">
-            <h1>Find Tattoo Shops Near You</h1>
-            <p>Enter your zip code to discover top-rated tattoo shops in your area.</p>
-            <div class="zip-search-container">
+            <h1>Find Tattoo Shops <span>Near You</span></h1>
+            <p>Search by zip code or use your location to discover shops on the map.</p>
+            <div class="search-row">
                 <input
                     type="text"
                     id="zipInput"
                     class="zip-input"
-                    placeholder="Enter zip code (e.g. 10001)"
+                    placeholder="Enter zip code — e.g. 10001"
                     maxlength="10"
                     inputmode="numeric"
                 >
@@ -441,40 +472,40 @@
             </div>
         </section>
 
-        <!-- Filter Bar -->
-        <div class="filter-bar">
-            <div class="filter-group">
-                <label for="distanceFilter">Distance:</label>
-                <select id="distanceFilter" class="filter-select">
-                    <option value="5">5 mi</option>
-                    <option value="10">10 mi</option>
-                    <option value="25" selected>25 mi</option>
-                    <option value="50">50 mi</option>
-                    <option value="99999">Any</option>
-                </select>
+        <!-- Toolbar: Filters + Style Pills -->
+        <div class="toolbar">
+            <div class="toolbar-filters">
+                <div class="filter-group">
+                    <label for="distanceFilter">Distance</label>
+                    <select id="distanceFilter" class="filter-select">
+                        <option value="5">5 mi</option>
+                        <option value="10">10 mi</option>
+                        <option value="25" selected>25 mi</option>
+                        <option value="50">50 mi</option>
+                        <option value="99999">Any</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="ratingFilter">Rating</label>
+                    <select id="ratingFilter" class="filter-select">
+                        <option value="0">Any</option>
+                        <option value="4.0">4.0+</option>
+                        <option value="4.5">4.5+</option>
+                    </select>
+                </div>
             </div>
-            <div class="filter-group">
-                <label for="ratingFilter">Min Rating:</label>
-                <select id="ratingFilter" class="filter-select">
-                    <option value="0">Any</option>
-                    <option value="4.0">4.0+</option>
-                    <option value="4.5">4.5+</option>
-                </select>
+            <div class="style-pills-scroll" id="stylePills">
+                <span class="style-pill active" data-style="All">All Styles</span>
+                <span class="style-pill" data-style="Realism">Realism</span>
+                <span class="style-pill" data-style="Traditional">Traditional</span>
+                <span class="style-pill" data-style="Japanese">Japanese</span>
+                <span class="style-pill" data-style="Blackwork">Blackwork</span>
+                <span class="style-pill" data-style="Watercolor">Watercolor</span>
+                <span class="style-pill" data-style="Geometric">Geometric</span>
+                <span class="style-pill" data-style="Neo-Traditional">Neo-Traditional</span>
+                <span class="style-pill" data-style="Minimalist">Minimalist</span>
+                <span class="style-pill" data-style="Black &amp; Grey">Black &amp; Grey</span>
             </div>
-        </div>
-
-        <!-- Style Pills -->
-        <div class="style-pills" id="stylePills">
-            <span class="style-pill active" data-style="All">All</span>
-            <span class="style-pill" data-style="Realism">Realism</span>
-            <span class="style-pill" data-style="Traditional">Traditional</span>
-            <span class="style-pill" data-style="Japanese">Japanese</span>
-            <span class="style-pill" data-style="Blackwork">Blackwork</span>
-            <span class="style-pill" data-style="Watercolor">Watercolor</span>
-            <span class="style-pill" data-style="Geometric">Geometric</span>
-            <span class="style-pill" data-style="Neo-Traditional">Neo-Traditional</span>
-            <span class="style-pill" data-style="Minimalist">Minimalist</span>
-            <span class="style-pill" data-style="Black &amp; Grey">Black &amp; Grey</span>
         </div>
 
         <!-- Map + Shop Panel -->
@@ -482,8 +513,8 @@
             <div id="map">
                 <div class="map-overlay" id="mapOverlay">
                     <i class="fas fa-map-marker-alt"></i>
-                    <strong>Search a zip code to find shops near you</strong>
-                    <p>Results will appear on the map and in the list</p>
+                    <strong>Search to find shops near you</strong>
+                    <p>Enter a zip code or use your location above</p>
                 </div>
                 <div class="map-loading" id="mapLoading">
                     <i class="fas fa-spinner fa-spin"></i>
@@ -493,12 +524,12 @@
             </div>
             <div class="shop-panel">
                 <div class="shop-panel-header">
-                    <h3 id="shopPanelTitle">Enter a zip code to search</h3>
+                    <h3 id="shopPanelTitle">Enter a location to search</h3>
                 </div>
                 <div class="shop-list" id="shopList">
                     <div class="empty-state">
                         <i class="fas fa-map-pin"></i>
-                        <p>Search a zip code above to see nearby tattoo shops.</p>
+                        <p>Search a zip code above<br>to see nearby tattoo shops.</p>
                     </div>
                 </div>
             </div>
@@ -800,16 +831,20 @@ out body center;`;
                 // Card
                 const card = document.createElement('div');
                 card.className = 'shop-card';
+                const hasLinks = shop.website || true; // always show directions
                 card.innerHTML = `
                     <div class="shop-card-name">${shop.name}</div>
-                    ${shop.address ? `<div class="shop-card-address"><i class="fas fa-map-marker-alt" style="color:#C44040;margin-right:4px;"></i>${shop.address}</div>` : ''}
-                    <div class="shop-card-meta">
-                        <span class="shop-distance"><i class="fas fa-location-arrow" style="margin-right:3px;"></i>${shop.distance.toFixed(1)} mi</span>
+                    ${shop.address ? `<div class="shop-card-address"><i class="fas fa-map-marker-alt"></i>${shop.address}</div>` : ''}
+                    <div class="shop-distance-badge"><i class="fas fa-location-arrow"></i>${shop.distance.toFixed(1)} mi away</div>
+                    ${(shop.phone || shop.openingHours) ? `
+                    <div class="shop-details">
+                        ${shop.phone ? `<div class="shop-detail-row"><i class="fas fa-phone"></i>${shop.phone}</div>` : ''}
+                        ${shop.openingHours ? `<div class="shop-detail-row"><i class="fas fa-clock"></i>${shop.openingHours}</div>` : ''}
+                    </div>` : ''}
+                    <div class="shop-card-links">
+                        <a href="https://www.google.com/maps/dir/?api=1&destination=${shop.lat},${shop.lng}" target="_blank" rel="noopener" class="shop-link directions"><i class="fas fa-directions"></i> Directions</a>
+                        ${shop.website ? `<a href="${shop.website}" target="_blank" rel="noopener" class="shop-link website"><i class="fas fa-globe"></i> Website</a>` : ''}
                     </div>
-                    ${shop.phone ? `<div class="shop-phone"><i class="fas fa-phone"></i>${shop.phone}</div>` : ''}
-                    ${shop.openingHours ? `<div class="shop-hours"><i class="fas fa-clock"></i>${shop.openingHours}</div>` : ''}
-                    ${shop.website ? `<a href="${shop.website}" target="_blank" rel="noopener" class="get-directions-link" style="color:#aaa;margin-right:12px;"><i class="fas fa-globe"></i> Website</a>` : ''}
-                    <a href="https://www.google.com/maps/dir/?api=1&destination=${shop.lat},${shop.lng}" target="_blank" rel="noopener" class="get-directions-link"><i class="fas fa-directions"></i> Get Directions</a>
                 `;
 
                 card.addEventListener('click', e => {
