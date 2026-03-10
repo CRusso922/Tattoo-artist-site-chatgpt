@@ -46,25 +46,25 @@
             <aside class="filters-sidebar">
                 <h3>Filter Artists</h3>
                 <div class="filter-group">
-                    <label for="style">Style</label>
-                    <select id="style" multiple size="6">
-                        <option value="realism">Realism</option>
-                        <option value="traditional">Traditional (American)</option>
-                        <option value="neo-traditional">Neo-Traditional</option>
-                        <option value="blackwork">Blackwork</option>
-                        <option value="watercolor">Watercolor</option>
-                        <option value="geometric">Geometric</option>
-                        <option value="dotwork">Dotwork</option>
-                        <option value="japanese">Japanese (Irezumi)</option>
-                        <option value="portrait">Portrait</option>
-                        <option value="fine-line">Fine Line</option>
-                        <option value="chicano">Chicano</option>
-                        <option value="ignorant">Ignorant Style</option>
-                        <option value="tribal">Tribal</option>
-                        <option value="bio-mechanical">Bio-Mechanical</option>
-                        <option value="new-school">New School</option>
-                        <option value="script">Script</option>
-                    </select>
+                    <label>Style</label>
+                    <div id="styleFilterPills" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;">
+                        <span class="filter-pill" data-value="realism">Realism</span>
+                        <span class="filter-pill" data-value="traditional">Traditional</span>
+                        <span class="filter-pill" data-value="neo-traditional">Neo-Traditional</span>
+                        <span class="filter-pill" data-value="blackwork">Blackwork</span>
+                        <span class="filter-pill" data-value="watercolor">Watercolor</span>
+                        <span class="filter-pill" data-value="geometric">Geometric</span>
+                        <span class="filter-pill" data-value="dotwork">Dotwork</span>
+                        <span class="filter-pill" data-value="japanese">Japanese</span>
+                        <span class="filter-pill" data-value="portrait">Portrait</span>
+                        <span class="filter-pill" data-value="fine-line">Fine Line</span>
+                        <span class="filter-pill" data-value="chicano">Chicano</span>
+                        <span class="filter-pill" data-value="ignorant">Ignorant Style</span>
+                        <span class="filter-pill" data-value="tribal">Tribal</span>
+                        <span class="filter-pill" data-value="bio-mechanical">Bio-Mechanical</span>
+                        <span class="filter-pill" data-value="new-school">New School</span>
+                        <span class="filter-pill" data-value="script">Script</span>
+                    </div>
                 </div>
                 <div class="filter-group">
                     <label for="location">Location</label>
@@ -124,11 +124,37 @@
             </div>
         </div>
     </footer>
+    <style>
+        .filter-pill {
+            padding: 5px 12px;
+            border-radius: 20px;
+            border: 1px solid #444;
+            background: #2b2b2b;
+            color: #ccc;
+            font-size: 0.82rem;
+            cursor: pointer;
+            user-select: none;
+            transition: background 0.15s, color 0.15s, border-color 0.15s;
+        }
+        .filter-pill:hover { border-color: #C44040; color: #f0f0f0; }
+        .filter-pill.selected {
+            background: #C44040;
+            border-color: #C44040;
+            color: #fff;
+            font-weight: 600;
+        }
+    </style>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
     <script src="/supabase-client.js"></script>
     <script src="/script.js"></script>
     <script>
         let allArtists = [];
+
+        // Style pill toggle
+        document.getElementById('styleFilterPills').addEventListener('click', function(e) {
+            const pill = e.target.closest('.filter-pill');
+            if (pill) pill.classList.toggle('selected');
+        });
 
         function renderArtists(artists) {
             const container = document.getElementById('artistResults');
@@ -179,7 +205,7 @@
         }
 
         function applyFilters() {
-            const selectedStyles = Array.from(document.querySelectorAll('#style option:checked')).map(o => o.value);
+            const selectedStyles = Array.from(document.querySelectorAll('#styleFilterPills .filter-pill.selected')).map(p => p.dataset.value);
             const locationFilter = document.getElementById('location').value.trim().toLowerCase();
 
             const filtered = allArtists.filter(function(artist) {
@@ -226,7 +252,16 @@
             }
 
             allArtists = artists || [];
-            renderArtists(allArtists);
+
+            // Pre-select style from URL param (e.g. ?style=realism from homepage)
+            const styleParam = new URLSearchParams(window.location.search).get('style');
+            if (styleParam) {
+                const pill = document.querySelector('#styleFilterPills .filter-pill[data-value="' + styleParam + '"]');
+                if (pill) pill.classList.add('selected');
+                applyFilters();
+            } else {
+                renderArtists(allArtists);
+            }
         });
     </script>
 </body>
