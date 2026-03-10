@@ -273,6 +273,23 @@
                         <div class="save-feedback" id="saveFeedback"></div>
                     </form>
 
+                    <!-- Portfolio Images (artists only) -->
+                    <div id="portfolioSection" style="display:none; margin-top:32px; padding-top:28px; border-top:1px solid #333;">
+                        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+                            <h2 style="font-size:1.1rem; margin:0;">Portfolio Images</h2>
+                            <label for="portfolioUpload" class="button-primary" style="cursor:pointer; font-size:0.85rem; padding:8px 14px; margin:0;">
+                                <i class="fas fa-plus" style="margin-right:6px;"></i>Add Photos
+                            </label>
+                            <input type="file" id="portfolioUpload" accept="image/*" multiple style="display:none;">
+                        </div>
+                        <p style="color:#666; font-size:0.82rem; margin-bottom:16px;">Max 5MB per image · Up to 20 photos · Click a photo to delete it</p>
+                        <div id="portfolioGrid" style="display:grid; grid-template-columns:repeat(auto-fill,minmax(130px,1fr)); gap:10px;"></div>
+                        <p id="portfolioEmpty" style="color:#666; font-size:0.9rem; padding:16px 0; display:none;">No portfolio images yet. Add some to showcase your work!</p>
+                        <div id="portfolioUploading" style="display:none; color:#888; font-size:0.88rem; margin-top:10px;">
+                            <i class="fas fa-spinner fa-spin" style="margin-right:6px;"></i>Uploading...
+                        </div>
+                    </div>
+
                     <div class="danger-zone">
                         <button id="signOutBtn" style="width:100%; padding:13px; background:transparent; border:1px solid #444; color:#888; border-radius:8px; cursor:pointer; font-size:0.95rem; transition: border-color 0.2s, color 0.2s;"
                             onmouseover="this.style.borderColor='#C44040';this.style.color='#f0f0f0'"
@@ -534,6 +551,106 @@
             document.getElementById('signOutBtn').addEventListener('click', async function() {
                 await window.supabaseClient.auth.signOut();
                 window.location.href = '/';
+            });
+
+            // Portfolio section (artists only)
+            if (userType === 'artist') {
+                document.getElementById('portfolioSection').style.display = 'block';
+                loadPortfolioImages();
+            }
+
+            function addImageToGrid(img) {
+                const grid = document.getElementById('portfolioGrid');
+                document.getElementById('portfolioEmpty').style.display = 'none';
+
+                const item = document.createElement('div');
+                item.dataset.id = img.id;
+                item.dataset.path = img.storage_path;
+                item.style.cssText = 'position:relative;aspect-ratio:1;border-radius:8px;overflow:hidden;background:#2b2b2b;cursor:pointer;';
+                item.innerHTML = `
+                    <img src="${img.public_url}" style="width:100%;height:100%;object-fit:cover;" loading="lazy">
+                    <div class="portfolio-delete-overlay" style="position:absolute;inset:0;background:rgba(196,64,64,0.75);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity 0.2s;">
+                        <i class="fas fa-trash" style="color:#fff;font-size:1.2rem;"></i>
+                    </div>`;
+
+                item.addEventListener('mouseenter', () => item.querySelector('.portfolio-delete-overlay').style.opacity = '1');
+                item.addEventListener('mouseleave', () => item.querySelector('.portfolio-delete-overlay').style.opacity = '0');
+
+                item.addEventListener('click', async function() {
+                    if (!confirm('Delete this image from your portfolio?')) return;
+                    await window.supabaseClient.storage.from('portfolio').remove([img.storage_path]);
+                    await window.supabaseClient.from('portfolio_images').delete().eq('id', img.id);
+                    item.remove();
+                    if (!document.querySelector('#portfolioGrid div')) {
+                        document.getElementById('portfolioEmpty').style.display = 'block';
+                    }
+                });
+
+                grid.appendChild(item);
+            }
+
+            async function loadPortfolioImages() {
+                const { data: images } = await window.supabaseClient
+                    .from('portfolio_images')
+                    .select('*')
+                    .eq('artist_id', user.id)
+                    .order('created_at', { ascending: false });
+
+                document.getElementById('portfolioGrid').innerHTML = '';
+                if (!images || images.length === 0) {
+                    document.getElementById('portfolioEmpty').style.display = 'block';
+                    return;
+                }
+                images.forEach(addImageToGrid);
+            }
+
+            document.getElementById('portfolioUpload').addEventListener('change', async function() {
+                const files = Array.from(this.files);
+                if (!files.length) return;
+
+                const currentCount = document.querySelectorAll('#portfolioGrid div').length;
+                if (currentCount + files.length > 20) {
+                    alert('You can have a maximum of 20 portfolio images.');
+                    this.value = '';
+                    return;
+                }
+
+                document.getElementById('portfolioUploading').style.display = 'block';
+
+                for (const file of files) {
+                    if (!file.type.startsWith('image/')) continue;
+                    if (file.size > 5 * 1024 * 1024) {
+                        alert(file.name + ' exceeds 5MB and was skipped.');
+                        continue;
+                    }
+
+                    const ext = file.name.split('.').pop();
+                    const path = user.id + '/' + Date.now() + '-' + Math.random().toString(36).slice(2) + '.' + ext;
+
+                    const { error: uploadError } = await window.supabaseClient.storage
+                        .from('portfolio')
+                        .upload(path, file);
+
+                    if (uploadError) {
+                        alert('Failed to upload ' + file.name + ': ' + uploadError.message);
+                        continue;
+                    }
+
+                    const { data: { publicUrl } } = window.supabaseClient.storage
+                        .from('portfolio')
+                        .getPublicUrl(path);
+
+                    const { data: imgRecord } = await window.supabaseClient
+                        .from('portfolio_images')
+                        .insert({ artist_id: user.id, storage_path: path, public_url: publicUrl })
+                        .select()
+                        .single();
+
+                    if (imgRecord) addImageToGrid(imgRecord);
+                }
+
+                document.getElementById('portfolioUploading').style.display = 'none';
+                this.value = '';
             });
         });
     </script>

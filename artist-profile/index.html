@@ -225,6 +225,13 @@
                             <p id="bioCopy"></p>
                         </div>
 
+                        <!-- Portfolio Gallery -->
+                        <div class="profile-card" id="galleryCard" style="display:none;">
+                            <h2>Portfolio</h2>
+                            <div class="profile-gallery" id="portfolioGallery" style="display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:10px; margin-top:4px;"></div>
+                            <p id="galleryEmpty" style="display:none; color:#666; font-size:0.9rem; margin:0;">This artist hasn't uploaded portfolio images yet.</p>
+                        </div>
+
                         <!-- Styles -->
                         <div class="profile-card" id="stylesCard" style="display:none;">
                             <h2>Specialties</h2>
@@ -380,6 +387,31 @@
 
             if (rows.length) {
                 contactRows.innerHTML = rows.join('');
+            }
+
+            // Portfolio gallery
+            const { data: portfolioImages } = await window.supabaseClient
+                .from('portfolio_images')
+                .select('*')
+                .eq('artist_id', artistId)
+                .order('created_at', { ascending: false });
+
+            const galleryCard = document.getElementById('galleryCard');
+            const gallery = document.getElementById('portfolioGallery');
+            galleryCard.style.display = 'block';
+
+            if (portfolioImages && portfolioImages.length > 0) {
+                portfolioImages.forEach(function(img) {
+                    const el = document.createElement('img');
+                    el.src = img.public_url;
+                    el.alt = name + ' tattoo portfolio';
+                    el.style.cssText = 'width:100%;aspect-ratio:1;object-fit:cover;border-radius:8px;cursor:pointer;';
+                    el.loading = 'lazy';
+                    gallery.appendChild(el);
+                });
+            } else {
+                gallery.style.display = 'none';
+                document.getElementById('galleryEmpty').style.display = 'block';
             }
 
             // Show content
