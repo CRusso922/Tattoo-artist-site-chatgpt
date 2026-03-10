@@ -17,8 +17,8 @@
             border-bottom: 1px solid #333;
         }
         .profile-avatar-lg {
-            width: 72px;
-            height: 72px;
+            width: 80px;
+            height: 80px;
             background: #C44040;
             border-radius: 50%;
             display: flex;
@@ -28,7 +28,32 @@
             font-weight: 700;
             color: #fff;
             flex-shrink: 0;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
         }
+        .profile-avatar-lg img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+        .avatar-upload-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0,0,0,0.55);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.2s;
+            border-radius: 50%;
+            font-size: 0.65rem;
+            color: #fff;
+            gap: 3px;
+        }
+        .profile-avatar-lg:hover .avatar-upload-overlay { opacity: 1; }
         .profile-type-badge {
             display: inline-block;
             padding: 3px 12px;
@@ -149,7 +174,14 @@
                 <div id="profile-content" style="display:none; max-width: 600px; margin: 0 auto;">
 
                     <div class="profile-header">
-                        <div class="profile-avatar-lg" id="profileInitials">?</div>
+                        <div class="profile-avatar-lg" id="profileAvatar" title="Click to upload photo">
+                            <span id="profileInitials">?</span>
+                            <div class="avatar-upload-overlay">
+                                <i class="fas fa-camera"></i>
+                                <span>Change</span>
+                            </div>
+                        </div>
+                        <input type="file" id="avatarInput" accept="image/*" style="display:none;">
                         <div>
                             <h1 id="profileName" style="font-size: 1.5rem; margin-bottom: 4px;">Your Name</h1>
                             <span id="profileBadge" class="profile-type-badge">Loading...</span>
@@ -346,9 +378,71 @@
             // Populate header
             const name = (profile && profile.full_name) || fullName || user.email;
             const initials = name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) || '?';
-            document.getElementById('profileInitials').textContent = initials;
             document.getElementById('profileName').textContent = name;
             document.getElementById('profileEmail').textContent = user.email;
+
+            // Avatar: show image if uploaded, otherwise initials
+            const avatarEl = document.getElementById('profileAvatar');
+            const initialsEl = document.getElementById('profileInitials');
+            function setAvatarImage(url) {
+                initialsEl.style.display = 'none';
+                const img = avatarEl.querySelector('img') || document.createElement('img');
+                img.src = url;
+                img.alt = 'Profile photo';
+                if (!avatarEl.querySelector('img')) avatarEl.insertBefore(img, avatarEl.firstChild);
+            }
+            if (profile && profile.avatar_url) {
+                setAvatarImage(profile.avatar_url);
+            } else {
+                initialsEl.textContent = initials;
+            }
+
+            // Avatar click → file picker
+            avatarEl.addEventListener('click', () => document.getElementById('avatarInput').click());
+
+            document.getElementById('avatarInput').addEventListener('change', async function() {
+                const file = this.files[0];
+                if (!file) return;
+                if (!file.type.startsWith('image/')) {
+                    alert('Please select an image file.');
+                    return;
+                }
+                if (file.size > 2 * 1024 * 1024) {
+                    alert('Image must be under 2MB.');
+                    return;
+                }
+
+                initialsEl.style.display = '';
+                initialsEl.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+                const existingImg = avatarEl.querySelector('img');
+                if (existingImg) existingImg.style.opacity = '0.3';
+
+                const ext = file.name.split('.').pop();
+                const path = user.id + '/avatar.' + ext;
+
+                const { error: uploadError } = await window.supabaseClient.storage
+                    .from('avatars')
+                    .upload(path, file, { upsert: true });
+
+                if (uploadError) {
+                    alert('Upload failed: ' + uploadError.message);
+                    initialsEl.textContent = initials;
+                    if (existingImg) existingImg.style.opacity = '1';
+                    return;
+                }
+
+                const { data: { publicUrl } } = window.supabaseClient.storage
+                    .from('avatars')
+                    .getPublicUrl(path);
+
+                await window.supabaseClient
+                    .from('profiles')
+                    .update({ avatar_url: publicUrl })
+                    .eq('id', user.id);
+
+                setAvatarImage(publicUrl + '?t=' + Date.now());
+                initialsEl.style.display = 'none';
+            });
 
             const badge = document.getElementById('profileBadge');
             if (userType === 'artist') {
@@ -427,7 +521,9 @@
                     // Update visible name
                     document.getElementById('profileName').textContent = newName;
                     const newInitials = newName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) || '?';
-                    document.getElementById('profileInitials').textContent = newInitials;
+                    if (!avatarEl.querySelector('img')) {
+                        document.getElementById('profileInitials').textContent = newInitials;
+                    }
                     feedback.textContent = 'Changes saved!';
                     feedback.classList.add('success');
                     setTimeout(() => { feedback.className = 'save-feedback'; }, 3000);
