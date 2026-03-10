@@ -170,66 +170,35 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 // ------------------------------------------------------------
-// 6. SIGNUP FORM - PASSWORD VALIDATION + SUCCESS MESSAGE
+// 6. NAV AUTH STATE (Supabase)
 // ------------------------------------------------------------
 document.addEventListener('DOMContentLoaded', function () {
-  document.querySelectorAll('.signup-form').forEach(function (form) {
-    form.addEventListener('submit', function (e) {
-      e.preventDefault();
+  if (!window.supabaseClient) return;
 
-      const password = form.querySelector('#password');
-      const confirmPassword = form.querySelector('#confirmPassword');
+  function updateNav(session) {
+    const link = document.querySelector('.nav-profile-link');
+    if (!link) return;
+    const avatar = link.querySelector('.nav-avatar');
+    const label = link.querySelector('.nav-login-text');
+    if (session && session.user) {
+      const meta = session.user.user_metadata || {};
+      const name = meta.full_name || session.user.email;
+      const initials = name.split(' ').map(function (n) { return n[0]; }).join('').toUpperCase().slice(0, 2);
+      avatar.innerHTML = '<span style="font-weight:700;font-size:0.8rem;color:#fff;">' + initials + '</span>';
+      label.textContent = name.split(' ')[0];
+    } else {
+      avatar.innerHTML = '<i class="fas fa-user"></i>';
+      label.textContent = 'Sign In';
+    }
+  }
 
-      if (password && confirmPassword) {
-        if (password.value !== confirmPassword.value) {
-          showFormError(confirmPassword, 'Passwords do not match. Please try again.');
-          return;
-        } else {
-          clearFormError(confirmPassword);
-        }
-      }
-
-      // Show success message
-      const isArtist = form.querySelector('#artistName') !== null;
-      showSuccessMessage(form, isArtist
-        ? '🎨 Artist account created! Welcome to DiscoverInk. We\'ll be in touch soon.'
-        : '✅ Account created! Welcome to DiscoverInk. Start exploring artists now.'
-      );
-    });
+  window.supabaseClient.auth.getSession().then(function (res) {
+    updateNav(res.data.session);
   });
 
-  function showFormError(input, message) {
-    clearFormError(input);
-    const error = document.createElement('small');
-    error.className = 'form-error-message';
-    error.style.cssText = 'color:#C44040;display:block;margin-top:5px;';
-    error.textContent = message;
-    input.parentNode.appendChild(error);
-    input.style.borderColor = '#C44040';
-  }
-
-  function clearFormError(input) {
-    const existing = input.parentNode.querySelector('.form-error-message');
-    if (existing) existing.remove();
-    input.style.borderColor = '';
-  }
-
-  function showSuccessMessage(form, message) {
-    form.style.opacity = '0.4';
-    form.style.pointerEvents = 'none';
-
-    let successEl = form.parentNode.querySelector('.form-success-message');
-    if (!successEl) {
-      successEl = document.createElement('div');
-      successEl.className = 'form-success-message';
-      form.parentNode.insertBefore(successEl, form.nextSibling);
-    }
-    successEl.innerHTML = '<i class="fas fa-check-circle"></i>' + message;
-    successEl.style.display = 'block';
-
-    // Scroll to success message
-    successEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  }
+  window.supabaseClient.auth.onAuthStateChange(function (event, session) {
+    updateNav(session);
+  });
 });
 
 

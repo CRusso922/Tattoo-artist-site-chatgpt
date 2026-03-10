@@ -144,6 +144,84 @@
             </div>
         </div>
     </footer>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <script src="/supabase-client.js"></script>
     <script src="/script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            if (!window.supabaseClient) return;
+
+            document.querySelector('form.signup-form').addEventListener('submit', async function (e) {
+                e.preventDefault();
+                const artistName = document.getElementById('artistName').value.trim();
+                const email = document.getElementById('email').value.trim();
+                const phone = document.getElementById('phone').value.trim();
+                const password = document.getElementById('password').value;
+                const confirmPassword = document.getElementById('confirmPassword').value;
+                const location = document.getElementById('location').value.trim();
+                const styles = Array.from(document.getElementById('styles').selectedOptions).map(o => o.value);
+                const portfolio = document.getElementById('portfolio').value.trim();
+                const bio = document.getElementById('bio').value.trim();
+
+                clearErrors();
+
+                if (password !== confirmPassword) {
+                    showFieldError(document.getElementById('confirmPassword'), 'Passwords do not match.');
+                    return;
+                }
+                if (password.length < 6) {
+                    showFieldError(document.getElementById('password'), 'Password must be at least 6 characters.');
+                    return;
+                }
+
+                const btn = this.querySelector('button[type="submit"]');
+                btn.disabled = true;
+                btn.textContent = 'Creating account...';
+
+                const { error } = await window.supabaseClient.auth.signUp({
+                    email,
+                    password,
+                    options: {
+                        data: {
+                            full_name: artistName,
+                            user_type: 'artist',
+                            phone,
+                            location,
+                            styles,
+                            portfolio,
+                            bio
+                        }
+                    }
+                });
+
+                if (error) {
+                    showFieldError(document.getElementById('email'), error.message);
+                    btn.disabled = false;
+                    btn.textContent = 'Create Artist Account';
+                } else {
+                    this.style.opacity = '0.4';
+                    this.style.pointerEvents = 'none';
+                    const success = document.createElement('div');
+                    success.style.cssText = 'text-align:center;padding:28px;background:#2a2a2a;border:1px solid #3a3a3a;border-radius:10px;margin-top:20px;';
+                    success.innerHTML = '<i class="fas fa-check-circle" style="color:#4CAF50;font-size:2.5rem;display:block;margin-bottom:14px;"></i><strong style="font-size:1.1rem;">Artist account created!</strong><p style="color:#888;margin:8px 0 20px;">Check your email to confirm your account, then log in to set up your profile.</p><a href="/login/" class="button-primary" style="display:inline-block;">Go to Login</a>';
+                    this.parentNode.insertBefore(success, this.nextSibling);
+                }
+            });
+
+            function showFieldError(input, message) {
+                const err = document.createElement('small');
+                err.className = 'form-error-msg';
+                err.style.cssText = 'color:#C44040;display:block;margin-top:5px;';
+                err.textContent = message;
+                input.parentNode.appendChild(err);
+                input.style.borderColor = '#C44040';
+            }
+
+            function clearErrors() {
+                document.querySelectorAll('.form-error-msg').forEach(e => e.remove());
+                document.querySelectorAll('input, textarea').forEach(i => i.style.borderColor = '');
+            }
+        });
+    </script>
 </body>
 </html>

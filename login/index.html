@@ -243,6 +243,8 @@
         </div>
     </footer>
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <script src="/supabase-client.js"></script>
     <script src="/script.js"></script>
     <script>
         // Tab switching
@@ -256,6 +258,56 @@
                 document.querySelectorAll('.auth-panel').forEach(p => {
                     p.classList.toggle('active', p.id === 'panel-' + target);
                 });
+            });
+        });
+
+        // Auth
+        document.addEventListener('DOMContentLoaded', async function () {
+            if (!window.supabaseClient) return;
+
+            // If already logged in, show account panel
+            const { data: { session } } = await window.supabaseClient.auth.getSession();
+            if (session) {
+                const name = session.user.user_metadata?.full_name || session.user.email;
+                document.querySelector('.signup-form').innerHTML = `
+                    <h2 style="margin-bottom:8px;">Welcome back, ${name.split(' ')[0]}!</h2>
+                    <p style="color:#888;margin-bottom:28px;">Signed in as <strong style="color:#f0f0f0;">${session.user.email}</strong></p>
+                    <a href="/" class="button-primary" style="display:block;text-align:center;margin-bottom:12px;border-radius:8px;padding:15px;">Go to Homepage</a>
+                    <button id="signOutBtn" style="width:100%;padding:14px;background:transparent;border:1px solid #555;color:#aaa;border-radius:8px;cursor:pointer;font-size:1rem;transition:border-color 0.2s,color 0.2s;" onmouseover="this.style.borderColor='#C44040';this.style.color='#f0f0f0'" onmouseout="this.style.borderColor='#555';this.style.color='#aaa'">Sign Out</button>
+                `;
+                document.getElementById('signOutBtn').addEventListener('click', async () => {
+                    await window.supabaseClient.auth.signOut();
+                    window.location.reload();
+                });
+                return;
+            }
+
+            // Wire up login form
+            document.getElementById('loginForm').addEventListener('submit', async function (e) {
+                e.preventDefault();
+                const email = document.getElementById('loginEmail').value.trim();
+                const password = document.getElementById('loginPassword').value;
+                const btn = this.querySelector('button[type="submit"]');
+
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin" style="margin-right:8px;"></i>Signing in...';
+
+                const { error } = await window.supabaseClient.auth.signInWithPassword({ email, password });
+
+                if (error) {
+                    let errEl = document.getElementById('loginError');
+                    if (!errEl) {
+                        errEl = document.createElement('p');
+                        errEl.id = 'loginError';
+                        errEl.style.cssText = 'color:#C44040;font-size:0.9rem;margin-top:14px;text-align:center;';
+                        document.getElementById('loginForm').appendChild(errEl);
+                    }
+                    errEl.textContent = error.message;
+                    btn.disabled = false;
+                    btn.innerHTML = 'Log In <i class="fas fa-sign-in-alt" style="margin-left:8px;"></i>';
+                } else {
+                    window.location.href = '/';
+                }
             });
         });
     </script>
