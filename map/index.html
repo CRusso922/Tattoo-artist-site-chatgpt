@@ -389,6 +389,35 @@
             100% { box-shadow: 0 0 0 0 rgba(196,64,64,0); }
         }
 
+        /* DiscoverInk Artist Marker */
+        .di-marker {
+            width: 32px;
+            height: 32px;
+            background: #fff;
+            border: 3px solid #C44040;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            color: #C44040;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+        }
+        .di-marker.di-marker-closed { border-color: #555; color: #555; }
+
+        /* Panel Section Headers */
+        .panel-section-header {
+            padding: 8px 10px 6px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            border-bottom: 1px solid #2a2a2a;
+            margin: 8px 0 4px;
+        }
+        .panel-section-header:first-child { margin-top: 0; }
+
         /* Responsive */
         @media (max-width: 900px) {
             .map-hero h1 { font-size: 2rem; }
@@ -485,14 +514,6 @@
                         <option value="99999">Any</option>
                     </select>
                 </div>
-                <div class="filter-group">
-                    <label for="ratingFilter">Rating</label>
-                    <select id="ratingFilter" class="filter-select">
-                        <option value="0">Any</option>
-                        <option value="4.0">4.0+</option>
-                        <option value="4.5">4.5+</option>
-                    </select>
-                </div>
             </div>
             <div class="style-pills-scroll" id="stylePills">
                 <span class="style-pill active" data-style="All">All Styles</span>
@@ -575,116 +596,16 @@
     <script src="/supabase-client.js"></script>
     <script src="/script.js"></script>
     <script>
-        // ===== LIVE DATA FROM OPENSTREETMAP (OVERPASS API) =====
-        // No hardcoded shops — real tattoo shop locations fetched on search.
-
-        const FAKE_SHOPS = [
-            {
-                name: "Sacred Skin Tattoo",
-                address: "247 W 30th St, New York, NY",
-                lat: 40.7484, lng: -73.9967,
-                styles: ["Realism", "Black & Grey", "Portrait"],
-                rating: 4.9, reviews: 142,
-                phone: "(212) 555-0101"
-            },
-            {
-                name: "Ink Temple NYC",
-                address: "512 Lexington Ave, New York, NY",
-                lat: 40.7570, lng: -73.9741,
-                styles: ["Japanese", "Traditional", "Neo-Traditional"],
-                rating: 4.7, reviews: 89,
-                phone: "(212) 555-0202"
-            },
-            {
-                name: "Blackwork Collective",
-                address: "88 Bedford Ave, Brooklyn, NY",
-                lat: 40.7184, lng: -73.9561,
-                styles: ["Blackwork", "Geometric", "Minimalist"],
-                rating: 4.8, reviews: 201,
-                phone: "(718) 555-0303"
-            },
-            {
-                name: "West Coast Ink",
-                address: "8400 Sunset Blvd, Los Angeles, CA",
-                lat: 34.0928, lng: -118.3741,
-                styles: ["Watercolor", "Neo-Traditional", "Realism"],
-                rating: 4.6, reviews: 178,
-                phone: "(323) 555-0404"
-            },
-            {
-                name: "Hollywood Tattoo Co.",
-                address: "1654 Cahuenga Blvd, Hollywood, CA",
-                lat: 34.0975, lng: -118.3280,
-                styles: ["Traditional", "Japanese", "Blackwork"],
-                rating: 4.5, reviews: 95,
-                phone: "(323) 555-0505"
-            },
-            {
-                name: "Windy City Tattoo",
-                address: "1543 N Milwaukee Ave, Chicago, IL",
-                lat: 41.9073, lng: -87.6749,
-                styles: ["Realism", "Black & Grey"],
-                rating: 4.8, reviews: 134,
-                phone: "(312) 555-0606"
-            },
-            {
-                name: "Chicago Ink House",
-                address: "3402 N Clark St, Chicago, IL",
-                lat: 41.9459, lng: -87.6558,
-                styles: ["Neo-Traditional", "Geometric", "Minimalist"],
-                rating: 4.7, reviews: 67,
-                phone: "(773) 555-0707"
-            },
-            {
-                name: "Lone Star Tattoo",
-                address: "4809 Burnet Rd, Austin, TX",
-                lat: 30.3209, lng: -97.7358,
-                styles: ["Traditional", "Black & Grey", "Portrait"],
-                rating: 4.9, reviews: 210,
-                phone: "(512) 555-0808"
-            },
-            {
-                name: "Miami Ink Gallery",
-                address: "1501 Ocean Dr, Miami Beach, FL",
-                lat: 25.7823, lng: -80.1302,
-                styles: ["Watercolor", "Realism"],
-                rating: 4.6, reviews: 155,
-                phone: "(305) 555-0909"
-            },
-            {
-                name: "Emerald City Tattoo",
-                address: "601 Pine St, Seattle, WA",
-                lat: 47.6109, lng: -122.3352,
-                styles: ["Japanese", "Blackwork", "Neo-Traditional"],
-                rating: 4.8, reviews: 98,
-                phone: "(206) 555-1010"
-            },
-            {
-                name: "Mile High Ink",
-                address: "2500 Larimer St, Denver, CO",
-                lat: 39.7564, lng: -104.9849,
-                styles: ["Geometric", "Watercolor", "Minimalist"],
-                rating: 4.7, reviews: 83,
-                phone: "(303) 555-1111"
-            },
-            {
-                name: "The Tattoo Parlor",
-                address: "3200 Magazine St, New Orleans, LA",
-                lat: 29.9291, lng: -90.0990,
-                styles: ["Traditional", "Black & Grey", "Realism"],
-                rating: 4.5, reviews: 121,
-                phone: "(504) 555-1212"
-            }
-        ];
-
         // ===== STATE =====
         let currentLabel = '';
         let searchLat = null;
         let searchLng = null;
-        let currentShops = [];   // shops loaded from Overpass
+        let currentShops = [];
         let activeStyleFilter = 'All';
         let markers = {};
         let searchMarker = null;
+        let diArtists = [];
+        let diMarkers = {};
 
         // ===== HAVERSINE =====
         function haversineDistance(lat1, lng1, lat2, lng2) {
@@ -703,7 +624,6 @@
             subdomains: 'abcd', maxZoom: 19
         }).addTo(map);
 
-        // Dark popup styles
         const styleEl = document.createElement('style');
         styleEl.textContent = `
             .dark-popup .leaflet-popup-content-wrapper { background:#2a2a2a; color:#f0f0f0; border:1px solid #444; border-radius:8px; }
@@ -712,12 +632,20 @@
         `;
         document.head.appendChild(styleEl);
 
-        // ===== MARKER ICON =====
+        // ===== MARKER ICONS =====
         function createMarkerIcon(pulse) {
             return L.divIcon({
                 className: '',
                 html: `<div class="custom-marker${pulse ? ' pulse' : ''}"></div>`,
                 iconSize: [28,28], iconAnchor: [14,14], popupAnchor: [0,-16]
+            });
+        }
+
+        function createDIMarkerIcon(accepting) {
+            return L.divIcon({
+                className: '',
+                html: `<div class="di-marker${accepting ? '' : ' di-marker-closed'}"><i class="fas fa-palette"></i></div>`,
+                iconSize: [32, 32], iconAnchor: [16, 16], popupAnchor: [0, -18]
             });
         }
 
@@ -733,6 +661,18 @@
             return { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) };
         }
 
+        // ===== GEOCODE LOCATION STRING (Nominatim) =====
+        async function geocodeLocation(locationStr) {
+            const resp = await fetch(
+                `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(locationStr)}&format=json&limit=1&countrycodes=us`,
+                { headers: { 'Accept': 'application/json' } }
+            );
+            if (!resp.ok) return null;
+            const data = await resp.json();
+            if (!data.length) return null;
+            return { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) };
+        }
+
         // ===== FETCH REAL SHOPS FROM OVERPASS API =====
         async function fetchShopsFromOverpass(lat, lng, radiusMiles) {
             const radiusMeters = Math.round(radiusMiles * 1609.34);
@@ -744,7 +684,6 @@
   way["craft"="tattooist"](around:${radiusMeters},${lat},${lng});
 );
 out body center;`;
-
             const resp = await fetch('https://overpass-api.de/api/interpreter', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -752,7 +691,6 @@ out body center;`;
             });
             if (!resp.ok) throw new Error('Overpass API request failed');
             const data = await resp.json();
-
             return data.elements
                 .filter(el => el.tags)
                 .map(el => {
@@ -760,7 +698,6 @@ out body center;`;
                     const lat = el.lat ?? el.center?.lat;
                     const lng = el.lon ?? el.center?.lon;
                     if (!lat || !lng) return null;
-
                     const addrParts = [];
                     if (tags['addr:housenumber'] && tags['addr:street'])
                         addrParts.push(tags['addr:housenumber'] + ' ' + tags['addr:street']);
@@ -768,7 +705,6 @@ out body center;`;
                         addrParts.push(tags['addr:street']);
                     if (tags['addr:city']) addrParts.push(tags['addr:city']);
                     if (tags['addr:state']) addrParts.push(tags['addr:state']);
-
                     return {
                         name: tags.name || 'Tattoo Shop',
                         address: addrParts.length ? addrParts.join(', ') : null,
@@ -776,12 +712,118 @@ out body center;`;
                         phone: tags.phone || tags['contact:phone'] || null,
                         website: tags.website || tags['contact:website'] || null,
                         openingHours: tags.opening_hours || null,
-                        styles: [],
-                        rating: null,
                         osmId: el.id
                     };
                 })
                 .filter(Boolean);
+        }
+
+        // ===== DISCOVERINK ARTISTS =====
+        async function fetchAndPlotDIArtists() {
+            if (!window.supabaseClient) return;
+            const { data: artists } = await window.supabaseClient
+                .from('profiles')
+                .select('id, full_name, location, styles, accepting_bookings, avatar_url')
+                .eq('user_type', 'artist');
+
+            if (!artists || !artists.length) {
+                updatePanelDIArtists();
+                return;
+            }
+
+            for (const artist of artists) {
+                if (!artist.location) continue;
+                await new Promise(r => setTimeout(r, 500));
+                const coords = await geocodeLocation(artist.location);
+                if (!coords) continue;
+                artist.geocodedLat = coords.lat;
+                artist.geocodedLng = coords.lng;
+                diArtists.push(artist);
+                plotDIArtistMarker(artist);
+            }
+
+            if (searchLat === null && diArtists.length > 0) {
+                document.getElementById('mapOverlay').style.display = 'none';
+                const bounds = L.latLngBounds(diArtists.map(a => [a.geocodedLat, a.geocodedLng]));
+                map.fitBounds(bounds, { padding: [80, 80], maxZoom: 8 });
+            }
+            updatePanelDIArtists();
+        }
+
+        function plotDIArtistMarker(artist) {
+            const name = artist.full_name || 'DiscoverInk Artist';
+            const accepting = artist.accepting_bookings !== false;
+            const styleLabel = artist.styles && artist.styles.length
+                ? artist.styles.slice(0, 3).map(s => s.charAt(0).toUpperCase() + s.slice(1).replace(/-/g, ' ')).join(', ')
+                : 'Various Styles';
+            const popupHtml = `
+                <div style="min-width:200px;line-height:1.7;">
+                    <div style="margin-bottom:4px;"><span style="background:#C44040;color:#fff;font-size:0.68rem;font-weight:700;padding:2px 7px;border-radius:10px;">DISCOVERINK</span></div>
+                    <strong style="color:#f0f0f0;font-size:0.97rem;">${name}</strong><br>
+                    <span style="color:#aaa;font-size:0.8rem;">${styleLabel}</span><br>
+                    <span style="color:${accepting ? '#4CAF50' : '#888'};font-size:0.78rem;">
+                        <i class="fas fa-circle" style="font-size:0.45rem;margin-right:3px;vertical-align:middle;"></i>${accepting ? 'Accepting Bookings' : 'Not Taking Clients'}
+                    </span><br>
+                    <a href="/artist-profile/?id=${artist.id}" style="color:#C44040;font-size:0.82rem;font-weight:600;">View Profile →</a>
+                </div>`;
+            const marker = L.marker([artist.geocodedLat, artist.geocodedLng], { icon: createDIMarkerIcon(accepting) })
+                .addTo(map)
+                .bindPopup(popupHtml, { className: 'dark-popup' });
+            diMarkers[artist.id] = { marker, artist };
+        }
+
+        function renderDIArtistCard(artist, distanceMi, container) {
+            const name = artist.full_name || 'DiscoverInk Artist';
+            const accepting = artist.accepting_bookings !== false;
+            const styleLabel = artist.styles && artist.styles.length
+                ? artist.styles.slice(0, 3).map(s => s.charAt(0).toUpperCase() + s.slice(1).replace(/-/g, ' ')).join(', ')
+                : 'Various Styles';
+            const card = document.createElement('div');
+            card.className = 'shop-card';
+            card.innerHTML = `
+                <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:6px;margin-bottom:5px;">
+                    <div class="shop-card-name" style="margin:0;">${name}</div>
+                    <span style="background:rgba(196,64,64,0.15);color:#C44040;font-size:0.65rem;font-weight:700;padding:2px 6px;border-radius:8px;border:1px solid rgba(196,64,64,0.3);white-space:nowrap;flex-shrink:0;">DI ARTIST</span>
+                </div>
+                ${artist.location ? `<div class="shop-card-address"><i class="fas fa-map-marker-alt"></i>${artist.location}</div>` : ''}
+                ${distanceMi !== null ? `<div class="shop-distance-badge"><i class="fas fa-location-arrow"></i>${distanceMi.toFixed(1)} mi away</div>` : ''}
+                <div class="shop-detail-row" style="margin-bottom:6px;"><i class="fas fa-palette"></i>${styleLabel}</div>
+                <div class="shop-detail-row" style="margin-bottom:10px;">
+                    <i class="fas fa-circle" style="font-size:0.45rem;color:${accepting ? '#4CAF50' : '#888'};"></i>
+                    <span style="color:${accepting ? '#4CAF50' : '#888'}">${accepting ? 'Accepting Bookings' : 'Not Taking Clients'}</span>
+                </div>
+                <div class="shop-card-links">
+                    <a href="/artist-profile/?id=${artist.id}" class="shop-link directions"><i class="fas fa-user"></i> View Profile</a>
+                </div>`;
+            card.addEventListener('click', e => {
+                if (e.target.closest('a')) return;
+                document.querySelectorAll('.shop-card').forEach(c => c.classList.remove('highlighted'));
+                card.classList.add('highlighted');
+                if (artist.geocodedLat) {
+                    map.setView([artist.geocodedLat, artist.geocodedLng], 14, { animate: true });
+                    const entry = diMarkers[artist.id];
+                    if (entry) entry.marker.openPopup();
+                }
+            });
+            container.appendChild(card);
+        }
+
+        function updatePanelDIArtists() {
+            if (searchLat !== null) return;
+            const list = document.getElementById('shopList');
+            const title = document.getElementById('shopPanelTitle');
+            if (diArtists.length === 0) {
+                title.innerHTML = 'DiscoverInk Artists';
+                list.innerHTML = `<div class="empty-state"><i class="fas fa-map-pin"></i><p>Search by zip to find nearby shops,<br>or <a href="/artists/" style="color:#C44040;">browse all artists →</a></p></div>`;
+                return;
+            }
+            title.innerHTML = `<span>${diArtists.length}</span> DiscoverInk Artist${diArtists.length !== 1 ? 's' : ''} on the map`;
+            list.innerHTML = '';
+            const header = document.createElement('div');
+            header.className = 'panel-section-header';
+            header.innerHTML = '<i class="fas fa-palette" style="margin-right:5px;"></i>DiscoverInk Artists';
+            list.appendChild(header);
+            diArtists.forEach(artist => renderDIArtistCard(artist, null, list));
         }
 
         // ===== FILTER & RENDER =====
@@ -803,87 +845,103 @@ out body center;`;
             const shops = getFilteredShops();
             clearMarkers();
 
+            const distanceMi = parseFloat(document.getElementById('distanceFilter').value);
+            const nearbyDI = diArtists
+                .filter(a => a.geocodedLat != null)
+                .map(a => ({ ...a, distance: haversineDistance(searchLat, searchLng, a.geocodedLat, a.geocodedLng) }))
+                .filter(a => a.distance <= distanceMi)
+                .sort((a, b) => a.distance - b.distance);
+
+            const totalCount = shops.length + nearbyDI.length;
             const title = document.getElementById('shopPanelTitle');
-            title.innerHTML = `<span>${shops.length}</span> tattoo shop${shops.length !== 1 ? 's' : ''} near <span>${currentLabel}</span>`;
+            title.innerHTML = `<span>${totalCount}</span> result${totalCount !== 1 ? 's' : ''} near <span>${currentLabel}</span>`;
 
             const list = document.getElementById('shopList');
-            if (shops.length === 0) {
-                list.innerHTML = `<div class="empty-state"><i class="fas fa-search-minus"></i><p>No shops found in this area.<br>Try increasing the search distance.</p></div>`;
+            list.innerHTML = '';
+
+            if (totalCount === 0) {
+                list.innerHTML = `<div class="empty-state"><i class="fas fa-search-minus"></i><p>No results in this area.<br>Try increasing the search distance.</p></div>`;
                 return;
             }
 
-            list.innerHTML = '';
-            shops.forEach((shop, idx) => {
-                const markerId = shop.osmId || idx;
+            // DiscoverInk Artists section
+            if (nearbyDI.length > 0) {
+                const diHeader = document.createElement('div');
+                diHeader.className = 'panel-section-header';
+                diHeader.innerHTML = `<i class="fas fa-palette" style="margin-right:5px;"></i>DiscoverInk Artists (${nearbyDI.length})`;
+                list.appendChild(diHeader);
+                nearbyDI.forEach(artist => renderDIArtistCard(artist, artist.distance, list));
+            }
 
-                // Popup content
-                const popupLines = [
-                    `<strong style="color:#f0f0f0;font-size:1rem;">${shop.name}</strong>`,
-                    shop.address ? `<span style="color:#aaa;font-size:0.82rem;">${shop.address}</span>` : '',
-                    shop.phone ? `<span style="color:#888;font-size:0.82rem;"><i class="fas fa-phone" style="color:#C44040;margin-right:4px;"></i>${shop.phone}</span>` : '',
-                    shop.openingHours ? `<span style="color:#888;font-size:0.82rem;"><i class="fas fa-clock" style="color:#C44040;margin-right:4px;"></i>${shop.openingHours}</span>` : '',
-                    `<a href="https://www.google.com/maps/dir/?api=1&destination=${shop.lat},${shop.lng}" target="_blank" rel="noopener" style="color:#C44040;font-size:0.82rem;">Get Directions</a>`
-                ].filter(Boolean).join('<br>');
+            // Tattoo Shops section
+            if (shops.length > 0) {
+                const shopsHeader = document.createElement('div');
+                shopsHeader.className = 'panel-section-header';
+                shopsHeader.innerHTML = `<i class="fas fa-store" style="margin-right:5px;"></i>Tattoo Shops (${shops.length})`;
+                list.appendChild(shopsHeader);
 
-                const marker = L.marker([shop.lat, shop.lng], { icon: createMarkerIcon(false) })
-                    .addTo(map)
-                    .bindPopup(`<div style="min-width:190px;line-height:1.7;">${popupLines}</div>`, { className: 'dark-popup' });
-                markers[markerId] = { marker, shop };
+                shops.forEach((shop, idx) => {
+                    const markerId = shop.osmId || idx;
+                    const popupLines = [
+                        `<strong style="color:#f0f0f0;font-size:1rem;">${shop.name}</strong>`,
+                        shop.address ? `<span style="color:#aaa;font-size:0.82rem;">${shop.address}</span>` : '',
+                        shop.phone ? `<span style="color:#888;font-size:0.82rem;"><i class="fas fa-phone" style="color:#C44040;margin-right:4px;"></i>${shop.phone}</span>` : '',
+                        shop.openingHours ? `<span style="color:#888;font-size:0.82rem;"><i class="fas fa-clock" style="color:#C44040;margin-right:4px;"></i>${shop.openingHours}</span>` : '',
+                        `<a href="https://www.google.com/maps/dir/?api=1&destination=${shop.lat},${shop.lng}" target="_blank" rel="noopener" style="color:#C44040;font-size:0.82rem;">Get Directions</a>`
+                    ].filter(Boolean).join('<br>');
 
-                // Card
-                const card = document.createElement('div');
-                card.className = 'shop-card';
-                const hasLinks = shop.website || true; // always show directions
-                card.innerHTML = `
-                    <div class="shop-card-name">${shop.name}</div>
-                    ${shop.address ? `<div class="shop-card-address"><i class="fas fa-map-marker-alt"></i>${shop.address}</div>` : ''}
-                    <div class="shop-distance-badge"><i class="fas fa-location-arrow"></i>${shop.distance.toFixed(1)} mi away</div>
-                    ${(shop.phone || shop.openingHours) ? `
-                    <div class="shop-details">
-                        ${shop.phone ? `<div class="shop-detail-row"><i class="fas fa-phone"></i>${shop.phone}</div>` : ''}
-                        ${shop.openingHours ? `<div class="shop-detail-row"><i class="fas fa-clock"></i>${shop.openingHours}</div>` : ''}
-                    </div>` : ''}
-                    <div class="shop-card-links">
-                        <a href="https://www.google.com/maps/dir/?api=1&destination=${shop.lat},${shop.lng}" target="_blank" rel="noopener" class="shop-link directions"><i class="fas fa-directions"></i> Directions</a>
-                        ${shop.website ? `<a href="${shop.website}" target="_blank" rel="noopener" class="shop-link website"><i class="fas fa-globe"></i> Website</a>` : ''}
-                    </div>
-                `;
+                    const marker = L.marker([shop.lat, shop.lng], { icon: createMarkerIcon(false) })
+                        .addTo(map)
+                        .bindPopup(`<div style="min-width:190px;line-height:1.7;">${popupLines}</div>`, { className: 'dark-popup' });
+                    markers[markerId] = { marker, shop };
 
-                card.addEventListener('click', e => {
-                    if (e.target.closest('a')) return; // let links work normally
-                    document.querySelectorAll('.shop-card').forEach(c => c.classList.remove('highlighted'));
-                    card.classList.add('highlighted');
-                    map.setView([shop.lat, shop.lng], 15, { animate: true });
-                    setTimeout(() => {
-                        const entry = markers[markerId];
-                        if (entry) {
-                            entry.marker.setIcon(createMarkerIcon(true));
-                            entry.marker.openPopup();
-                            setTimeout(() => entry.marker.setIcon(createMarkerIcon(false)), 900);
-                        }
-                    }, 350);
+                    const card = document.createElement('div');
+                    card.className = 'shop-card';
+                    card.innerHTML = `
+                        <div class="shop-card-name">${shop.name}</div>
+                        ${shop.address ? `<div class="shop-card-address"><i class="fas fa-map-marker-alt"></i>${shop.address}</div>` : ''}
+                        <div class="shop-distance-badge"><i class="fas fa-location-arrow"></i>${shop.distance.toFixed(1)} mi away</div>
+                        ${(shop.phone || shop.openingHours) ? `
+                        <div class="shop-details">
+                            ${shop.phone ? `<div class="shop-detail-row"><i class="fas fa-phone"></i>${shop.phone}</div>` : ''}
+                            ${shop.openingHours ? `<div class="shop-detail-row"><i class="fas fa-clock"></i>${shop.openingHours}</div>` : ''}
+                        </div>` : ''}
+                        <div class="shop-card-links">
+                            <a href="https://www.google.com/maps/dir/?api=1&destination=${shop.lat},${shop.lng}" target="_blank" rel="noopener" class="shop-link directions"><i class="fas fa-directions"></i> Directions</a>
+                            ${shop.website ? `<a href="${shop.website}" target="_blank" rel="noopener" class="shop-link website"><i class="fas fa-globe"></i> Website</a>` : ''}
+                        </div>`;
+                    card.addEventListener('click', e => {
+                        if (e.target.closest('a')) return;
+                        document.querySelectorAll('.shop-card').forEach(c => c.classList.remove('highlighted'));
+                        card.classList.add('highlighted');
+                        map.setView([shop.lat, shop.lng], 15, { animate: true });
+                        setTimeout(() => {
+                            const entry = markers[markerId];
+                            if (entry) {
+                                entry.marker.setIcon(createMarkerIcon(true));
+                                entry.marker.openPopup();
+                                setTimeout(() => entry.marker.setIcon(createMarkerIcon(false)), 900);
+                            }
+                        }, 350);
+                    });
+                    list.appendChild(card);
                 });
 
-                list.appendChild(card);
-            });
-
-            // Fit map bounds
-            const bounds = L.latLngBounds([[searchLat, searchLng], ...shops.map(s => [s.lat, s.lng])]);
-            map.fitBounds(bounds, { padding: [48, 48], maxZoom: 14 });
+                const bounds = L.latLngBounds([[searchLat, searchLng], ...shops.map(s => [s.lat, s.lng])]);
+                map.fitBounds(bounds, { padding: [48, 48], maxZoom: 14 });
+            }
         }
 
         // ===== SHARED SEARCH LOGIC =====
         async function loadAndRenderShops() {
-            const distanceMi = parseFloat(document.getElementById('distanceFilter').value);
             document.getElementById('mapOverlay').style.display = 'none';
             document.getElementById('mapLoading').style.display = 'block';
-
             if (searchMarker) { map.removeLayer(searchMarker); searchMarker = null; }
             searchMarker = L.circleMarker([searchLat, searchLng], {
                 radius: 8, color: '#fff', fillColor: '#C44040', fillOpacity: 1, weight: 2
             }).addTo(map).bindPopup(`<strong style="color:#f0f0f0;">${currentLabel}</strong>`);
-
             try {
+                const distanceMi = parseFloat(document.getElementById('distanceFilter').value);
                 currentShops = await fetchShopsFromOverpass(searchLat, searchLng, distanceMi);
                 renderResults();
             } finally {
@@ -895,11 +953,9 @@ out body center;`;
         async function doSearch() {
             const zip = document.getElementById('zipInput').value.trim();
             if (!zip) { document.getElementById('zipInput').focus(); return; }
-
             const btn = document.getElementById('searchBtn');
             btn.classList.add('loading');
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Searching...';
-
             try {
                 const coords = await geocodeZip(zip);
                 searchLat = coords.lat;
@@ -923,7 +979,6 @@ out body center;`;
             const btn = document.getElementById('locationBtn');
             btn.disabled = true;
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Getting location...';
-
             try {
                 const pos = await new Promise((resolve, reject) =>
                     navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 10000 })
@@ -952,9 +1007,6 @@ out body center;`;
         document.getElementById('distanceFilter').addEventListener('change', () => {
             if (searchLat !== null) loadAndRenderShops();
         });
-        document.getElementById('ratingFilter').addEventListener('change', () => {
-            if (searchLat !== null) renderResults();
-        });
         document.getElementById('stylePills').addEventListener('click', e => {
             const pill = e.target.closest('.style-pill');
             if (!pill) return;
@@ -962,6 +1014,11 @@ out body center;`;
             pill.classList.add('active');
             activeStyleFilter = pill.dataset.style;
             if (searchLat !== null) renderResults();
+        });
+
+        // ===== INIT =====
+        document.addEventListener('DOMContentLoaded', function() {
+            fetchAndPlotDIArtists();
         });
     </script>
 </body>

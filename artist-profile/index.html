@@ -135,6 +135,30 @@
             transition: color 0.2s;
         }
         .back-link:hover { color: #C44040; }
+        /* Reviews */
+        .review-card {
+            border-top: 1px solid #2e2e2e;
+            padding: 14px 0;
+        }
+        .review-card:first-child { border-top: none; padding-top: 0; }
+        .review-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+        .reviewer-name { font-size: 0.92rem; font-weight: 600; color: #f0f0f0; }
+        .review-date { font-size: 0.78rem; color: #555; }
+        .review-text { color: #aaa; font-size: 0.9rem; line-height: 1.6; margin: 0; }
+        .star-picker {
+            display: inline-flex;
+            gap: 4px;
+            font-size: 1.6rem;
+            cursor: pointer;
+        }
+        .star-picker i { color: #444; transition: color 0.1s; }
+        .star-picker i.active, .star-picker i.hover { color: #F4A000; }
+
         @media (max-width: 640px) {
             .artist-hero-avatar { width: 80px; height: 80px; font-size: 1.5rem; }
             .artist-hero-info h1 { font-size: 1.5rem; }
@@ -237,6 +261,40 @@
                         <div class="profile-card" id="stylesCard" style="display:none;">
                             <h2>Specialties</h2>
                             <div class="artist-style-tags" id="stylesDetail" style="margin-top:0;"></div>
+                        </div>
+
+                        <!-- Reviews -->
+                        <div class="profile-card" id="reviewsCard">
+                            <h2>Reviews <span id="avgRatingDisplay" style="font-size:0.9rem;color:#aaa;font-weight:400;"></span></h2>
+                            <div id="reviewsList">
+                                <p style="color:#666;font-size:0.9rem;padding:4px 0;">Loading reviews...</p>
+                            </div>
+
+                            <!-- Leave a review form (shown only to logged-in users who haven't reviewed) -->
+                            <div id="leaveReviewSection" style="display:none; margin-top:20px; padding-top:20px; border-top:1px solid #2e2e2e;">
+                                <h3 style="font-size:0.95rem; margin-bottom:12px; color:#f0f0f0;">Leave a Review</h3>
+                                <div style="margin-bottom:12px;">
+                                    <label style="font-size:0.85rem;color:#888;display:block;margin-bottom:8px;">Your Rating</label>
+                                    <div class="star-picker" id="starPicker">
+                                        <i class="fas fa-star" data-value="1"></i>
+                                        <i class="fas fa-star" data-value="2"></i>
+                                        <i class="fas fa-star" data-value="3"></i>
+                                        <i class="fas fa-star" data-value="4"></i>
+                                        <i class="fas fa-star" data-value="5"></i>
+                                    </div>
+                                </div>
+                                <div style="margin-bottom:12px;">
+                                    <label style="font-size:0.85rem;color:#888;display:block;margin-bottom:6px;">Your Review <span style="color:#555;">(Optional)</span></label>
+                                    <textarea id="reviewText" rows="3" placeholder="Share your experience with this artist..." style="width:100%;background:#2b2b2b;border:1px solid #3a3a3a;border-radius:8px;padding:10px 14px;color:#f0f0f0;font-size:0.9rem;resize:vertical;box-sizing:border-box;"></textarea>
+                                </div>
+                                <button id="submitReviewBtn" class="button-primary" style="padding:10px 24px;">Submit Review</button>
+                                <div id="reviewFeedback" style="display:none;margin-top:10px;padding:10px;border-radius:8px;font-size:0.88rem;"></div>
+                            </div>
+
+                            <!-- Sign in prompt -->
+                            <div id="signInToReview" style="display:none; margin-top:16px; padding-top:16px; border-top:1px solid #2e2e2e; text-align:center;">
+                                <p style="color:#666;font-size:0.88rem;margin:0;"><a href="/login/" style="color:#C44040;">Sign in</a> to leave a review.</p>
+                            </div>
                         </div>
                     </div>
 
@@ -449,6 +507,116 @@
             } else {
                 gallery.style.display = 'none';
                 document.getElementById('galleryEmpty').style.display = 'block';
+            }
+
+            // ===== REVIEWS =====
+            const { data: reviews } = await window.supabaseClient
+                .from('reviews')
+                .select('rating, review_text, created_at, reviewer_id')
+                .eq('artist_id', artistId)
+                .order('created_at', { ascending: false });
+
+            const reviewsList = document.getElementById('reviewsList');
+
+            if (reviews && reviews.length > 0) {
+                // Fetch reviewer names
+                const reviewerIds = [...new Set(reviews.map(r => r.reviewer_id))];
+                const { data: reviewers } = await window.supabaseClient
+                    .from('profiles')
+                    .select('id, full_name')
+                    .in('id', reviewerIds);
+                const reviewerMap = {};
+                (reviewers || []).forEach(r => { reviewerMap[r.id] = r.full_name; });
+
+                const avg = (reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1);
+                document.getElementById('avgRatingDisplay').innerHTML =
+                    `<span style="color:#F4A000;">★</span> ${avg} <span style="color:#555;">(${reviews.length} review${reviews.length !== 1 ? 's' : ''})</span>`;
+
+                reviewsList.innerHTML = '';
+                reviews.forEach(function(review) {
+                    const filled = '★'.repeat(review.rating);
+                    const empty = '☆'.repeat(5 - review.rating);
+                    const reviewerName = reviewerMap[review.reviewer_id] || 'Anonymous';
+                    const dateStr = new Date(review.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short' });
+                    const card = document.createElement('div');
+                    card.className = 'review-card';
+                    card.innerHTML = `
+                        <div class="review-header">
+                            <span class="reviewer-name">${reviewerName}</span>
+                            <span class="review-date">${dateStr}</span>
+                        </div>
+                        <div style="color:#F4A000;font-size:1rem;margin-bottom:6px;">${filled}<span style="color:#444;">${empty}</span></div>
+                        ${review.review_text ? `<p class="review-text">${review.review_text}</p>` : ''}`;
+                    reviewsList.appendChild(card);
+                });
+            } else {
+                reviewsList.innerHTML = '<p style="color:#666;font-size:0.9rem;padding:4px 0;">No reviews yet — be the first!</p>';
+            }
+
+            // Review form for logged-in users
+            const { data: { session } } = await window.supabaseClient.auth.getSession();
+            if (session && session.user.id !== artistId) {
+                const { data: existingReview } = await window.supabaseClient
+                    .from('reviews')
+                    .select('id')
+                    .eq('artist_id', artistId)
+                    .eq('reviewer_id', session.user.id)
+                    .maybeSingle();
+
+                if (!existingReview) {
+                    document.getElementById('leaveReviewSection').style.display = 'block';
+
+                    let selectedRating = 0;
+                    const starPicker = document.getElementById('starPicker');
+                    const starEls = starPicker.querySelectorAll('i');
+
+                    starPicker.addEventListener('mouseover', function(e) {
+                        const star = e.target.closest('i[data-value]');
+                        if (!star) return;
+                        const val = parseInt(star.dataset.value);
+                        starEls.forEach(s => s.classList.toggle('hover', parseInt(s.dataset.value) <= val));
+                    });
+                    starPicker.addEventListener('mouseleave', function() {
+                        starEls.forEach(s => s.classList.remove('hover'));
+                    });
+                    starPicker.addEventListener('click', function(e) {
+                        const star = e.target.closest('i[data-value]');
+                        if (!star) return;
+                        selectedRating = parseInt(star.dataset.value);
+                        starEls.forEach(s => s.classList.toggle('active', parseInt(s.dataset.value) <= selectedRating));
+                    });
+
+                    document.getElementById('submitReviewBtn').addEventListener('click', async function() {
+                        if (!selectedRating) { alert('Please select a star rating.'); return; }
+                        this.disabled = true;
+                        this.textContent = 'Submitting...';
+                        const { error } = await window.supabaseClient.from('reviews').insert({
+                            artist_id: artistId,
+                            reviewer_id: session.user.id,
+                            rating: selectedRating,
+                            review_text: document.getElementById('reviewText').value.trim() || null
+                        });
+                        const fb = document.getElementById('reviewFeedback');
+                        fb.style.display = 'block';
+                        if (error) {
+                            fb.style.background = '#3a1a1a'; fb.style.color = '#C44040';
+                            fb.textContent = 'Could not submit: ' + error.message;
+                            this.disabled = false; this.textContent = 'Submit Review';
+                        } else {
+                            fb.style.background = '#1a3a1a'; fb.style.color = '#4CAF50';
+                            fb.textContent = 'Review submitted! Thank you.';
+                            this.style.display = 'none';
+                            starPicker.style.pointerEvents = 'none';
+                            document.getElementById('reviewText').style.display = 'none';
+                        }
+                    });
+                } else {
+                    const sec = document.getElementById('leaveReviewSection');
+                    sec.style.display = 'block';
+                    sec.innerHTML = '<p style="color:#666;font-size:0.88rem;margin-top:16px;padding-top:16px;border-top:1px solid #2e2e2e;">You\'ve already reviewed this artist.</p>';
+                }
+            } else if (!session) {
+                document.getElementById('signInToReview').style.display = 'block';
             }
 
             // Show content
