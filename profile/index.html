@@ -421,7 +421,7 @@
                 const path = user.id + '/avatar.' + ext;
 
                 const { error: uploadError } = await window.supabaseClient.storage
-                    .from('avatars')
+                    .from('Avatars')
                     .upload(path, file, { upsert: true });
 
                 if (uploadError) {
@@ -432,7 +432,7 @@
                 }
 
                 const { data: { publicUrl } } = window.supabaseClient.storage
-                    .from('avatars')
+                    .from('Avatars')
                     .getPublicUrl(path);
 
                 await window.supabaseClient
