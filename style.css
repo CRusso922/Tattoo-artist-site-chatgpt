@@ -645,79 +645,87 @@ h2 {
 
 /* Footer */
 footer {
-    background-color: #444444; /* Medium-dark grey for footer (Matches header) */
+    background-color: #444444;
     color: #f0f0f0;
-    padding: 60px 0 20px;
-    font-size: 0.95rem;
+    padding: 32px 0 14px;
+    font-size: 0.88rem;
 }
 
 footer .footer-columns {
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
-    gap: 30px;
-    margin-bottom: 40px;
+    gap: 20px;
+    margin-bottom: 20px;
 }
 
 footer .footer-col {
     flex: 1;
-    min-width: 250px;
-    margin-bottom: 20px;
+    min-width: 180px;
+    margin-bottom: 0;
 }
 
 footer .footer-col h3 {
-    color: #C44040; /* Muted Red accent */
-    font-size: 1.3rem;
-    margin-bottom: 20px;
+    color: #C44040;
+    font-size: 0.95rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 10px;
 }
 
 footer .footer-col p,
 footer .footer-col ul {
-    color: #aaaaaa; /* Lighter text */
-    line-height: 1.6;
+    color: #aaaaaa;
+    line-height: 1.5;
     list-style: none;
     padding: 0;
+    margin: 0;
+    font-size: 0.85rem;
 }
 
 footer .footer-col ul li a {
-    color: #aaaaaa; /* Lighter link color */
+    color: #aaaaaa;
     text-decoration: none;
-    transition: color 0.3s ease;
-    padding: 5px 0;
+    transition: color 0.2s ease;
+    padding: 2px 0;
     display: block;
 }
 
 footer .footer-col ul li a:hover {
-    color: #f0f0f0; /* White on hover */
+    color: #f0f0f0;
 }
 
 footer .social-icons a {
-    color: #aaaaaa; /* Lighter icon color */
-    font-size: 1.5rem;
-    margin-right: 15px;
-    transition: color 0.3s ease;
+    color: #aaaaaa;
+    font-size: 1.1rem;
+    margin-right: 12px;
+    transition: color 0.2s ease;
 }
 
 footer .social-icons a:hover {
-    color: #C44040; /* Muted Red accent */
+    color: #C44040;
 }
 
 footer .footer-bottom {
-    border-top: 1px solid #555555; /* Darker border */
-    padding-top: 20px;
+    border-top: 1px solid #555555;
+    padding-top: 12px;
     text-align: center;
-    color: #888888; /* Slightly darker text */
+    color: #666;
+    font-size: 0.8rem;
 }
 
+footer .footer-bottom p { margin: 2px 0; }
+
 footer .footer-bottom a {
-    color: #888888; /* Slightly darker link */
+    color: #777;
     text-decoration: none;
-    margin: 0 10px;
-    transition: color 0.3s ease;
+    margin: 0 6px;
+    transition: color 0.2s ease;
 }
 
 footer .footer-bottom a:hover {
-    color: #C44040; /* Muted Red accent */
+    color: #C44040;
 }
 
 /* Specific Styles for Artists Page (artists.html) */
