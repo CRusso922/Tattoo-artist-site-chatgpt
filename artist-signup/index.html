@@ -149,10 +149,12 @@
     <script src="/script.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            if (!window.supabaseClient) return;
-
             document.querySelector('form.signup-form').addEventListener('submit', async function (e) {
                 e.preventDefault();
+                if (!window.supabaseClient) {
+                    alert('Authentication service not loaded. Please refresh and try again.');
+                    return;
+                }
                 const artistName = document.getElementById('artistName').value.trim();
                 const email = document.getElementById('email').value.trim();
                 const phone = document.getElementById('phone').value.trim();

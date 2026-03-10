@@ -263,7 +263,13 @@
 
         // Auth
         document.addEventListener('DOMContentLoaded', async function () {
-            if (!window.supabaseClient) return;
+            if (!window.supabaseClient) {
+                document.getElementById('loginForm').addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    alert('Authentication service not loaded. Please refresh and try again.');
+                });
+                return;
+            }
 
             // If already logged in, show account panel
             const { data: { session } } = await window.supabaseClient.auth.getSession();
