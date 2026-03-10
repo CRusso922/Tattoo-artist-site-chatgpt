@@ -196,6 +196,21 @@ document.addEventListener('DOMContentLoaded', function () {
 
   window.supabaseClient.auth.getSession().then(function (res) {
     updateNav(res.data.session);
+    if (res.data.session) {
+      window.supabaseClient
+        .from('profiles')
+        .select('avatar_url')
+        .eq('id', res.data.session.user.id)
+        .single()
+        .then(function (result) {
+          if (result.data && result.data.avatar_url) {
+            var link = document.querySelector('.nav-profile-link');
+            if (!link) return;
+            var avatar = link.querySelector('.nav-avatar');
+            avatar.innerHTML = '<img src="' + result.data.avatar_url + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">';
+          }
+        });
+    }
   });
 
   window.supabaseClient.auth.onAuthStateChange(function (event, session) {
