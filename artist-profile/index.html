@@ -7,9 +7,141 @@
     <link rel="stylesheet" href="/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    <style>
+        .artist-profile-hero {
+            background: #222;
+            border-bottom: 1px solid #333;
+            padding: 48px 0 36px;
+        }
+        .artist-profile-hero .container {
+            display: flex;
+            align-items: center;
+            gap: 28px;
+            flex-wrap: wrap;
+        }
+        .artist-hero-avatar {
+            width: 110px;
+            height: 110px;
+            border-radius: 50%;
+            background: #C44040;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: #fff;
+            flex-shrink: 0;
+            overflow: hidden;
+        }
+        .artist-hero-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .artist-hero-info {
+            flex: 1;
+            min-width: 200px;
+        }
+        .artist-hero-info h1 {
+            font-size: 2rem;
+            margin-bottom: 6px;
+        }
+        .artist-hero-location {
+            color: #aaa;
+            font-size: 0.95rem;
+            margin-bottom: 12px;
+        }
+        .artist-style-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 16px;
+        }
+        .style-tag {
+            padding: 4px 12px;
+            border-radius: 20px;
+            border: 1px solid #444;
+            background: #2b2b2b;
+            color: #ccc;
+            font-size: 0.82rem;
+        }
+        .artist-hero-actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 4px;
+        }
+        .profile-body {
+            padding: 40px 0;
+        }
+        .profile-body .container {
+            display: flex;
+            gap: 36px;
+            align-items: flex-start;
+            flex-wrap: wrap;
+        }
+        .profile-main-col {
+            flex: 2;
+            min-width: 280px;
+        }
+        .profile-side-col {
+            flex: 1;
+            min-width: 220px;
+        }
+        .profile-card {
+            background: #222;
+            border: 1px solid #333;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+        .profile-card h2 {
+            font-size: 1.1rem;
+            margin-bottom: 14px;
+            color: #f0f0f0;
+        }
+        .profile-card p {
+            color: #aaa;
+            line-height: 1.7;
+            font-size: 0.95rem;
+        }
+        .contact-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #aaa;
+            font-size: 0.92rem;
+            margin-bottom: 10px;
+        }
+        .contact-row i {
+            color: #C44040;
+            width: 16px;
+            text-align: center;
+        }
+        .contact-row a {
+            color: #aaa;
+            text-decoration: none;
+            word-break: break-all;
+        }
+        .contact-row a:hover { color: #f0f0f0; }
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #888;
+            text-decoration: none;
+            font-size: 0.9rem;
+            margin-bottom: 24px;
+            transition: color 0.2s;
+        }
+        .back-link:hover { color: #C44040; }
+        @media (max-width: 640px) {
+            .artist-hero-avatar { width: 80px; height: 80px; font-size: 1.5rem; }
+            .artist-hero-info h1 { font-size: 1.5rem; }
+        }
+    </style>
 </head>
 <body>
-
     <header>
         <nav>
             <div class="logo">
@@ -27,7 +159,7 @@
             <div class="nav-right-actions">
                 <a href="/for-artists/" class="cta-button">For Artists</a>
                 <div class="search-bar-container">
-                    <input type="text" placeholder="Search artists..." class="search-input">
+                    <input type="text" placeholder="Search..." class="search-input">
                     <button class="search-button">
                         <i class="fas fa-search"></i>
                     </button>
@@ -38,89 +170,86 @@
                     </div>
                     <span class="nav-login-text">Sign In</span>
                 </a>
-                </div>
+            </div>
         </nav>
     </header>
 
-    <div class="main-content-wrapper">
-        <main>
-            <section class="profile-header">
+    <main>
+
+        <!-- Loading -->
+        <div id="profile-loading" style="text-align:center; padding: 80px 20px;">
+            <i class="fas fa-spinner fa-spin" style="font-size:2rem;color:#C44040;display:block;margin-bottom:14px;"></i>
+            <p style="color:#888;">Loading artist profile...</p>
+        </div>
+
+        <!-- Not found -->
+        <div id="profile-notfound" style="display:none; text-align:center; padding: 80px 20px;">
+            <i class="fas fa-user-slash" style="font-size:3rem;color:#444;display:block;margin-bottom:16px;"></i>
+            <h2 style="margin-bottom:8px;">Artist Not Found</h2>
+            <p style="color:#888;margin-bottom:24px;">This profile doesn't exist or may have been removed.</p>
+            <a href="/artists/" class="button-primary" style="display:inline-block;">Browse Artists</a>
+        </div>
+
+        <!-- Profile content -->
+        <div id="profile-content" style="display:none;">
+
+            <section class="artist-profile-hero">
                 <div class="container">
-                    <img src="https://via.placeholder.com/150?text=Artist+Avatar" alt="Artist Profile Avatar" class="profile-avatar">
-                    <h1>Ink Master Mike</h1>
-                    <p class="artist-style">Specializes in Realism, Black & Grey, Surrealism</p>
-                    <p class="location"><i class="fas fa-map-marker-alt"></i> New York, NY</p>
-                    <div class="profile-actions">
-                        <a href="#" class="button-primary"><i class="fas fa-calendar-alt"></i> Request Booking</a>
-                        <a href="#" class="button-secondary"><i class="fas fa-comment-dots"></i> Send Message</a>
+                    <div class="artist-hero-avatar" id="heroAvatar">
+                        <span id="heroInitials">?</span>
+                    </div>
+                    <div class="artist-hero-info">
+                        <h1 id="heroName">Artist Name</h1>
+                        <p class="artist-hero-location" id="heroLocation" style="display:none;">
+                            <i class="fas fa-map-marker-alt" style="color:#C44040;margin-right:6px;"></i>
+                            <span></span>
+                        </p>
+                        <div class="artist-style-tags" id="heroStyles"></div>
+                        <div class="artist-hero-actions">
+                            <a href="/contact/" class="button-primary"><i class="fas fa-calendar-alt" style="margin-right:8px;"></i>Request Booking</a>
+                            <a href="/contact/" class="button-secondary"><i class="fas fa-comment-dots" style="margin-right:8px;"></i>Send Message</a>
+                        </div>
                     </div>
                 </div>
             </section>
 
-            <section class="profile-content">
-                <div class="profile-main">
-                    <div class="profile-section about-artist">
-                        <h2>About Mike</h2>
-                        <p>Mike has been tattooing for over 15 years, mastering the art of realism and black & grey work. His passion lies in creating truly unique and breathtaking pieces that tell a story. He is known for his incredible attention to detail, smooth gradients, and ability to bring any vision to life, from intricate portraits to expansive scenic pieces. Mike's studio prides itself on a sterile, comfortable, and welcoming environment for all clients.</p>
-                        <p>He is constantly pushing his artistic boundaries and is a recipient of multiple awards at conventions for his realistic animal and portrait tattoos.</p>
-                    </div>
+            <section class="profile-body">
+                <div class="container">
 
-                    <div class="profile-section portfolio">
-                        <h2>Portfolio</h2>
-                        <div class="profile-gallery">
-                            <img src="https://via.placeholder.com/250x200?text=Tattoo+1" alt="Tattoo Portfolio Image 1">
-                            <img src="https://via.placeholder.com/250x200?text=Tattoo+2" alt="Tattoo Portfolio Image 2">
-                            <img src="https://via.placeholder.com/250x200?text=Tattoo+3" alt="Tattoo Portfolio Image 3">
-                            <img src="https://via.placeholder.com/250x200?text=Tattoo+4" alt="Tattoo Portfolio Image 4">
-                            <img src="https://via.placeholder.com/250x200?text=Tattoo+5" alt="Tattoo Portfolio Image 5">
-                            <img src="https://via.placeholder.com/250x200?text=Tattoo+6" alt="Tattoo Portfolio Image 6">
+                    <div class="profile-main-col">
+                        <a href="/artists/" class="back-link"><i class="fas fa-arrow-left"></i> Back to Artists</a>
+
+                        <!-- Bio -->
+                        <div class="profile-card" id="bioCard" style="display:none;">
+                            <h2>About</h2>
+                            <p id="bioCopy"></p>
+                        </div>
+
+                        <!-- Styles -->
+                        <div class="profile-card" id="stylesCard" style="display:none;">
+                            <h2>Specialties</h2>
+                            <div class="artist-style-tags" id="stylesDetail" style="margin-top:0;"></div>
                         </div>
                     </div>
 
-                    <div class="profile-section services-rates">
-                        <h2>Services & Rates</h2>
-                        <h3>Specialties:</h3>
-                        <ul>
-                            <li>Black & Grey Realism</li>
-                            <li>Color Realism</li>
-                            <li>Portraiture</li>
-                            <li>Wildlife</li>
-                            <li>Large-scale Back/Sleeve Pieces</li>
-                        </ul>
-                        <h3>Typical Rates:</h3>
-                        <p>$150 - $200 per hour (minimums may apply for smaller pieces)</p>
-                        <p>Custom design quotes provided after consultation.</p>
-                    </div>
-                </div>
+                    <div class="profile-side-col">
 
-                <div class="profile-sidebar">
-                    <div class="profile-section contact-info">
-                        <h2>Contact & Location</h2>
-                        <p><i class="fas fa-phone"></i> (123) 456-7890</p>
-                        <p><i class="fas fa-envelope"></i> mike.ink@example.com</p>
-                        <p><i class="fas fa-map-marker-alt"></i> 123 Main St, New York, NY 10001</p>
-                        <p><i class="fas fa-globe"></i> <a href="#" target="_blank">www.mikesinkstudio.com</a></p>
-                    </div>
-
-                    <div class="profile-section social-media">
-                        <h2>Social Media</h2>
-                        <div class="social-links">
-                            <a href="#"><i class="fab fa-instagram"></i></a>
-                            <a href="#"><i class="fab fa-facebook-f"></i></a>
-                            <a href="#"><i class="fab fa-twitter"></i></a>
+                        <!-- Contact / Links -->
+                        <div class="profile-card" id="contactCard">
+                            <h2>Contact & Links</h2>
+                            <div id="contactRows">
+                                <p style="color:#666;font-size:0.9rem;">No contact info provided.</p>
+                            </div>
                         </div>
+
                     </div>
 
-                    <div class="profile-section availability">
-                        <h2>Availability (Example)</h2>
-                        <p>Mike typically books 2-3 months in advance for large projects. Smaller pieces may have sooner availability.</p>
-                        <p>Current estimated wait time: **8-10 weeks**</p>
-                        <p><em>(Note: This is a placeholder for a future interactive booking calendar.)</em></p>
-                    </div>
                 </div>
             </section>
-        </main>
-    </div>
+
+        </div>
+
+    </main>
 
     <footer>
         <div class="container">
@@ -154,8 +283,108 @@
             </div>
         </div>
     </footer>
+
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
     <script src="/supabase-client.js"></script>
     <script src="/script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async function() {
+            const artistId = new URLSearchParams(window.location.search).get('id');
+
+            if (!artistId || !window.supabaseClient) {
+                document.getElementById('profile-loading').style.display = 'none';
+                document.getElementById('profile-notfound').style.display = 'block';
+                return;
+            }
+
+            const { data: artist, error } = await window.supabaseClient
+                .from('profiles')
+                .select('*')
+                .eq('id', artistId)
+                .eq('user_type', 'artist')
+                .single();
+
+            document.getElementById('profile-loading').style.display = 'none';
+
+            if (error || !artist) {
+                document.getElementById('profile-notfound').style.display = 'block';
+                return;
+            }
+
+            // Update page title
+            document.title = (artist.full_name || 'Artist') + ' - DiscoverInk';
+
+            // Avatar
+            const heroAvatar = document.getElementById('heroAvatar');
+            const name = artist.full_name || 'Anonymous Artist';
+            const initials = name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) || '?';
+            if (artist.avatar_url) {
+                heroAvatar.innerHTML = '<img src="' + artist.avatar_url + '" alt="' + name + '">';
+            } else {
+                document.getElementById('heroInitials').textContent = initials;
+            }
+
+            // Name
+            document.getElementById('heroName').textContent = name;
+
+            // Location
+            if (artist.location) {
+                const locEl = document.getElementById('heroLocation');
+                locEl.querySelector('span').textContent = artist.location;
+                locEl.style.display = 'block';
+            }
+
+            // Styles (hero)
+            const stylesEl = document.getElementById('heroStyles');
+            if (artist.styles && artist.styles.length) {
+                artist.styles.forEach(function(s) {
+                    const tag = document.createElement('span');
+                    tag.className = 'style-tag';
+                    tag.textContent = s.charAt(0).toUpperCase() + s.slice(1).replace(/-/g, ' ');
+                    stylesEl.appendChild(tag);
+                });
+
+                // Styles detail card
+                const stylesDetail = document.getElementById('stylesDetail');
+                artist.styles.forEach(function(s) {
+                    const tag = document.createElement('span');
+                    tag.className = 'style-tag';
+                    tag.textContent = s.charAt(0).toUpperCase() + s.slice(1).replace(/-/g, ' ');
+                    stylesDetail.appendChild(tag);
+                });
+                document.getElementById('stylesCard').style.display = 'block';
+            }
+
+            // Bio
+            if (artist.bio) {
+                document.getElementById('bioCopy').textContent = artist.bio;
+                document.getElementById('bioCard').style.display = 'block';
+            }
+
+            // Contact rows
+            const contactRows = document.getElementById('contactRows');
+            const rows = [];
+
+            if (artist.phone) {
+                rows.push('<div class="contact-row"><i class="fas fa-phone"></i><span>' + artist.phone + '</span></div>');
+            }
+            if (artist.portfolio) {
+                const isInstagram = artist.portfolio.includes('instagram.com');
+                const icon = isInstagram ? 'fab fa-instagram' : 'fas fa-globe';
+                const label = isInstagram ? 'Instagram' : 'Portfolio / Website';
+                rows.push('<div class="contact-row"><i class="' + icon + '"></i><a href="' + artist.portfolio + '" target="_blank" rel="noopener">' + label + '</a></div>');
+            }
+            if (artist.location) {
+                rows.push('<div class="contact-row"><i class="fas fa-map-marker-alt"></i><span>' + artist.location + '</span></div>');
+            }
+
+            if (rows.length) {
+                contactRows.innerHTML = rows.join('');
+            }
+
+            // Show content
+            document.getElementById('profile-content').style.display = 'block';
+        });
+    </script>
 </body>
 </html>
