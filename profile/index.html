@@ -211,8 +211,19 @@
                                 <input type="text" id="editLocation" placeholder="New York, NY">
                             </div>
                             <div class="form-group">
-                                <label for="editPortfolio">Portfolio Link</label>
-                                <input type="url" id="editPortfolio" placeholder="https://instagram.com/your_ink_art">
+                                <label for="editInstagram">Instagram Profile URL</label>
+                                <input type="url" id="editInstagram" placeholder="https://instagram.com/your_handle">
+                            </div>
+                            <div class="form-group">
+                                <label for="editPortfolio">Portfolio / Website URL</label>
+                                <input type="url" id="editPortfolio" placeholder="https://yourwebsite.com">
+                            </div>
+                            <div class="form-group">
+                                <label style="display:flex;align-items:center;gap:12px;cursor:pointer;margin-bottom:4px;">
+                                    <input type="checkbox" id="acceptingBookings" style="width:18px;height:18px;accent-color:#C44040;cursor:pointer;">
+                                    <span>Currently accepting new bookings</span>
+                                </label>
+                                <small style="color:#666;">Uncheck to show "Not Taking New Clients" on your profile and in search results.</small>
                             </div>
                             <div class="form-group">
                                 <label for="editBio">Artist Bio / Studio Description</label>
@@ -291,6 +302,12 @@
                     </div>
 
                     <div class="danger-zone">
+                        <button id="changePasswordBtn" style="width:100%; padding:13px; background:transparent; border:1px solid #444; color:#888; border-radius:8px; cursor:pointer; font-size:0.95rem; transition: border-color 0.2s, color 0.2s; margin-bottom:10px;"
+                            onmouseover="this.style.borderColor='#888';this.style.color='#f0f0f0'"
+                            onmouseout="this.style.borderColor='#444';this.style.color='#888'">
+                            <i class="fas fa-key" style="margin-right: 8px;"></i>Change Password
+                        </button>
+                        <div id="passwordChangeFeedback" style="display:none;margin-bottom:10px;padding:10px;border-radius:8px;font-size:0.88rem;text-align:center;"></div>
                         <button id="signOutBtn" style="width:100%; padding:13px; background:transparent; border:1px solid #444; color:#888; border-radius:8px; cursor:pointer; font-size:0.95rem; transition: border-color 0.2s, color 0.2s;"
                             onmouseover="this.style.borderColor='#C44040';this.style.color='#f0f0f0'"
                             onmouseout="this.style.borderColor='#444';this.style.color='#888'">
@@ -477,8 +494,10 @@
                 document.getElementById('artistFields').style.display = 'block';
                 if (profile) {
                     document.getElementById('editLocation').value = profile.location || '';
+                    document.getElementById('editInstagram').value = profile.instagram_url || '';
                     document.getElementById('editPortfolio').value = profile.portfolio || '';
                     document.getElementById('editBio').value = profile.bio || '';
+                    document.getElementById('acceptingBookings').checked = profile.accepting_bookings !== false;
                     setSelectedPills('artistStylePills', profile.styles || []);
                 }
             } else {
@@ -508,11 +527,13 @@
 
                 if (userType === 'artist') {
                     const location = document.getElementById('editLocation').value.trim();
+                    const instagram_url = document.getElementById('editInstagram').value.trim();
                     const portfolio = document.getElementById('editPortfolio').value.trim();
                     const bio = document.getElementById('editBio').value.trim();
                     const styles = getSelectedPills('artistStylePills');
-                    Object.assign(updateData, { location, portfolio, bio, styles });
-                    Object.assign(profileUpdate, { location, portfolio, bio, styles });
+                    const accepting_bookings = document.getElementById('acceptingBookings').checked;
+                    Object.assign(updateData, { location, instagram_url, portfolio, bio, styles, accepting_bookings });
+                    Object.assign(profileUpdate, { location, instagram_url, portfolio, bio, styles, accepting_bookings });
                 } else {
                     const styles = getSelectedPills('clientStylePills');
                     updateData.preferred_styles = styles;
@@ -547,6 +568,26 @@
                 }
             });
 
+            // Change password
+            document.getElementById('changePasswordBtn').addEventListener('click', async function() {
+                this.disabled = true;
+                this.innerHTML = '<i class="fas fa-spinner fa-spin" style="margin-right:8px;"></i>Sending...';
+                const basePath = window.location.pathname.split('/').slice(0, -2).join('/');
+                const resetUrl = window.location.origin + basePath + '/reset-password/';
+                const { error } = await window.supabaseClient.auth.resetPasswordForEmail(user.email, { redirectTo: resetUrl });
+                const fb = document.getElementById('passwordChangeFeedback');
+                fb.style.display = 'block';
+                if (error) {
+                    fb.style.background = '#3a1a1a'; fb.style.color = '#C44040';
+                    fb.textContent = error.message;
+                } else {
+                    fb.style.background = '#1a3a1a'; fb.style.color = '#4CAF50';
+                    fb.textContent = 'Reset link sent to ' + user.email + '. Check your inbox.';
+                }
+                this.disabled = false;
+                this.innerHTML = '<i class="fas fa-key" style="margin-right:8px;"></i>Change Password';
+            });
+
             // Sign out
             document.getElementById('signOutBtn').addEventListener('click', async function() {
                 await window.supabaseClient.auth.signOut();
@@ -563,6 +604,9 @@
                 const grid = document.getElementById('portfolioGrid');
                 document.getElementById('portfolioEmpty').style.display = 'none';
 
+                const wrapper = document.createElement('div');
+                wrapper.style.cssText = 'display:flex;flex-direction:column;gap:5px;';
+
                 const item = document.createElement('div');
                 item.dataset.id = img.id;
                 item.dataset.path = img.storage_path;
@@ -575,18 +619,28 @@
 
                 item.addEventListener('mouseenter', () => item.querySelector('.portfolio-delete-overlay').style.opacity = '1');
                 item.addEventListener('mouseleave', () => item.querySelector('.portfolio-delete-overlay').style.opacity = '0');
-
                 item.addEventListener('click', async function() {
                     if (!confirm('Delete this image from your portfolio?')) return;
                     await window.supabaseClient.storage.from('portfolio').remove([img.storage_path]);
                     await window.supabaseClient.from('portfolio_images').delete().eq('id', img.id);
-                    item.remove();
+                    wrapper.remove();
                     if (!document.querySelector('#portfolioGrid div')) {
                         document.getElementById('portfolioEmpty').style.display = 'block';
                     }
                 });
 
-                grid.appendChild(item);
+                const captionInput = document.createElement('input');
+                captionInput.type = 'text';
+                captionInput.placeholder = 'Add a caption...';
+                captionInput.value = img.caption || '';
+                captionInput.style.cssText = 'background:#1a1a1a;border:1px solid #333;border-radius:6px;color:#ccc;font-size:0.78rem;padding:5px 8px;width:100%;box-sizing:border-box;';
+                captionInput.addEventListener('blur', async function() {
+                    await window.supabaseClient.from('portfolio_images').update({ caption: this.value.trim() }).eq('id', img.id);
+                });
+
+                wrapper.appendChild(item);
+                wrapper.appendChild(captionInput);
+                grid.appendChild(wrapper);
             }
 
             async function loadPortfolioImages() {

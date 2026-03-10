@@ -82,13 +82,16 @@
                 <button type="submit" class="button-primary" style="width: 100%;">Apply Filters</button>
             </aside>
 
-            <section class="artist-results" id="artistResults">
-                <!-- Loaded dynamically from Supabase -->
-                <div id="artists-loading" style="text-align:center;padding:60px 20px;width:100%;">
-                    <i class="fas fa-spinner fa-spin" style="font-size:2rem;color:#C44040;display:block;margin-bottom:14px;"></i>
-                    <p style="color:#888;">Finding artists...</p>
-                </div>
-            </section>
+            <div style="flex:1;min-width:0;">
+                <p id="artistCount" style="color:#888;font-size:0.88rem;margin-bottom:14px;min-height:1.2em;"></p>
+                <section class="artist-results" id="artistResults">
+                    <!-- Loaded dynamically from Supabase -->
+                    <div id="artists-loading" style="text-align:center;padding:60px 20px;width:100%;">
+                        <i class="fas fa-spinner fa-spin" style="font-size:2rem;color:#C44040;display:block;margin-bottom:14px;"></i>
+                        <p style="color:#888;">Finding artists...</p>
+                    </div>
+                </section>
+            </div>
         </section>
     </main>
 
@@ -156,13 +159,19 @@
             if (pill) pill.classList.toggle('selected');
         });
 
+        function updateCount(count) {
+            const el = document.getElementById('artistCount');
+            if (!el) return;
+            el.textContent = count === 0 ? '' : count + ' artist' + (count !== 1 ? 's' : '') + ' found';
+        }
+
         function renderArtists(artists) {
             const container = document.getElementById('artistResults');
-            // Remove loading indicator
             const loading = document.getElementById('artists-loading');
             if (loading) loading.remove();
 
             if (!artists || artists.length === 0) {
+                updateCount(0);
                 container.innerHTML = `
                     <div style="text-align:center;padding:60px 20px;width:100%;">
                         <i class="fas fa-palette" style="font-size:3rem;color:#444;display:block;margin-bottom:16px;"></i>
@@ -173,8 +182,8 @@
                 return;
             }
 
-            // Remove any existing cards (not the loading div)
             container.querySelectorAll('.artist-card').forEach(c => c.remove());
+            updateCount(artists.length);
 
             artists.forEach(function(artist) {
                 const styleLabel = artist.styles && artist.styles.length
@@ -182,14 +191,23 @@
                     : 'Various Styles';
                 const location = artist.location || 'Location not set';
                 const name = artist.full_name || 'Anonymous Artist';
+                const accepting = artist.accepting_bookings !== false;
+                const bookingBadge = accepting
+                    ? '<span style="display:inline-block;margin-bottom:10px;padding:3px 10px;border-radius:20px;font-size:0.75rem;font-weight:600;background:rgba(76,175,80,0.15);border:1px solid #4CAF50;color:#4CAF50;"><i class="fas fa-circle" style="font-size:0.5rem;margin-right:5px;vertical-align:middle;"></i>Accepting Bookings</span>'
+                    : '<span style="display:inline-block;margin-bottom:10px;padding:3px 10px;border-radius:20px;font-size:0.75rem;font-weight:600;background:rgba(196,64,64,0.15);border:1px solid #C44040;color:#C44040;"><i class="fas fa-circle" style="font-size:0.5rem;margin-right:5px;vertical-align:middle;"></i>Not Taking New Clients</span>';
+
+                const avatarHtml = artist.avatar_url
+                    ? `<img src="${artist.avatar_url}" alt="${name}" style="width:100%;height:180px;object-fit:cover;">`
+                    : `<div style="width:100%;height:180px;background:#2b2b2b;display:flex;align-items:center;justify-content:center;"><span style="font-size:2.5rem;font-weight:700;color:#C44040;">${name.split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2)}</span></div>`;
 
                 const card = document.createElement('div');
                 card.className = 'artist-card';
                 card.innerHTML = `
-                    <img src="https://picsum.photos/seed/${artist.id}/300/200" alt="${name} Portfolio">
+                    ${avatarHtml}
                     <h3>${name}</h3>
                     <p class="artist-style">${styleLabel}</p>
                     <p class="artist-location"><i class="fas fa-map-marker-alt"></i> ${location}</p>
+                    ${bookingBadge}
                     <a href="/artist-profile/?id=${artist.id}" class="button-primary">View Profile</a>`;
                 container.appendChild(card);
             });
@@ -219,8 +237,8 @@
 
             renderArtists(filtered);
 
-            // Show "no results" message if needed
             if (filtered.length === 0 && allArtists.length > 0) {
+                updateCount(0);
                 const container = document.getElementById('artistResults');
                 container.innerHTML = `
                     <div style="text-align:center;padding:60px 20px;width:100%;">
@@ -241,7 +259,7 @@
 
             const { data: artists, error } = await window.supabaseClient
                 .from('profiles')
-                .select('id, full_name, location, styles, bio, portfolio')
+                .select('id, full_name, location, styles, bio, portfolio, avatar_url, accepting_bookings')
                 .eq('user_type', 'artist')
                 .order('created_at', { ascending: false });
 

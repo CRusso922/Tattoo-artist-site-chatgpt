@@ -208,6 +208,7 @@
                         <div class="artist-hero-actions">
                             <a href="/contact/" class="button-primary"><i class="fas fa-calendar-alt" style="margin-right:8px;"></i>Request Booking</a>
                             <a href="/contact/" class="button-secondary"><i class="fas fa-comment-dots" style="margin-right:8px;"></i>Send Message</a>
+                            <button id="shareBtn" class="button-secondary" style="border:1px solid #555;"><i class="fas fa-share-alt" style="margin-right:8px;"></i>Share</button>
                         </div>
                     </div>
                 </div>
@@ -306,7 +307,7 @@
 
             const { data: artist, error } = await window.supabaseClient
                 .from('profiles')
-                .select('*')
+                .select('id, full_name, location, styles, bio, portfolio, avatar_url, phone, accepting_bookings, instagram_url')
                 .eq('id', artistId)
                 .eq('user_type', 'artist')
                 .single();
@@ -331,8 +332,34 @@
                 document.getElementById('heroInitials').textContent = initials;
             }
 
+            // Share button
+            document.getElementById('shareBtn').addEventListener('click', function() {
+                if (navigator.share) {
+                    navigator.share({ title: name + ' - DiscoverInk', url: window.location.href });
+                } else {
+                    navigator.clipboard.writeText(window.location.href).then(function() {
+                        const btn = document.getElementById('shareBtn');
+                        btn.innerHTML = '<i class="fas fa-check" style="margin-right:8px;"></i>Copied!';
+                        setTimeout(() => { btn.innerHTML = '<i class="fas fa-share-alt" style="margin-right:8px;"></i>Share'; }, 2000);
+                    });
+                }
+            });
+
             // Name
             document.getElementById('heroName').textContent = name;
+
+            // Accepting bookings badge
+            if (artist.accepting_bookings === false) {
+                const badge = document.createElement('span');
+                badge.style.cssText = 'display:inline-block;margin-left:12px;padding:3px 10px;border-radius:20px;font-size:0.78rem;font-weight:600;background:rgba(196,64,64,0.15);border:1px solid #C44040;color:#C44040;vertical-align:middle;';
+                badge.innerHTML = '<i class="fas fa-circle" style="font-size:0.5rem;margin-right:5px;vertical-align:middle;"></i>Not Taking New Clients';
+                document.getElementById('heroName').appendChild(badge);
+            } else {
+                const badge = document.createElement('span');
+                badge.style.cssText = 'display:inline-block;margin-left:12px;padding:3px 10px;border-radius:20px;font-size:0.78rem;font-weight:600;background:rgba(76,175,80,0.15);border:1px solid #4CAF50;color:#4CAF50;vertical-align:middle;';
+                badge.innerHTML = '<i class="fas fa-circle" style="font-size:0.5rem;margin-right:5px;vertical-align:middle;"></i>Accepting Bookings';
+                document.getElementById('heroName').appendChild(badge);
+            }
 
             // Location
             if (artist.location) {
@@ -375,11 +402,12 @@
             if (artist.phone) {
                 rows.push('<div class="contact-row"><i class="fas fa-phone"></i><span>' + artist.phone + '</span></div>');
             }
-            if (artist.portfolio) {
-                const isInstagram = artist.portfolio.includes('instagram.com');
-                const icon = isInstagram ? 'fab fa-instagram' : 'fas fa-globe';
-                const label = isInstagram ? 'Instagram' : 'Portfolio / Website';
-                rows.push('<div class="contact-row"><i class="' + icon + '"></i><a href="' + artist.portfolio + '" target="_blank" rel="noopener">' + label + '</a></div>');
+            if (artist.instagram_url) {
+                const handle = artist.instagram_url.replace(/.*instagram\.com\/?/, '').replace(/\/$/, '') || 'Instagram';
+                rows.push('<div class="contact-row"><i class="fab fa-instagram" style="font-size:1.1rem;"></i><a href="' + artist.instagram_url + '" target="_blank" rel="noopener">@' + handle + '</a></div>');
+            }
+            if (artist.portfolio && !artist.portfolio.includes('instagram.com')) {
+                rows.push('<div class="contact-row"><i class="fas fa-globe"></i><a href="' + artist.portfolio + '" target="_blank" rel="noopener">Portfolio / Website</a></div>');
             }
             if (artist.location) {
                 rows.push('<div class="contact-row"><i class="fas fa-map-marker-alt"></i><span>' + artist.location + '</span></div>');
@@ -402,12 +430,21 @@
 
             if (portfolioImages && portfolioImages.length > 0) {
                 portfolioImages.forEach(function(img) {
+                    const wrapper = document.createElement('div');
+                    wrapper.style.cssText = 'display:flex;flex-direction:column;gap:5px;';
                     const el = document.createElement('img');
                     el.src = img.public_url;
                     el.alt = name + ' tattoo portfolio';
                     el.style.cssText = 'width:100%;aspect-ratio:1;object-fit:cover;border-radius:8px;cursor:pointer;';
                     el.loading = 'lazy';
-                    gallery.appendChild(el);
+                    wrapper.appendChild(el);
+                    if (img.caption) {
+                        const cap = document.createElement('p');
+                        cap.style.cssText = 'font-size:0.78rem;color:#888;margin:0;text-align:center;line-height:1.3;';
+                        cap.textContent = img.caption;
+                        wrapper.appendChild(cap);
+                    }
+                    gallery.appendChild(wrapper);
                 });
             } else {
                 gallery.style.display = 'none';
