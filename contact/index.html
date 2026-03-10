@@ -175,10 +175,6 @@
     <script src="/supabase-client.js"></script>
     <script src="/script.js"></script>
     <script>
-        // To receive form submissions, sign up at https://formspree.io,
-        // create a form, and replace YOUR_FORM_ID below with your actual form ID.
-        const FORMSPREE_ID = 'YOUR_FORM_ID';
-
         document.getElementById('contactForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             const form = this;
@@ -193,25 +189,24 @@
             submitBtn.disabled = true;
             submitBtn.innerHTML = 'Sending... <i class="fas fa-spinner fa-spin" style="margin-left: 8px;"></i>';
 
-            try {
-                const response = await fetch(`https://formspree.io/f/${FORMSPREE_ID}`, {
-                    method: 'POST',
-                    headers: { 'Accept': 'application/json' },
-                    body: new FormData(form)
-                });
+            if (!window.supabaseClient) {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = 'Send Message <i class="fas fa-paper-plane" style="margin-left: 8px;"></i>';
+                alert('Service not available. Please email us directly at info@discoverink.com');
+                return;
+            }
 
-                if (response.ok) {
-                    form.querySelectorAll('input, select, textarea, button[type="submit"]').forEach(el => el.disabled = true);
-                    document.getElementById('contactSuccess').style.display = 'block';
-                } else {
-                    submitBtn.disabled = false;
-                    submitBtn.innerHTML = 'Send Message <i class="fas fa-paper-plane" style="margin-left: 8px;"></i>';
-                    alert('Something went wrong. Please try again or email us directly at info@discoverink.com');
-                }
-            } catch (err) {
+            const { error } = await window.supabaseClient
+                .from('contact_messages')
+                .insert({ sender_name: name, sender_email: email, subject, message });
+
+            if (error) {
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = 'Send Message <i class="fas fa-paper-plane" style="margin-left: 8px;"></i>';
                 alert('Something went wrong. Please try again or email us directly at info@discoverink.com');
+            } else {
+                form.querySelectorAll('input, select, textarea, button[type="submit"]').forEach(el => el.disabled = true);
+                document.getElementById('contactSuccess').style.display = 'block';
             }
         });
     </script>

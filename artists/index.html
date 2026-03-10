@@ -82,48 +82,11 @@
                 <button type="submit" class="button-primary" style="width: 100%;">Apply Filters</button>
             </aside>
 
-            <section class="artist-results">
-                <div class="artist-card">
-                    <img src="https://via.placeholder.com/300x200?text=Artist+A+Portfolio" alt="Artist A Portfolio">
-                    <h3>Jessica L.</h3>
-                    <p class="artist-style">Realism, Black & Grey</p>
-                    <p class="artist-location"><i class="fas fa-map-marker-alt"></i> New York, NY</p>
-                    <a href="/artist-profile/" class="button-primary">View Profile</a>
-                </div>
-                <div class="artist-card">
-                    <img src="https://via.placeholder.com/300x200?text=Artist+B+Portfolio" alt="Artist B Portfolio">
-                    <h3>Mark S.</h3>
-                    <p class="artist-style">Traditional, Neo-Traditional</p>
-                    <p class="artist-location"><i class="fas fa-map-marker-alt"></i> Los Angeles, CA</p>
-                    <a href="/artist-profile/" class="button-primary">View Profile</a>
-                </div>
-                <div class="artist-card">
-                    <img src="https://via.placeholder.com/300x200?text=Sarah+M." alt="Artist C Portfolio">
-                    <h3>Sarah M.</h3>
-                    <p class="artist-style">Watercolor, Fine Line</p>
-                    <p class="artist-location"><i class="fas fa-map-marker-alt"></i> Austin, TX</p>
-                    <a href="/artist-profile/" class="button-primary">View Profile</a>
-                </div>
-                <div class="artist-card">
-                    <img src="https://via.placeholder.com/300x200?text=Artist+D+Portfolio" alt="Artist D Portfolio">
-                    <h3>David K.</h3>
-                    <p class="artist-style">Geometric, Dotwork</p>
-                    <p class="artist-location"><i class="fas fa-map-marker-alt"></i> Chicago, IL</p>
-                    <a href="/artist-profile/" class="button-primary">View Profile</a>
-                </div>
-                <div class="artist-card">
-                    <img src="https://via.placeholder.com/300x200?text=Artist+E+Portfolio" alt="Artist E Portfolio">
-                    <h3>Emily R.</h3>
-                    <p class="artist-style">Japanese (Irezumi)</p>
-                    <p class="artist-location"><i class="fas fa-map-marker-alt"></i> San Francisco, CA</p>
-                    <a href="/artist-profile/" class="button-primary">View Profile</a>
-                </div>
-                <div class="artist-card">
-                    <img src="https://via.placeholder.com/300x200?text=Artist+F+Portfolio" alt="Artist F Portfolio">
-                    <h3>Chris T.</h3>
-                    <p class="artist-style">Blackwork, Dark Art</p>
-                    <p class="artist-location"><i class="fas fa-map-marker-alt"></i> Miami, FL</p>
-                    <a href="/artist-profile/" class="button-primary">View Profile</a>
+            <section class="artist-results" id="artistResults">
+                <!-- Loaded dynamically from Supabase -->
+                <div id="artists-loading" style="text-align:center;padding:60px 20px;width:100%;">
+                    <i class="fas fa-spinner fa-spin" style="font-size:2rem;color:#C44040;display:block;margin-bottom:14px;"></i>
+                    <p style="color:#888;">Finding artists...</p>
                 </div>
             </section>
         </section>
@@ -164,5 +127,107 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
     <script src="/supabase-client.js"></script>
     <script src="/script.js"></script>
+    <script>
+        let allArtists = [];
+
+        function renderArtists(artists) {
+            const container = document.getElementById('artistResults');
+            // Remove loading indicator
+            const loading = document.getElementById('artists-loading');
+            if (loading) loading.remove();
+
+            if (!artists || artists.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align:center;padding:60px 20px;width:100%;">
+                        <i class="fas fa-palette" style="font-size:3rem;color:#444;display:block;margin-bottom:16px;"></i>
+                        <h3 style="color:#888;margin-bottom:8px;">No artists yet</h3>
+                        <p style="color:#666;margin-bottom:24px;">Be the first to join DiscoverInk as an artist!</p>
+                        <a href="/artist-signup/" class="button-primary">Sign Up as an Artist</a>
+                    </div>`;
+                return;
+            }
+
+            // Remove any existing cards (not the loading div)
+            container.querySelectorAll('.artist-card').forEach(c => c.remove());
+
+            artists.forEach(function(artist) {
+                const styleLabel = artist.styles && artist.styles.length
+                    ? artist.styles.slice(0, 3).map(s => s.charAt(0).toUpperCase() + s.slice(1).replace(/-/g, ' ')).join(', ')
+                    : 'Various Styles';
+                const location = artist.location || 'Location not set';
+                const name = artist.full_name || 'Anonymous Artist';
+
+                const card = document.createElement('div');
+                card.className = 'artist-card';
+                card.innerHTML = `
+                    <img src="https://picsum.photos/seed/${artist.id}/300/200" alt="${name} Portfolio">
+                    <h3>${name}</h3>
+                    <p class="artist-style">${styleLabel}</p>
+                    <p class="artist-location"><i class="fas fa-map-marker-alt"></i> ${location}</p>
+                    <a href="/artist-profile/?id=${artist.id}" class="button-primary">View Profile</a>`;
+                container.appendChild(card);
+            });
+
+            // If there's a search query in the URL, apply it now that cards are in DOM
+            const q = new URLSearchParams(window.location.search).get('q');
+            if (q) {
+                document.querySelectorAll('.search-input').forEach(function(input) {
+                    input.value = q;
+                    input.dispatchEvent(new Event('input'));
+                });
+            }
+        }
+
+        function applyFilters() {
+            const selectedStyles = Array.from(document.querySelectorAll('#style option:checked')).map(o => o.value);
+            const locationFilter = document.getElementById('location').value.trim().toLowerCase();
+
+            const filtered = allArtists.filter(function(artist) {
+                const artistStyles = artist.styles || [];
+                const matchesStyle = selectedStyles.length === 0 ||
+                    selectedStyles.some(s => artistStyles.includes(s));
+                const matchesLocation = !locationFilter ||
+                    (artist.location || '').toLowerCase().includes(locationFilter);
+                return matchesStyle && matchesLocation;
+            });
+
+            renderArtists(filtered);
+
+            // Show "no results" message if needed
+            if (filtered.length === 0 && allArtists.length > 0) {
+                const container = document.getElementById('artistResults');
+                container.innerHTML = `
+                    <div style="text-align:center;padding:60px 20px;width:100%;">
+                        <i class="fas fa-search" style="font-size:2rem;color:#444;display:block;margin-bottom:14px;"></i>
+                        <p style="color:#888;font-size:1.05rem;">No artists match your filters. Try adjusting your search.</p>
+                    </div>`;
+            }
+        }
+
+        document.querySelector('.filters-sidebar button[type="submit"]').addEventListener('click', applyFilters);
+
+        document.addEventListener('DOMContentLoaded', async function() {
+            if (!window.supabaseClient) {
+                document.getElementById('artists-loading').innerHTML =
+                    '<p style="color:#888;padding:40px;">Could not connect to database. Please refresh.</p>';
+                return;
+            }
+
+            const { data: artists, error } = await window.supabaseClient
+                .from('profiles')
+                .select('id, full_name, location, styles, bio, portfolio')
+                .eq('user_type', 'artist')
+                .order('created_at', { ascending: false });
+
+            if (error) {
+                document.getElementById('artists-loading').innerHTML =
+                    '<p style="color:#888;padding:40px;">Error loading artists. Please try again.</p>';
+                return;
+            }
+
+            allArtists = artists || [];
+            renderArtists(allArtists);
+        });
+    </script>
 </body>
 </html>

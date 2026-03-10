@@ -157,7 +157,7 @@
                         </div>
 
                         <div style="text-align: right; margin-top: -10px; margin-bottom: 20px;">
-                            <a href="#" style="color: #C44040; font-size: 0.9rem; text-decoration: none;">Forgot your password?</a>
+                            <a href="#" id="forgotLink" style="color: #C44040; font-size: 0.9rem; text-decoration: none;">Forgot your password?</a>
                         </div>
 
                         <button type="submit" class="button-primary" style="width: 100%; padding: 15px; font-size: 1.05rem; border-radius: 8px;">
@@ -169,6 +169,23 @@
                         Don't have an account?
                         <a href="#" class="switch-tab" data-target="signup" style="color: #C44040; text-decoration: none; font-weight: 600;">Sign Up</a>
                     </p>
+
+                    <!-- Forgot Password Panel -->
+                    <div id="forgot-panel" style="display:none; margin-top: 4px;">
+                        <h1 style="font-size: 1.6rem; margin-bottom: 6px;">Reset Password</h1>
+                        <p style="color: #888; margin-bottom: 20px;">Enter your email and we'll send you a link to reset your password.</p>
+                        <div class="form-group">
+                            <label for="forgotEmail">Email Address</label>
+                            <input type="email" id="forgotEmail" placeholder="you@example.com">
+                        </div>
+                        <button id="sendResetBtn" class="button-primary" style="width: 100%; padding: 15px; font-size: 1.05rem; border-radius: 8px;">
+                            Send Reset Link
+                        </button>
+                        <div id="forgotFeedback" style="display:none; margin-top: 14px; padding: 12px; border-radius: 8px; font-size: 0.9rem; text-align: center;"></div>
+                        <p style="text-align: center; margin-top: 18px;">
+                            <a href="#" id="backToLoginLink" style="color: #C44040; font-size: 0.9rem; text-decoration: none;">← Back to Log In</a>
+                        </p>
+                    </div>
                 </div>
 
                 <!-- Sign Up Panel -->
@@ -247,6 +264,65 @@
     <script src="/supabase-client.js"></script>
     <script src="/script.js"></script>
     <script>
+        // Forgot password toggle
+        const loginMainContent = ['loginForm', 'panel-login'];
+        document.getElementById('forgotLink').addEventListener('click', function(e) {
+            e.preventDefault();
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('forgot-panel').style.display = 'block';
+            // Hide the h1, p, and "Don't have an account" p in panel-login
+            const panelChildren = document.getElementById('panel-login').children;
+            for (let el of panelChildren) {
+                if (el.id !== 'forgot-panel') el.style.display = 'none';
+            }
+            document.getElementById('forgot-panel').style.display = 'block';
+        });
+
+        document.getElementById('backToLoginLink').addEventListener('click', function(e) {
+            e.preventDefault();
+            const panelChildren = document.getElementById('panel-login').children;
+            for (let el of panelChildren) {
+                el.style.display = '';
+            }
+            document.getElementById('forgot-panel').style.display = 'none';
+        });
+
+        document.getElementById('sendResetBtn').addEventListener('click', async function() {
+            if (!window.supabaseClient) {
+                alert('Authentication service not loaded. Please refresh and try again.');
+                return;
+            }
+            const email = document.getElementById('forgotEmail').value.trim();
+            if (!email) {
+                document.getElementById('forgotEmail').focus();
+                return;
+            }
+            this.disabled = true;
+            this.textContent = 'Sending...';
+
+            const basePath = window.location.pathname.split('/').slice(0, -2).join('/');
+            const resetUrl = window.location.origin + basePath + '/reset-password/';
+
+            const { error } = await window.supabaseClient.auth.resetPasswordForEmail(email, {
+                redirectTo: resetUrl
+            });
+
+            const feedback = document.getElementById('forgotFeedback');
+            feedback.style.display = 'block';
+            if (error) {
+                feedback.style.background = '#3a1a1a';
+                feedback.style.color = '#C44040';
+                feedback.textContent = error.message;
+                this.disabled = false;
+                this.textContent = 'Send Reset Link';
+            } else {
+                feedback.style.background = '#1a3a1a';
+                feedback.style.color = '#4CAF50';
+                feedback.textContent = 'Reset link sent! Check your inbox (and spam folder).';
+                this.textContent = 'Sent!';
+            }
+        });
+
         // Tab switching
         document.querySelectorAll('.auth-tab, .switch-tab').forEach(el => {
             el.addEventListener('click', function(e) {

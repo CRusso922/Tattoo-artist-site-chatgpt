@@ -186,9 +186,11 @@ document.addEventListener('DOMContentLoaded', function () {
       const initials = name.split(' ').map(function (n) { return n[0]; }).join('').toUpperCase().slice(0, 2);
       avatar.innerHTML = '<span style="font-weight:700;font-size:0.8rem;color:#fff;">' + initials + '</span>';
       label.textContent = name.split(' ')[0];
+      link.href = '/profile/';
     } else {
       avatar.innerHTML = '<i class="fas fa-user"></i>';
       label.textContent = 'Sign In';
+      link.href = '/login/';
     }
   }
 

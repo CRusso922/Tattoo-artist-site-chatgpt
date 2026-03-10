@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reset Password - DiscoverInk</title>
+    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    <style>
+        .pw-requirements {
+            margin-top: 8px;
+            padding: 12px 14px;
+            background: #222;
+            border: 1px solid #333;
+            border-radius: 8px;
+            display: none;
+        }
+        .pw-requirements.visible { display: block; }
+        .pw-req {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.82rem;
+            color: #777;
+            margin-bottom: 4px;
+            transition: color 0.2s;
+        }
+        .pw-req:last-child { margin-bottom: 0; }
+        .pw-req i { width: 14px; text-align: center; font-size: 0.75rem; }
+        .pw-req.met { color: #4CAF50; }
+        .pw-req.unmet { color: #777; }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">
+                <a href="/">
+                    <img src="/discoverink-logo.png" alt="DiscoverInk Logo">
+                </a>
+            </div>
+            <ul class="nav-links-primary">
+                <li><a href="/">Home</a></li>
+                <li><a href="/artists/">Find an Artist</a></li>
+                <li><a href="/map/">Near Me</a></li>
+                <li><a href="/about/">About Us</a></li>
+                <li><a href="/contact/">Contact Us</a></li>
+            </ul>
+            <div class="nav-right-actions">
+                <a href="/for-artists/" class="cta-button">For Artists</a>
+                <div class="search-bar-container">
+                    <input type="text" placeholder="Search..." class="search-input">
+                    <button class="search-button">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+                <a href="/login/" class="nav-profile-link">
+                    <div class="nav-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <span class="nav-login-text">Sign In</span>
+                </a>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section class="signup-form-section">
+            <div class="signup-form">
+
+                <!-- Loading state -->
+                <div id="reset-loading" style="text-align:center; padding: 40px 20px;">
+                    <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: #C44040; display:block; margin-bottom: 14px;"></i>
+                    <p style="color: #888;">Verifying your reset link...</p>
+                </div>
+
+                <!-- New password form -->
+                <div id="reset-form" style="display:none;">
+                    <h1 style="font-size: 1.6rem; margin-bottom: 6px;">Set New Password</h1>
+                    <p style="color: #888; margin-bottom: 24px;">Choose a strong password for your account.</p>
+
+                    <form id="resetPasswordForm" novalidate>
+                        <div class="form-group">
+                            <label for="newPassword">New Password</label>
+                            <input type="password" id="newPassword" placeholder="Create a new password" required>
+                            <div class="pw-requirements" id="pwRequirements">
+                                <div class="pw-req unmet" id="req-length"><i class="fas fa-circle"></i> At least 8 characters</div>
+                                <div class="pw-req unmet" id="req-upper"><i class="fas fa-circle"></i> One uppercase letter (A–Z)</div>
+                                <div class="pw-req unmet" id="req-lower"><i class="fas fa-circle"></i> One lowercase letter (a–z)</div>
+                                <div class="pw-req unmet" id="req-number"><i class="fas fa-circle"></i> One number (0–9)</div>
+                                <div class="pw-req unmet" id="req-special"><i class="fas fa-circle"></i> One special character (!@#$%^&*)</div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="confirmNewPassword">Confirm New Password</label>
+                            <input type="password" id="confirmNewPassword" placeholder="Repeat your new password" required>
+                        </div>
+                        <button type="submit" class="button-primary" style="width: 100%; padding: 15px; font-size: 1.05rem; border-radius: 8px;">
+                            Update Password
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Invalid link state -->
+                <div id="reset-invalid" style="display:none; text-align:center; padding: 20px 0;">
+                    <i class="fas fa-exclamation-circle" style="font-size: 2.5rem; color: #C44040; display:block; margin-bottom: 14px;"></i>
+                    <h2 style="margin-bottom: 8px;">Link Expired or Invalid</h2>
+                    <p style="color: #888; margin-bottom: 24px;">This password reset link has expired or already been used. Please request a new one.</p>
+                    <a href="/login/" class="button-primary" style="display:inline-block;">Back to Login</a>
+                </div>
+
+                <!-- Success state -->
+                <div id="reset-success" style="display:none; text-align:center; padding: 20px 0;">
+                    <i class="fas fa-check-circle" style="font-size: 2.5rem; color: #4CAF50; display:block; margin-bottom: 14px;"></i>
+                    <h2 style="margin-bottom: 8px;">Password Updated!</h2>
+                    <p style="color: #888; margin-bottom: 24px;">Your password has been changed successfully.</p>
+                    <a href="/login/" class="button-primary" style="display:inline-block;">Log In</a>
+                </div>
+
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-columns">
+                <div class="footer-col about-col">
+                    <h3>DiscoverInk</h3>
+                    <p>Connecting you with the perfect tattoo artist for your next masterpiece. Explore styles, find inspiration, and book with confidence.</p>
+                </div>
+                <div class="footer-col nav-col">
+                    <h3>Quick Links</h3>
+                    <ul>
+                        <li><a href="/">Home</a></li>
+                        <li><a href="/artists/">Find an Artist</a></li>
+                        <li><a href="/about/">About Us</a></li>
+                        <li><a href="/for-artists/">For Artists</a></li>
+                        <li><a href="/contact/">Contact Us</a></li>
+                        <li><a href="#">Blog</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col contact-col">
+                    <h3>Contact Us</h3>
+                    <p>Email: info@discoverink.com</p>
+                    <div class="social-icons">
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; <span class="copyright-year"></span> DiscoverInk. All rights reserved.</p>
+                <p><a href="#">Privacy Policy</a> | <a href="#">Terms of Service</a></p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <script src="/supabase-client.js"></script>
+    <script src="/script.js"></script>
+    <script>
+        const rules = {
+            'req-length':  v => v.length >= 8,
+            'req-upper':   v => /[A-Z]/.test(v),
+            'req-lower':   v => /[a-z]/.test(v),
+            'req-number':  v => /[0-9]/.test(v),
+            'req-special': v => /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(v),
+        };
+
+        function passwordValid(val) {
+            return Object.values(rules).every(test => test(val));
+        }
+
+        document.getElementById('newPassword').addEventListener('input', function() {
+            const val = this.value;
+            document.getElementById('pwRequirements').classList.toggle('visible', val.length > 0);
+            Object.entries(rules).forEach(([id, test]) => {
+                const el = document.getElementById(id);
+                const pass = test(val);
+                el.classList.toggle('met', pass);
+                el.classList.toggle('unmet', !pass);
+                el.querySelector('i').className = pass ? 'fas fa-check-circle' : 'fas fa-circle';
+            });
+        });
+
+        function show(id) { document.getElementById(id).style.display = ''; }
+        function hide(id) { document.getElementById(id).style.display = 'none'; }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            if (!window.supabaseClient) {
+                hide('reset-loading');
+                show('reset-invalid');
+                return;
+            }
+
+            // Check if this is a recovery link by looking at the URL hash
+            const hashParams = new URLSearchParams(window.location.hash.slice(1));
+            const isRecovery = hashParams.get('type') === 'recovery';
+
+            if (!isRecovery) {
+                hide('reset-loading');
+                show('reset-invalid');
+                return;
+            }
+
+            // The Supabase SDK processes the hash and fires PASSWORD_RECOVERY
+            window.supabaseClient.auth.onAuthStateChange(function(event, session) {
+                if (event === 'PASSWORD_RECOVERY') {
+                    hide('reset-loading');
+                    show('reset-form');
+                }
+            });
+
+            // Fallback: if event doesn't fire within 4 seconds, something went wrong
+            setTimeout(function() {
+                if (document.getElementById('reset-loading').style.display !== 'none') return;
+                if (document.getElementById('reset-form').style.display === 'none') {
+                    hide('reset-loading');
+                    show('reset-invalid');
+                }
+            }, 4000);
+        });
+
+        document.getElementById('resetPasswordForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmNewPassword = document.getElementById('confirmNewPassword').value;
+
+            // Clear old errors
+            document.querySelectorAll('.form-error-msg').forEach(el => el.remove());
+            document.querySelectorAll('input').forEach(i => i.style.borderColor = '');
+
+            if (!passwordValid(newPassword)) {
+                showFieldError(document.getElementById('newPassword'), 'Password does not meet all requirements.');
+                document.getElementById('pwRequirements').classList.add('visible');
+                return;
+            }
+            if (newPassword !== confirmNewPassword) {
+                showFieldError(document.getElementById('confirmNewPassword'), 'Passwords do not match.');
+                return;
+            }
+
+            const btn = this.querySelector('button[type="submit"]');
+            btn.disabled = true;
+            btn.textContent = 'Updating...';
+
+            const { error } = await window.supabaseClient.auth.updateUser({ password: newPassword });
+
+            if (error) {
+                showFieldError(document.getElementById('newPassword'), error.message);
+                btn.disabled = false;
+                btn.textContent = 'Update Password';
+            } else {
+                hide('reset-form');
+                show('reset-success');
+            }
+        });
+
+        function showFieldError(input, message) {
+            const err = document.createElement('small');
+            err.className = 'form-error-msg';
+            err.style.cssText = 'color:#C44040;display:block;margin-top:5px;';
+            err.textContent = message;
+            input.parentNode.appendChild(err);
+            input.style.borderColor = '#C44040';
+        }
+    </script>
+</body>
+</html>
