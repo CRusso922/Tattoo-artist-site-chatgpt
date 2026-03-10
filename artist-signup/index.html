@@ -32,6 +32,28 @@
             color: #fff;
             font-weight: 600;
         }
+        .pw-requirements {
+            margin-top: 8px;
+            padding: 12px 14px;
+            background: #222;
+            border: 1px solid #333;
+            border-radius: 8px;
+            display: none;
+        }
+        .pw-requirements.visible { display: block; }
+        .pw-req {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.82rem;
+            color: #777;
+            margin-bottom: 4px;
+            transition: color 0.2s;
+        }
+        .pw-req:last-child { margin-bottom: 0; }
+        .pw-req i { width: 14px; text-align: center; font-size: 0.75rem; }
+        .pw-req.met { color: #4CAF50; }
+        .pw-req.unmet { color: #777; }
     </style>
 </head>
 <body>
@@ -88,7 +110,14 @@
                     </div>
                     <div class="form-group">
                         <label for="password">Password</label>
-                        <input type="password" id="password" name="password" placeholder="********" required>
+                        <input type="password" id="password" name="password" placeholder="Create a password" required>
+                        <div class="pw-requirements" id="pwRequirements">
+                            <div class="pw-req unmet" id="req-length"><i class="fas fa-circle"></i> At least 8 characters</div>
+                            <div class="pw-req unmet" id="req-upper"><i class="fas fa-circle"></i> One uppercase letter (A–Z)</div>
+                            <div class="pw-req unmet" id="req-lower"><i class="fas fa-circle"></i> One lowercase letter (a–z)</div>
+                            <div class="pw-req unmet" id="req-number"><i class="fas fa-circle"></i> One number (0–9)</div>
+                            <div class="pw-req unmet" id="req-special"><i class="fas fa-circle"></i> One special character (!@#$%^&*)</div>
+                        </div>
                     </div>
                     <div class="form-group">
                         <label for="confirmPassword">Confirm Password</label>
@@ -181,6 +210,31 @@
                 if (pill) pill.classList.toggle('selected');
             });
 
+            // Live password requirements
+            const rules = {
+                'req-length':  v => v.length >= 8,
+                'req-upper':   v => /[A-Z]/.test(v),
+                'req-lower':   v => /[a-z]/.test(v),
+                'req-number':  v => /[0-9]/.test(v),
+                'req-special': v => /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(v),
+            };
+
+            document.getElementById('password').addEventListener('input', function () {
+                const val = this.value;
+                document.getElementById('pwRequirements').classList.toggle('visible', val.length > 0);
+                Object.entries(rules).forEach(([id, test]) => {
+                    const el = document.getElementById(id);
+                    const pass = test(val);
+                    el.classList.toggle('met', pass);
+                    el.classList.toggle('unmet', !pass);
+                    el.querySelector('i').className = pass ? 'fas fa-check-circle' : 'fas fa-circle';
+                });
+            });
+
+            function passwordValid(val) {
+                return Object.values(rules).every(test => test(val));
+            }
+
             document.querySelector('form.signup-form').addEventListener('submit', async function (e) {
                 e.preventDefault();
                 if (!window.supabaseClient) {
@@ -199,12 +253,13 @@
 
                 clearErrors();
 
-                if (password !== confirmPassword) {
-                    showFieldError(document.getElementById('confirmPassword'), 'Passwords do not match.');
+                if (!passwordValid(password)) {
+                    showFieldError(document.getElementById('password'), 'Password does not meet all requirements.');
+                    document.getElementById('pwRequirements').classList.add('visible');
                     return;
                 }
-                if (password.length < 6) {
-                    showFieldError(document.getElementById('password'), 'Password must be at least 6 characters.');
+                if (password !== confirmPassword) {
+                    showFieldError(document.getElementById('confirmPassword'), 'Passwords do not match.');
                     return;
                 }
 
