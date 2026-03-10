@@ -7,6 +7,16 @@
     <link rel="stylesheet" href="/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    <meta name="description" content="Browse tattoo artists by style, location, and availability. Find realism, blackwork, traditional, Japanese, and more on DiscoverInk.">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="DiscoverInk">
+    <meta property="og:title" content="Find a Tattoo Artist - DiscoverInk">
+    <meta property="og:description" content="Browse tattoo artists by style, location, and availability. Filter by realism, blackwork, traditional, Japanese, and more.">
+    <meta property="og:image" content="https://joindiscoverink.com/discoverink-logo.png">
+    <meta property="og:url" content="https://joindiscoverink.com/artists/">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Find a Tattoo Artist - DiscoverInk">
+    <meta name="twitter:description" content="Browse tattoo artists by style, location, and availability.">
 </head>
 <body>
     <header>
@@ -212,19 +222,13 @@
                 container.appendChild(card);
             });
 
-            // If there's a search query in the URL, apply it now that cards are in DOM
-            const q = new URLSearchParams(window.location.search).get('q');
-            if (q) {
-                document.querySelectorAll('.search-input').forEach(function(input) {
-                    input.value = q;
-                    input.dispatchEvent(new Event('input'));
-                });
-            }
         }
 
         function applyFilters() {
             const selectedStyles = Array.from(document.querySelectorAll('#styleFilterPills .filter-pill.selected')).map(p => p.dataset.value);
             const locationFilter = document.getElementById('location').value.trim().toLowerCase();
+            const searchInput = document.querySelector('.search-input');
+            const searchQuery = searchInput ? searchInput.value.trim().toLowerCase() : '';
 
             const filtered = allArtists.filter(function(artist) {
                 const artistStyles = artist.styles || [];
@@ -232,7 +236,11 @@
                     selectedStyles.some(s => artistStyles.includes(s));
                 const matchesLocation = !locationFilter ||
                     (artist.location || '').toLowerCase().includes(locationFilter);
-                return matchesStyle && matchesLocation;
+                const matchesSearch = !searchQuery ||
+                    (artist.full_name || '').toLowerCase().includes(searchQuery) ||
+                    (artist.location || '').toLowerCase().includes(searchQuery) ||
+                    artistStyles.some(s => s.toLowerCase().includes(searchQuery));
+                return matchesStyle && matchesLocation && matchesSearch;
             });
 
             renderArtists(filtered);
@@ -249,6 +257,12 @@
         }
 
         document.querySelector('.filters-sidebar button[type="submit"]').addEventListener('click', applyFilters);
+        document.getElementById('location').addEventListener('keydown', function(e) { if (e.key === 'Enter') applyFilters(); });
+
+        // Live search on this page — unified with all filters
+        document.querySelectorAll('.search-input').forEach(function(input) {
+            input.addEventListener('input', applyFilters);
+        });
 
         document.addEventListener('DOMContentLoaded', async function() {
             if (!window.supabaseClient) {
@@ -271,11 +285,19 @@
 
             allArtists = artists || [];
 
-            // Pre-select style from URL param (e.g. ?style=realism from homepage)
-            const styleParam = new URLSearchParams(window.location.search).get('style');
+            const params = new URLSearchParams(window.location.search);
+            const styleParam = params.get('style');
+            const qParam = params.get('q');
+
             if (styleParam) {
                 const pill = document.querySelector('#styleFilterPills .filter-pill[data-value="' + styleParam + '"]');
                 if (pill) pill.classList.add('selected');
+            }
+            if (qParam) {
+                document.querySelectorAll('.search-input').forEach(function(input) { input.value = qParam; });
+            }
+
+            if (styleParam || qParam) {
                 applyFilters();
             } else {
                 renderArtists(allArtists);

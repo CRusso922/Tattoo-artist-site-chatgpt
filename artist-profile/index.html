@@ -7,6 +7,17 @@
     <link rel="stylesheet" href="/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    <meta name="description" content="View this artist's portfolio, styles, and reviews on DiscoverInk.">
+    <meta property="og:type" content="profile">
+    <meta property="og:site_name" content="DiscoverInk">
+    <meta property="og:title" content="Tattoo Artist - DiscoverInk">
+    <meta property="og:description" content="View this artist's portfolio, styles, and reviews on DiscoverInk.">
+    <meta property="og:image" content="https://joindiscoverink.com/discoverink-logo.png">
+    <meta property="og:url" content="">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Tattoo Artist - DiscoverInk">
+    <meta name="twitter:description" content="View this artist's portfolio, styles, and reviews on DiscoverInk.">
+    <meta name="twitter:image" content="https://joindiscoverink.com/discoverink-logo.png">
     <style>
         .artist-profile-hero {
             background: #222;
@@ -377,8 +388,22 @@
                 return;
             }
 
-            // Update page title
-            document.title = (artist.full_name || 'Artist') + ' - DiscoverInk';
+            // Update page title + OG tags
+            const pageTitle = (artist.full_name || 'Artist') + ' - DiscoverInk';
+            const pageDesc = artist.bio
+                ? artist.bio.slice(0, 155) + (artist.bio.length > 155 ? '…' : '')
+                : 'View ' + (artist.full_name || 'this artist') + '\'s portfolio and book a session on DiscoverInk.';
+            document.title = pageTitle;
+            document.querySelector('meta[property="og:title"]').setAttribute('content', pageTitle);
+            document.querySelector('meta[property="og:description"]').setAttribute('content', pageDesc);
+            document.querySelector('meta[property="og:url"]').setAttribute('content', window.location.href);
+            document.querySelector('meta[name="twitter:title"]').setAttribute('content', pageTitle);
+            document.querySelector('meta[name="twitter:description"]').setAttribute('content', pageDesc);
+            document.querySelector('meta[name="description"]').setAttribute('content', pageDesc);
+            if (artist.avatar_url) {
+                document.querySelector('meta[property="og:image"]').setAttribute('content', artist.avatar_url);
+                document.querySelector('meta[name="twitter:image"]').setAttribute('content', artist.avatar_url);
+            }
 
             // Avatar
             const heroAvatar = document.getElementById('heroAvatar');
