@@ -117,6 +117,42 @@
             padding-top: 24px;
             border-top: 1px solid #333;
         }
+        .inquiry-card {
+            background: #2a2a2a;
+            border: 1px solid #333;
+            border-radius: 10px;
+            padding: 14px 16px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: border-color 0.15s;
+        }
+        .inquiry-card:hover { border-color: #C44040; }
+        .inquiry-card.unread { border-left: 3px solid #C44040; }
+        .inquiry-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+        .inquiry-sender { font-weight: 600; font-size: 0.95rem; color: #f0f0f0; }
+        .inquiry-date { font-size: 0.78rem; color: #555; }
+        .inquiry-email { font-size: 0.82rem; color: #666; margin-bottom: 6px; }
+        .inquiry-preview { font-size: 0.88rem; color: #888; line-height: 1.5; }
+        .inquiry-full { display: none; margin-top: 10px; padding-top: 10px; border-top: 1px solid #333; font-size: 0.9rem; color: #aaa; line-height: 1.6; white-space: pre-wrap; word-break: break-word; }
+        .unread-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: #C44040;
+            color: #fff;
+            font-size: 0.72rem;
+            font-weight: 700;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
     </style>
 </head>
 <body>
@@ -298,6 +334,18 @@
                         <p id="portfolioEmpty" style="color:#666; font-size:0.9rem; padding:16px 0; display:none;">No portfolio images yet. Add some to showcase your work!</p>
                         <div id="portfolioUploading" style="display:none; color:#888; font-size:0.88rem; margin-top:10px;">
                             <i class="fas fa-spinner fa-spin" style="margin-right:6px;"></i>Uploading...
+                        </div>
+                    </div>
+
+                    <!-- Inquiries (artists only) -->
+                    <div id="inquiriesSection" style="display:none; margin-top:32px; padding-top:28px; border-top:1px solid #333;">
+                        <h2 style="font-size:1.1rem; margin:0 0 4px;">
+                            Booking Requests
+                            <span id="unreadBadge" class="unread-badge" style="display:none;"></span>
+                        </h2>
+                        <p style="color:#666; font-size:0.82rem; margin-bottom:16px;">Messages sent through your public profile.</p>
+                        <div id="inquiriesList">
+                            <p style="color:#666; font-size:0.9rem;">Loading...</p>
                         </div>
                     </div>
 
@@ -594,10 +642,67 @@
                 window.location.href = '/';
             });
 
-            // Portfolio section (artists only)
+            // Portfolio + Inquiries sections (artists only)
             if (userType === 'artist') {
                 document.getElementById('portfolioSection').style.display = 'block';
                 loadPortfolioImages();
+                document.getElementById('inquiriesSection').style.display = 'block';
+                loadInquiries();
+            }
+
+            async function loadInquiries() {
+                const { data: inquiries } = await window.supabaseClient
+                    .from('artist_inquiries')
+                    .select('*')
+                    .eq('artist_id', user.id)
+                    .order('created_at', { ascending: false });
+
+                const list = document.getElementById('inquiriesList');
+
+                if (!inquiries || inquiries.length === 0) {
+                    list.innerHTML = '<p style="color:#666;font-size:0.9rem;">No booking requests yet.</p>';
+                    return;
+                }
+
+                const unreadCount = inquiries.filter(i => !i.is_read).length;
+                if (unreadCount > 0) {
+                    const badge = document.getElementById('unreadBadge');
+                    badge.textContent = unreadCount;
+                    badge.style.display = 'inline-flex';
+                }
+
+                list.innerHTML = '';
+                inquiries.forEach(function(inq) {
+                    const card = document.createElement('div');
+                    card.className = 'inquiry-card' + (inq.is_read ? '' : ' unread');
+                    const dateStr = new Date(inq.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                    const preview = inq.message.length > 100 ? inq.message.slice(0, 100) + '…' : inq.message;
+                    card.innerHTML = `
+                        <div class="inquiry-meta">
+                            <span class="inquiry-sender">${inq.sender_name}${!inq.is_read ? ' <span style="font-size:0.7rem;color:#C44040;font-weight:700;">NEW</span>' : ''}</span>
+                            <span class="inquiry-date">${dateStr}</span>
+                        </div>
+                        <div class="inquiry-email">${inq.sender_email}</div>
+                        <div class="inquiry-preview">${preview}</div>
+                        <div class="inquiry-full">${inq.message}</div>`;
+
+                    card.addEventListener('click', async function() {
+                        const full = card.querySelector('.inquiry-full');
+                        const isOpen = full.style.display === 'block';
+                        full.style.display = isOpen ? 'none' : 'block';
+                        if (!inq.is_read) {
+                            inq.is_read = true;
+                            card.classList.remove('unread');
+                            card.querySelector('.inquiry-sender').innerHTML = inq.sender_name;
+                            await window.supabaseClient.from('artist_inquiries').update({ is_read: true }).eq('id', inq.id);
+                            const badge = document.getElementById('unreadBadge');
+                            const current = parseInt(badge.textContent) - 1;
+                            if (current <= 0) { badge.style.display = 'none'; }
+                            else { badge.textContent = current; }
+                        }
+                    });
+                    list.appendChild(card);
+                });
             }
 
             function addImageToGrid(img) {

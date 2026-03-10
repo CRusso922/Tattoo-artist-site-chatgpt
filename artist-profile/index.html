@@ -240,9 +240,8 @@
                             <span></span>
                         </p>
                         <div class="artist-style-tags" id="heroStyles"></div>
-                        <div class="artist-hero-actions">
-                            <a href="/contact/" class="button-primary"><i class="fas fa-calendar-alt" style="margin-right:8px;"></i>Request Booking</a>
-                            <a href="/contact/" class="button-secondary"><i class="fas fa-comment-dots" style="margin-right:8px;"></i>Send Message</a>
+                        <div class="artist-hero-actions" id="heroActions">
+                            <button id="bookingToggleBtn" class="button-primary"><i class="fas fa-calendar-alt" style="margin-right:8px;"></i>Request Booking</button>
                             <button id="shareBtn" class="button-secondary" style="border:1px solid #555;"><i class="fas fa-share-alt" style="margin-right:8px;"></i>Share</button>
                         </div>
                     </div>
@@ -272,6 +271,28 @@
                         <div class="profile-card" id="stylesCard" style="display:none;">
                             <h2>Specialties</h2>
                             <div class="artist-style-tags" id="stylesDetail" style="margin-top:0;"></div>
+                        </div>
+
+                        <!-- Booking Request Form -->
+                        <div class="profile-card" id="bookingFormCard" style="display:none;">
+                            <h2 style="margin-bottom:6px;"><i class="fas fa-calendar-alt" style="color:#C44040;margin-right:10px;"></i>Request a Booking</h2>
+                            <p id="bookingFormDesc" style="color:#888;font-size:0.9rem;margin-bottom:20px;"></p>
+                            <div id="bookingFormContent">
+                                <div style="margin-bottom:14px;">
+                                    <label style="font-size:0.88rem;color:#888;display:block;margin-bottom:6px;">Your Name</label>
+                                    <input type="text" id="inquiryName" placeholder="Your name" style="width:100%;background:#2b2b2b;border:1px solid #3a3a3a;border-radius:8px;padding:10px 14px;color:#f0f0f0;font-size:0.9rem;box-sizing:border-box;outline:none;">
+                                </div>
+                                <div style="margin-bottom:14px;">
+                                    <label style="font-size:0.88rem;color:#888;display:block;margin-bottom:6px;">Your Email</label>
+                                    <input type="email" id="inquiryEmail" placeholder="you@example.com" style="width:100%;background:#2b2b2b;border:1px solid #3a3a3a;border-radius:8px;padding:10px 14px;color:#f0f0f0;font-size:0.9rem;box-sizing:border-box;outline:none;">
+                                </div>
+                                <div style="margin-bottom:18px;">
+                                    <label style="font-size:0.88rem;color:#888;display:block;margin-bottom:6px;">Describe Your Tattoo Idea</label>
+                                    <textarea id="inquiryMessage" rows="4" placeholder="Tell the artist about your idea — style, size, placement, any reference images or inspiration..." style="width:100%;background:#2b2b2b;border:1px solid #3a3a3a;border-radius:8px;padding:10px 14px;color:#f0f0f0;font-size:0.9rem;resize:vertical;box-sizing:border-box;outline:none;"></textarea>
+                                </div>
+                                <button id="submitInquiryBtn" class="button-primary" style="width:100%;padding:13px;font-size:1rem;">Send Booking Request</button>
+                                <div id="inquiryFeedback" style="display:none;margin-top:12px;padding:12px;border-radius:8px;font-size:0.9rem;text-align:center;"></div>
+                            </div>
                         </div>
 
                         <!-- Reviews -->
@@ -381,6 +402,9 @@
                 .eq('user_type', 'artist')
                 .single();
 
+            // Fetch session in parallel with profile render
+            const { data: { session } } = await window.supabaseClient.auth.getSession();
+
             document.getElementById('profile-loading').style.display = 'none';
 
             if (error || !artist) {
@@ -414,6 +438,66 @@
             } else {
                 document.getElementById('heroInitials').textContent = initials;
             }
+
+            // Add Instagram button to hero if artist has it
+            if (artist.instagram_url) {
+                const igBtn = document.createElement('a');
+                igBtn.href = artist.instagram_url;
+                igBtn.target = '_blank';
+                igBtn.rel = 'noopener';
+                igBtn.className = 'button-secondary';
+                igBtn.innerHTML = '<i class="fab fa-instagram" style="margin-right:8px;"></i>Message on Instagram';
+                document.getElementById('heroActions').insertBefore(igBtn, document.getElementById('shareBtn'));
+            }
+
+            // Booking form toggle
+            const firstName = (artist.full_name || 'the artist').split(' ')[0];
+            document.getElementById('bookingFormDesc').textContent = 'Send ' + firstName + ' your tattoo idea and they\'ll get back to you directly.';
+            document.getElementById('bookingToggleBtn').addEventListener('click', function() {
+                const card = document.getElementById('bookingFormCard');
+                const isVisible = card.style.display !== 'none';
+                card.style.display = isVisible ? 'none' : 'block';
+                if (!isVisible) card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            });
+
+            // Pre-fill booking form if logged in
+            if (session) {
+                const meta = session.user.user_metadata || {};
+                if (meta.full_name) document.getElementById('inquiryName').value = meta.full_name;
+                document.getElementById('inquiryEmail').value = session.user.email || '';
+            }
+
+            // Submit booking request
+            document.getElementById('submitInquiryBtn').addEventListener('click', async function() {
+                const senderName = document.getElementById('inquiryName').value.trim();
+                const senderEmail = document.getElementById('inquiryEmail').value.trim();
+                const message = document.getElementById('inquiryMessage').value.trim();
+                if (!senderName || !senderEmail || !message) {
+                    alert('Please fill in all fields.');
+                    return;
+                }
+                this.disabled = true;
+                this.textContent = 'Sending...';
+                const { error: inqError } = await window.supabaseClient.from('artist_inquiries').insert({
+                    artist_id: artistId,
+                    sender_name: senderName,
+                    sender_email: senderEmail,
+                    message
+                });
+                const fb = document.getElementById('inquiryFeedback');
+                fb.style.display = 'block';
+                if (inqError) {
+                    fb.style.background = '#3a1a1a'; fb.style.color = '#C44040';
+                    fb.textContent = 'Could not send: ' + inqError.message;
+                    this.disabled = false; this.textContent = 'Send Booking Request';
+                } else {
+                    fb.style.background = '#1a3a1a'; fb.style.color = '#4CAF50';
+                    fb.textContent = 'Sent! ' + firstName + ' will get back to you at ' + senderEmail + '.';
+                    document.getElementById('bookingFormContent').querySelectorAll('input,textarea,button').forEach(el => {
+                        el.disabled = true; el.style.opacity = '0.5';
+                    });
+                }
+            });
 
             // Share button
             document.getElementById('shareBtn').addEventListener('click', function() {
@@ -579,7 +663,6 @@
             }
 
             // Review form for logged-in users
-            const { data: { session } } = await window.supabaseClient.auth.getSession();
             if (session && session.user.id !== artistId) {
                 const { data: existingReview } = await window.supabaseClient
                     .from('reviews')
