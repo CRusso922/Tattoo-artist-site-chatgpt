@@ -61,12 +61,12 @@ document.addEventListener('DOMContentLoaded', function () {
 // 3. ACTIVE NAV LINK HIGHLIGHTING
 // ------------------------------------------------------------
 document.addEventListener('DOMContentLoaded', function () {
-  const raw = window.location.pathname.split('/').pop();
-  const currentPage = raw === '' || raw === '/' ? 'index.html' : raw;
+  const path = window.location.pathname;
   document.querySelectorAll('.nav-links-primary li a').forEach(function (link) {
     const href = link.getAttribute('href');
-    const linkPage = href === './' || href === '/' || href === '' ? 'index.html' : href;
-    if (linkPage === currentPage) {
+    if (href === '/' && (path === '/' || path === '')) {
+      link.classList.add('active');
+    } else if (href !== '/' && href !== '' && path.startsWith(href)) {
       link.classList.add('active');
     }
   });
@@ -107,7 +107,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (isArtistsPage) {
       filterArtistCards(query);
     } else {
-      window.location.href = 'artists.html?q=' + encodeURIComponent(query);
+      window.location.href = '/artists/?q=' + encodeURIComponent(query);
     }
   }
 
