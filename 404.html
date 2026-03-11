@@ -9,40 +9,35 @@
     <link rel="icon" href="/favicon.ico" type="image/x-icon">
     <style>
         .not-found-section {
+            min-height: 70vh;
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
             text-align: center;
-            padding: 80px 20px;
-            min-height: 60vh;
+            padding: 60px 20px;
         }
+        .not-found-inner { max-width: 500px; }
         .not-found-code {
-            font-size: 8rem;
-            font-weight: 700;
+            font-size: 6rem;
+            font-weight: 800;
             color: #C44040;
             line-height: 1;
-            margin-bottom: 10px;
+            margin-bottom: 16px;
             letter-spacing: -4px;
         }
-        .not-found-section h2 {
-            font-size: 1.8rem;
-            color: #f0f0f0;
-            margin-bottom: 15px;
+        .not-found-inner h1 { font-size: 1.8rem; color: #f0f0f0; margin-bottom: 12px; }
+        .not-found-inner p { color: #888; font-size: 1rem; line-height: 1.6; margin-bottom: 32px; }
+        .not-found-links { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; }
+        .btn-ghost {
+            padding: 12px 24px;
+            border-radius: 8px;
+            border: 1px solid #444;
+            color: #aaa;
+            text-decoration: none;
+            font-size: 0.95rem;
+            transition: border-color 0.2s, color 0.2s;
         }
-        .not-found-section p {
-            font-size: 1.05rem;
-            color: #aaaaaa;
-            max-width: 480px;
-            margin-bottom: 35px;
-            line-height: 1.6;
-        }
-        .not-found-links {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
-            justify-content: center;
-        }
+        .btn-ghost:hover { border-color: #888; color: #f0f0f0; }
     </style>
 </head>
 <body>
@@ -80,13 +75,15 @@
 
     <main>
         <section class="not-found-section">
-            <div class="not-found-code">404</div>
-            <h2>Page Not Found</h2>
-            <p>Looks like this page got lost under someone's skin. The page you're looking for doesn't exist or may have moved.</p>
-            <div class="not-found-links">
-                <a href="/" class="button-primary"><i class="fas fa-home" style="margin-right: 8px;"></i>Back to Home</a>
-                <a href="/artists/" class="button-secondary"><i class="fas fa-search" style="margin-right: 8px;"></i>Find an Artist</a>
-                <a href="/contact/" class="button-secondary"><i class="fas fa-envelope" style="margin-right: 8px;"></i>Contact Us</a>
+            <div class="not-found-inner">
+                <div class="not-found-code">404</div>
+                <h1>Page Not Found</h1>
+                <p>The page you're looking for doesn't exist or may have been moved. Let's get you back on track.</p>
+                <div class="not-found-links">
+                    <a href="/" class="button-primary">Go Home</a>
+                    <a href="/artists/" class="btn-ghost"><i class="fas fa-palette" style="margin-right:6px;"></i>Find an Artist</a>
+                    <a href="/contact/" class="btn-ghost"><i class="fas fa-envelope" style="margin-right:6px;"></i>Contact Us</a>
+                </div>
             </div>
         </section>
     </main>
@@ -106,12 +103,11 @@
                         <li><a href="/about/">About Us</a></li>
                         <li><a href="/for-artists/">For Artists</a></li>
                         <li><a href="/contact/">Contact Us</a></li>
-                        <li><a href="#">Blog</a></li>
                     </ul>
                 </div>
                 <div class="footer-col contact-col">
                     <h3>Contact Us</h3>
-                    <p>Email: <a href="mailto:info@discoverink.com" style="color: #aaaaaa; text-decoration: none;">info@discoverink.com</a></p>
+                    <p>Email: <a href="mailto:info@discoverink.com" style="color:#aaaaaa;text-decoration:none;">info@discoverink.com</a></p>
                     <div class="social-icons">
                         <a href="#"><i class="fab fa-instagram"></i></a>
                     </div>

@@ -34,10 +34,24 @@ document.addEventListener('DOMContentLoaded', function () {
   const navLinks = document.querySelector('.nav-links-primary');
   const navRightActions = document.querySelector('.nav-right-actions');
 
+  // Inject action items (CTA, search, sign-in) into the nav links panel
+  // so there is ONE unified mobile panel instead of two overlapping ones.
+  if (navRightActions && navLinks) {
+    const sep = document.createElement('li');
+    sep.className = 'nav-mobile-sep';
+    navLinks.appendChild(sep);
+
+    Array.from(navRightActions.children).forEach(function (child) {
+      const li = document.createElement('li');
+      li.className = 'nav-mobile-action-item';
+      li.appendChild(child.cloneNode(true));
+      navLinks.appendChild(li);
+    });
+  }
+
   function closeMenu() {
     hamburger.classList.remove('is-open');
     navLinks.classList.remove('mobile-open');
-    navRightActions.classList.remove('mobile-open');
     overlay.classList.remove('active');
     document.body.style.overflow = '';
   }
@@ -45,7 +59,6 @@ document.addEventListener('DOMContentLoaded', function () {
   hamburger.addEventListener('click', function () {
     const isOpen = hamburger.classList.toggle('is-open');
     navLinks.classList.toggle('mobile-open', isOpen);
-    navRightActions.classList.toggle('mobile-open', isOpen);
     overlay.classList.toggle('active', isOpen);
     document.body.style.overflow = isOpen ? 'hidden' : '';
   });
@@ -74,7 +87,32 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 // ------------------------------------------------------------
-// 4. BACK TO TOP BUTTON
+// 4. MOBILE FILTER SIDEBAR TOGGLE
+// ------------------------------------------------------------
+document.addEventListener('DOMContentLoaded', function () {
+  const sidebar = document.querySelector('.filters-sidebar');
+  if (!sidebar) return;
+
+  const toggle = document.createElement('button');
+  toggle.className = 'filters-mobile-toggle';
+  toggle.setAttribute('aria-label', 'Toggle filters');
+  toggle.innerHTML = '<span><i class="fas fa-sliders-h" style="margin-right:8px;"></i>Filter Artists</span><i class="fas fa-chevron-down filters-toggle-chevron"></i>';
+
+  const wrapper = document.createElement('div');
+  wrapper.className = 'filters-sidebar-inner';
+  Array.from(sidebar.childNodes).forEach(function(child) { wrapper.appendChild(child); });
+
+  sidebar.insertBefore(toggle, sidebar.firstChild);
+  sidebar.appendChild(wrapper);
+
+  toggle.addEventListener('click', function() {
+    sidebar.classList.toggle('filters-open');
+  });
+});
+
+
+// ------------------------------------------------------------
+// 5. BACK TO TOP BUTTON
 // ------------------------------------------------------------
 document.addEventListener('DOMContentLoaded', function () {
   const backToTop = document.createElement('button');
@@ -94,7 +132,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 // ------------------------------------------------------------
-// 5. SEARCH FUNCTIONALITY
+// 6. SEARCH FUNCTIONALITY
 // ------------------------------------------------------------
 document.addEventListener('DOMContentLoaded', function () {
   const searchInputs = document.querySelectorAll('.search-input');
@@ -176,22 +214,23 @@ document.addEventListener('DOMContentLoaded', function () {
   if (!window.supabaseClient) return;
 
   function updateNav(session) {
-    const link = document.querySelector('.nav-profile-link');
-    if (!link) return;
-    const avatar = link.querySelector('.nav-avatar');
-    const label = link.querySelector('.nav-login-text');
-    if (session && session.user) {
-      const meta = session.user.user_metadata || {};
-      const name = meta.full_name || session.user.email;
-      const initials = name.split(' ').map(function (n) { return n[0]; }).join('').toUpperCase().slice(0, 2);
-      avatar.innerHTML = '<span style="font-weight:700;font-size:0.8rem;color:#fff;">' + initials + '</span>';
-      label.textContent = name.split(' ')[0];
-      link.href = '/profile/';
-    } else {
-      avatar.innerHTML = '<i class="fas fa-user"></i>';
-      label.textContent = 'Sign In';
-      link.href = '/login/';
-    }
+    document.querySelectorAll('.nav-profile-link').forEach(function (link) {
+      const avatar = link.querySelector('.nav-avatar');
+      const label = link.querySelector('.nav-login-text');
+      if (!avatar || !label) return;
+      if (session && session.user) {
+        const meta = session.user.user_metadata || {};
+        const name = meta.full_name || session.user.email;
+        const initials = name.split(' ').map(function (n) { return n[0]; }).join('').toUpperCase().slice(0, 2);
+        avatar.innerHTML = '<span style="font-weight:700;font-size:0.8rem;color:#fff;">' + initials + '</span>';
+        label.textContent = name.split(' ')[0];
+        link.href = '/profile/';
+      } else {
+        avatar.innerHTML = '<i class="fas fa-user"></i>';
+        label.textContent = 'Sign In';
+        link.href = '/login/';
+      }
+    });
   }
 
   window.supabaseClient.auth.getSession().then(function (res) {
@@ -204,10 +243,11 @@ document.addEventListener('DOMContentLoaded', function () {
         .single()
         .then(function (result) {
           if (result.data && result.data.avatar_url) {
-            var link = document.querySelector('.nav-profile-link');
-            if (!link) return;
-            var avatar = link.querySelector('.nav-avatar');
-            avatar.innerHTML = '<img src="' + result.data.avatar_url + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">';
+            document.querySelectorAll('.nav-profile-link').forEach(function (link) {
+              var avatar = link.querySelector('.nav-avatar');
+              if (!avatar) return;
+              avatar.innerHTML = '<img src="' + result.data.avatar_url + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">';
+            });
           }
         });
     }

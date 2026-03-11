@@ -262,6 +262,19 @@
                                 <small style="color:#666;">Uncheck to show "Not Taking New Clients" on your profile and in search results.</small>
                             </div>
                             <div class="form-group">
+                                <label for="editStartingRate">Starting Rate</label>
+                                <select id="editStartingRate">
+                                    <option value="">Not specified</option>
+                                    <option value="Under $100/hr">Under $100/hr</option>
+                                    <option value="$100–$150/hr">$100–$150/hr</option>
+                                    <option value="$150–$200/hr">$150–$200/hr</option>
+                                    <option value="$200–$300/hr">$200–$300/hr</option>
+                                    <option value="$300+/hr">$300+/hr</option>
+                                    <option value="Custom Pricing">Custom Pricing</option>
+                                </select>
+                                <small style="color:#666;">Shown on your profile card and in search results.</small>
+                            </div>
+                            <div class="form-group">
                                 <label for="editBio">Artist Bio / Studio Description</label>
                                 <textarea id="editBio" rows="4" placeholder="Tell us about your art style and experience..."></textarea>
                             </div>
@@ -335,6 +348,23 @@
                         <div id="portfolioUploading" style="display:none; color:#888; font-size:0.88rem; margin-top:10px;">
                             <i class="fas fa-spinner fa-spin" style="margin-right:6px;"></i>Uploading...
                         </div>
+                    </div>
+
+                    <!-- Onboarding checklist (artists only) -->
+                    <div id="onboardingSection" style="display:none; margin-top:32px; padding-top:28px; border-top:1px solid #333;">
+                        <h2 style="font-size:1.1rem; margin:0 0 4px;">Profile Checklist</h2>
+                        <p style="color:#666; font-size:0.82rem; margin-bottom:12px;">Complete your profile to attract more clients.</p>
+                        <div style="background:#1e1e1e; border-radius:8px; overflow:hidden; margin-bottom:12px;">
+                            <div id="onboardingBar" style="height:5px; background:#C44040; width:0%; transition:width 0.4s ease;"></div>
+                        </div>
+                        <div id="onboardingList" style="display:flex; flex-direction:column; gap:8px;"></div>
+                    </div>
+
+                    <!-- Favorites (clients only) -->
+                    <div id="favoritesSection" style="display:none; margin-top:32px; padding-top:28px; border-top:1px solid #333;">
+                        <h2 style="font-size:1.1rem; margin:0 0 4px;">Saved Artists</h2>
+                        <p style="color:#666; font-size:0.82rem; margin-bottom:16px;">Artists you've saved from the browse page.</p>
+                        <div id="favoritesList"></div>
                     </div>
 
                     <!-- Inquiries (artists only) -->
@@ -546,6 +576,7 @@
                     document.getElementById('editPortfolio').value = profile.portfolio || '';
                     document.getElementById('editBio').value = profile.bio || '';
                     document.getElementById('acceptingBookings').checked = profile.accepting_bookings !== false;
+                    document.getElementById('editStartingRate').value = profile.starting_rate || '';
                     setSelectedPills('artistStylePills', profile.styles || []);
                 }
             } else {
@@ -580,8 +611,9 @@
                     const bio = document.getElementById('editBio').value.trim();
                     const styles = getSelectedPills('artistStylePills');
                     const accepting_bookings = document.getElementById('acceptingBookings').checked;
-                    Object.assign(updateData, { location, instagram_url, portfolio, bio, styles, accepting_bookings });
-                    Object.assign(profileUpdate, { location, instagram_url, portfolio, bio, styles, accepting_bookings });
+                    const starting_rate = document.getElementById('editStartingRate').value || null;
+                    Object.assign(updateData, { location, instagram_url, portfolio, bio, styles, accepting_bookings, starting_rate });
+                    Object.assign(profileUpdate, { location, instagram_url, portfolio, bio, styles, accepting_bookings, starting_rate });
                 } else {
                     const styles = getSelectedPills('clientStylePills');
                     updateData.preferred_styles = styles;
@@ -642,12 +674,90 @@
                 window.location.href = '/';
             });
 
-            // Portfolio + Inquiries sections (artists only)
+            // Artist-only sections
             if (userType === 'artist') {
                 document.getElementById('portfolioSection').style.display = 'block';
                 loadPortfolioImages();
+                document.getElementById('onboardingSection').style.display = 'block';
                 document.getElementById('inquiriesSection').style.display = 'block';
                 loadInquiries();
+                renderOnboarding(profile);
+            }
+
+            // Client-only sections
+            if (userType !== 'artist') {
+                document.getElementById('favoritesSection').style.display = 'block';
+                loadFavorites();
+            }
+
+            function renderOnboarding(p) {
+                const checks = [
+                    { label: 'Profile photo uploaded', done: !!(p && p.avatar_url) },
+                    { label: 'Bio written', done: !!(p && p.bio && p.bio.trim()) },
+                    { label: 'Location set', done: !!(p && p.location && p.location.trim()) },
+                    { label: 'Tattoo styles selected', done: !!(p && p.styles && p.styles.length > 0) },
+                    { label: 'Starting rate set', done: !!(p && p.starting_rate) },
+                    { label: 'Portfolio images uploaded', done: false } // updated after loadPortfolioImages
+                ];
+
+                const list = document.getElementById('onboardingList');
+                const bar = document.getElementById('onboardingBar');
+
+                // Check portfolio count
+                window.supabaseClient.from('portfolio_images').select('id', { count: 'exact', head: true })
+                    .eq('artist_id', user.id).then(function({ count }) {
+                        checks[5].done = count > 0;
+                        const doneCount = checks.filter(c => c.done).length;
+                        bar.style.width = Math.round((doneCount / checks.length) * 100) + '%';
+                        list.innerHTML = '';
+                        checks.forEach(function(c) {
+                            const row = document.createElement('div');
+                            row.style.cssText = 'display:flex;align-items:center;gap:10px;font-size:0.88rem;';
+                            row.innerHTML = `
+                                <i class="fas fa-${c.done ? 'check-circle' : 'circle'}" style="color:${c.done ? '#4CAF50' : '#444'};font-size:1rem;flex-shrink:0;"></i>
+                                <span style="color:${c.done ? '#ccc' : '#666'};">${c.label}</span>`;
+                            list.appendChild(row);
+                        });
+                    });
+            }
+
+            async function loadFavorites() {
+                const { data: favs } = await window.supabaseClient
+                    .from('favorites')
+                    .select('artist_id, profiles!favorites_artist_id_fkey(id, full_name, location, styles, avatar_url, accepting_bookings)')
+                    .eq('user_id', user.id);
+
+                const container = document.getElementById('favoritesList');
+                if (!favs || favs.length === 0) {
+                    container.innerHTML = '<p style="color:#666;font-size:0.9rem;">No saved artists yet. <a href="/artists/" style="color:#C44040;">Browse artists</a> and click the heart icon to save them.</p>';
+                    return;
+                }
+
+                container.innerHTML = '';
+                favs.forEach(function(fav) {
+                    const a = fav.profiles;
+                    if (!a) return;
+                    const name = a.full_name || 'Artist';
+                    const location = a.location || '';
+                    const styleLabel = a.styles && a.styles.length
+                        ? a.styles.slice(0, 2).map(s => s.charAt(0).toUpperCase() + s.slice(1).replace(/-/g, ' ')).join(', ')
+                        : 'Various Styles';
+                    const avatarHtml = a.avatar_url
+                        ? `<img src="${a.avatar_url}" style="width:48px;height:48px;border-radius:50%;object-fit:cover;flex-shrink:0;">`
+                        : `<div style="width:48px;height:48px;border-radius:50%;background:#C44040;display:flex;align-items:center;justify-content:center;font-size:1rem;font-weight:700;color:#fff;flex-shrink:0;">${name.split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2)}</div>`;
+
+                    const card = document.createElement('div');
+                    card.style.cssText = 'display:flex;align-items:center;gap:14px;background:#2a2a2a;border-radius:10px;padding:12px 14px;margin-bottom:10px;';
+                    card.innerHTML = `
+                        ${avatarHtml}
+                        <div style="flex:1;min-width:0;">
+                            <p style="font-weight:600;margin:0 0 2px;color:#f0f0f0;font-size:0.95rem;">${name}</p>
+                            <p style="color:#C44040;font-size:0.82rem;margin:0 0 2px;">${styleLabel}</p>
+                            ${location ? `<p style="color:#666;font-size:0.78rem;margin:0;"><i class="fas fa-map-marker-alt" style="margin-right:4px;"></i>${location}</p>` : ''}
+                        </div>
+                        <a href="/artist-profile/?id=${a.id}" class="button-primary" style="font-size:0.82rem;padding:7px 14px;flex-shrink:0;">View</a>`;
+                    container.appendChild(card);
+                });
             }
 
             async function loadInquiries() {

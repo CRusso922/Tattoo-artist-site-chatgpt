@@ -397,7 +397,7 @@
 
             const { data: artist, error } = await window.supabaseClient
                 .from('profiles')
-                .select('id, full_name, location, styles, bio, portfolio, avatar_url, phone, accepting_bookings, instagram_url')
+                .select('id, full_name, location, styles, bio, portfolio, avatar_url, phone, accepting_bookings, instagram_url, starting_rate')
                 .eq('id', artistId)
                 .eq('user_type', 'artist')
                 .single();
@@ -452,7 +452,8 @@
 
             // Booking form toggle
             const firstName = (artist.full_name || 'the artist').split(' ')[0];
-            document.getElementById('bookingFormDesc').textContent = 'Send ' + firstName + ' your tattoo idea and they\'ll get back to you directly.';
+            const rateText = artist.starting_rate ? ' · Starting at ' + artist.starting_rate : '';
+            document.getElementById('bookingFormDesc').innerHTML = 'Send ' + firstName + ' your tattoo idea and they\'ll get back to you directly.' + (rateText ? '<br><span style="color:#888;font-size:0.85rem;"><i class="fas fa-tag" style="margin-right:4px;color:#666;"></i>' + artist.starting_rate + '</span>' : '');
             document.getElementById('bookingToggleBtn').addEventListener('click', function() {
                 const card = document.getElementById('bookingFormCard');
                 const isVisible = card.style.display !== 'none';

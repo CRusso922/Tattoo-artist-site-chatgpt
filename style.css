@@ -1781,3 +1781,258 @@ footer .footer-bottom a:hover {
   from { opacity: 0; transform: translateY(-10px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+
+/* ============================================================
+   MOBILE IMPROVEMENTS
+   ============================================================ */
+
+/* --- Logo: shrink from 130px to 50px on mobile --- */
+@media (max-width: 768px) {
+  .logo img {
+    height: 50px !important;
+  }
+}
+
+
+/* --- Filter sidebar: collapsible toggle on mobile --- */
+.filters-mobile-toggle {
+  display: none;
+}
+
+@media (max-width: 992px) {
+  .filters-mobile-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 13px 16px;
+    background: #2a2a2a;
+    border: 1px solid #333;
+    border-radius: 10px;
+    color: #f0f0f0;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    box-sizing: border-box;
+    transition: background 0.2s, border-color 0.2s;
+    margin-bottom: 0;
+  }
+  .filters-mobile-toggle:hover,
+  .filters-sidebar.filters-open .filters-mobile-toggle {
+    background: #333;
+    border-color: #C44040;
+  }
+  .filters-toggle-chevron {
+    transition: transform 0.25s ease;
+    font-size: 0.9rem;
+    color: #888;
+  }
+  .filters-sidebar.filters-open .filters-toggle-chevron {
+    transform: rotate(180deg);
+    color: #C44040;
+  }
+  .filters-sidebar-inner {
+    display: none;
+    margin-top: 10px;
+  }
+  .filters-sidebar.filters-open .filters-sidebar-inner {
+    display: block;
+  }
+}
+
+@media (min-width: 993px) {
+  .filters-mobile-toggle { display: none !important; }
+  .filters-sidebar-inner { display: block !important; }
+}
+
+
+/* --- Touch target sizes --- */
+@media (max-width: 768px) {
+  .button-primary,
+  .button-secondary,
+  .cta-button {
+    min-height: 44px;
+    padding: 12px 22px;
+  }
+  .filter-pill {
+    padding: 8px 14px;
+    font-size: 0.84rem;
+  }
+  .back-to-top {
+    bottom: 20px;
+    right: 16px;
+    width: 42px;
+    height: 42px;
+  }
+}
+
+
+/* --- Hero CTA: full-width-ish on small phones --- */
+@media (max-width: 480px) {
+  .hero .button-primary {
+    display: block;
+    width: 100%;
+    max-width: 320px;
+    margin-left: auto;
+    margin-right: auto;
+    box-sizing: border-box;
+  }
+  .hero {
+    padding: 50px 16px;
+  }
+}
+
+
+/* --- Section padding: tighter on mobile --- */
+@media (max-width: 768px) {
+  .section-padding {
+    padding: 40px 16px !important;
+  }
+  .why-choose-us,
+  .how-it-works,
+  .testimonials,
+  .artist-cta-banner {
+    padding: 40px 16px;
+  }
+}
+
+
+/* --- Artist profile hero: compact on small screens --- */
+@media (max-width: 600px) {
+  .artist-profile-hero {
+    padding: 28px 0 20px;
+  }
+  .artist-hero-avatar {
+    width: 80px;
+    height: 80px;
+    font-size: 1.6rem;
+  }
+  .artist-hero-info h1 {
+    font-size: 1.5rem;
+  }
+  .artist-hero-actions {
+    gap: 8px;
+  }
+  .artist-hero-actions .button-primary,
+  .artist-hero-actions .button-secondary {
+    font-size: 0.88rem;
+    padding: 10px 16px;
+  }
+  .profile-card {
+    padding: 18px 16px;
+  }
+  .profile-body {
+    padding: 24px 0;
+  }
+}
+
+
+/* --- Artist results: 1 column on narrow phones --- */
+@media (max-width: 380px) {
+  .artist-results {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+/* --- Profile dashboard: stack header on mobile --- */
+@media (max-width: 500px) {
+  .profile-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+  }
+  .style-pills-select {
+    gap: 6px;
+  }
+  .style-pill-option {
+    padding: 7px 12px;
+    font-size: 0.82rem;
+  }
+}
+
+
+/* --- Forms: improve input sizing on mobile --- */
+@media (max-width: 768px) {
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    font-size: 16px; /* prevents iOS zoom on focus */
+  }
+  .signup-form {
+    padding: 24px 18px;
+  }
+}
+
+
+/* --- About/for-artists grids: 1 column on mobile --- */
+@media (max-width: 600px) {
+  .reasons-grid,
+  .steps-grid,
+  .testimonial-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+
+/* --- Unified mobile nav: suppress nav-right-actions as a separate panel --- */
+@media (max-width: 768px) {
+  /* Action items are cloned into nav-links-primary by JS; hide the originals */
+  .nav-right-actions,
+  .nav-right-actions.mobile-open {
+    display: none !important;
+    position: static !important;
+  }
+
+  /* Separator line between nav links and action items in the panel */
+  .nav-mobile-sep {
+    list-style: none;
+    border-top: 1px solid #555;
+    margin: 10px 0 6px;
+    padding: 0;
+  }
+
+  /* Each cloned action item */
+  .nav-mobile-action-item {
+    list-style: none;
+    padding: 0;
+  }
+
+  .nav-mobile-action-item .cta-button {
+    display: block;
+    text-align: center;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 1rem;
+    margin-bottom: 2px;
+  }
+
+  .nav-mobile-action-item .search-bar-container {
+    width: 100% !important;
+    margin: 4px 0;
+  }
+
+  .nav-mobile-action-item .nav-profile-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #ccc;
+    font-size: 1.1rem;
+    padding: 10px 0;
+    text-decoration: none;
+    border-bottom: 1px solid #555;
+  }
+
+  .nav-mobile-action-item .nav-profile-link:hover { color: #f0f0f0; }
+}
+
+/* Ensure mobile-only items are invisible on desktop */
+@media (min-width: 769px) {
+  .nav-mobile-sep,
+  .nav-mobile-action-item {
+    display: none !important;
+  }
+}
